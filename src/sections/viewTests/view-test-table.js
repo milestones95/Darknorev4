@@ -158,7 +158,7 @@ export const ViewTestTable = (props) => {
                             style={{
                               width:"100%",
                               fontSize: 12,
-                              backgroundColor: "#121212",
+                              backgroundColor: "#F9E9B9",
                               fontFamily:
                                 "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace"
 

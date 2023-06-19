@@ -100,6 +100,15 @@ export const items = [
     )
   },
   {
+    title: 'Test Steps Page',
+    path: '/testStepsPage',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
     title: 'CreateTests',
     path: '/createTests',
     icon: (

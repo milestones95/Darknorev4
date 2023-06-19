@@ -75,36 +75,64 @@ export const TestScenarios = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
+              {items.map((customer) => {
+                console.log(customer)
+                const createdAt = customer.createdAt;
+                const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
+                const isSelected = selected.includes(customer.testScenario);
+
+                return(
                     <TableRow
                       hover
                     >
                     <TableCell padding="checkbox">
                       <Checkbox
-                        checked={false}
-
+                        checked={isSelected}
+                        onChange={(event) => {
+                          if (event.target.checked) {
+                            onSelectOne?.(customer.testScenario);
+                          } else {
+                            onDeselectOne?.(customer.testScenario);
+                          }
+                        }}
                       />
                       </TableCell>
                       <TableCell>
                         <Typography>
-                          User enters a valid name and email address and submits the form successfully.
+                          {customer.testScenario}
                         </Typography>
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ background: scenioCellColor }}>
                         <Typography>
-                          Happy Path
+                          {customer.scenarioType}
                         </Typography>
                       </TableCell>
                       <TableCell>
-                          06/19/2023
+                          {customer.createdAt}
                       </TableCell>
                     </TableRow>
+                    )
+                    })}
               </TableBody>
             </Table>
           </Box>
         </Scrollbar>
         </Grid>
-        
       </Grid>
     </Card>
   );
+};
+
+TestScenarios.propTypes = {
+  count: PropTypes.number,
+  items: PropTypes.array,
+  onDeselectAll: PropTypes.func,
+  onDeselectOne: PropTypes.func,
+  onPageChange: PropTypes.func,
+  onRowsPerPageChange: PropTypes.func,
+  onSelectAll: PropTypes.func,
+  onSelectOne: PropTypes.func,
+  page: PropTypes.number,
+  rowsPerPage: PropTypes.number,
+  selected: PropTypes.array
 };

@@ -109,6 +109,15 @@ export const items = [
     )
   },
   {
+    title: 'Test Scenario Page',
+    path: '/testScenarioPage',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
     title: 'CreateTests',
     path: '/createTests',
     icon: (

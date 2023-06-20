@@ -41,19 +41,19 @@ export const TestsTable = (props) => {
         <Box sx={{ minWidth: 800 }}>
           <Table>
             <TableHead>
-              <TableRow>
+              <TableRow >
                 <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedAll}
-                    indeterminate={selectedSome}
-                    onChange={(event) => {
-                      if (event.target.checked) {
-                        onSelectAll?.();
-                      } else {
-                        onDeselectAll?.();
-                      }
-                    }}
-                  />
+                <Checkbox
+                  checked={selectedAll}
+                  indeterminate={selectedSome}
+                  onChange={(event) => {
+                    if (event.target.checked) {
+                      onSelectAll?.();
+                    } else {
+                      onDeselectAll?.();
+                    }
+                  }}
+                />
                 </TableCell>
                 <TableCell>
                   Name
@@ -64,26 +64,25 @@ export const TestsTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((customer) => {
-                const isSelected = selected.includes(customer.id);
-                const createdAt = format(customer.createdAt, 'MM/dd/yyyy');
+            {items.map((customer, i) => {
+
+              const createdAt = customer.createdAt;
+              const isSelected = selected.includes(customer.testScenario);
                 return (
                   <TableRow
-                    hover
-                    key={customer.id}
-                    selected={isSelected}
+                  selected={isSelected}
                   >
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isSelected}
-                        onChange={(event) => {
-                          if (event.target.checked) {
-                            onSelectOne?.(customer.id);
-                          } else {
-                            onDeselectOne?.(customer.id);
-                          }
-                        }}
-                      />
+                  <TableCell padding="checkbox">
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={(event) => {
+                        if (event.target.checked) {
+                          onSelectOne?.(customer.testScenario);
+                        } else {
+                          onDeselectOne?.(customer.testScenario);
+                        }
+                      }}
+                    />
                     </TableCell>
                     <TableCell>
                       <Stack
@@ -92,12 +91,12 @@ export const TestsTable = (props) => {
                         spacing={2}
                       >
                         <Typography variant="subtitle2">
-                          {customer.name}
+                          {customer.testScenario}
                         </Typography>
                       </Stack>
                     </TableCell>
                     <TableCell>
-                      {createdAt}
+                      {customer.creationDate}
                     </TableCell>
                   </TableRow>
                 );

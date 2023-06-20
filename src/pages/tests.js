@@ -30,7 +30,7 @@ const data = [
     creationDate: "06/19/2023"
   },
   {
-    testScenario: 'User enters a valid name and an invalid email address (e.g. missing '@' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
+    testScenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
     scenarioType: "Non-Happy Path",
     creationDate: "06/19/2023"
   },
@@ -100,32 +100,6 @@ const Page = () => {
                 <Typography variant="h4">
                   Tests
                 </Typography>
-                <Stack
-                  alignItems="center"
-                  direction="row"
-                  spacing={1}
-                >
-                  <Button
-                    color="inherit"
-                    startIcon={(
-                      <SvgIcon fontSize="small">
-                        <ArrowUpOnSquareIcon />
-                      </SvgIcon>
-                    )}
-                  >
-                    Run
-                  </Button>
-                  <Button
-                    color="inherit"
-                    startIcon={(
-                      <SvgIcon fontSize="small">
-                        <ArrowDownOnSquareIcon />
-                      </SvgIcon>
-                    )}
-                  >
-                    Delete
-                  </Button>
-                </Stack>
               </Stack>
               <div>
                 <Button

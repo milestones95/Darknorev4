@@ -20,11 +20,25 @@ import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import MenuItem from '@mui/material/MenuItem';
 
 export const TestSteps = (props) => {
 
+  const {
+    count = 0,
+    items = [],
+    onDeselectAll,
+    onDeselectOne,
+    onPageChange = () => {},
+    onRowsPerPageChange,
+    onSelectAll,
+    onSelectOne,
+    page = 0,
+    rowsPerPage = 0,
+    selected = []
+  } = props;
+
   return (
-    <Card>
     <Grid xs={12}>
       <Grid xs={12}>
         <Scrollbar>
@@ -38,17 +52,23 @@ export const TestSteps = (props) => {
                   <TableCell>
                     Test Step
                   </TableCell>
-                  <TableCell>
+                  <TableCell sx={{mr: 2}}>
                     Page
                   </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
+              {items.map((customer, i) => {
+                console.log(customer)
+                const createdAt = customer.createdAt;
+                const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
+                const isSelected = selected.includes(customer.testScenario);
+
+                return (
                     <TableRow
-                      hover
                     >
                       <TableCell>
-                        1
+                        {i + 1}
                       </TableCell>
                       <TableCell>
                         <TextField
@@ -56,34 +76,35 @@ export const TestSteps = (props) => {
                           id="outlined-required"
                           label="Test Step"
                           placeholder="Enter Test Step"
+                          multiline
+                          fullWidth
                         />
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{mr: 2}}>
                       <TextField
                         required
                         select
                         id="outlined-required"
                         label="Choose Page"
                         placeholder="Choose Page"
-                      />
+                        fullWidth
+                      >
+                        <MenuItem key="testpage1" value="testpage1">
+                              testpage1.com
+                        </MenuItem>
+                        <MenuItem key="testpage2" value="testpage2">
+                              testpage2.com
+                        </MenuItem>
+                      </TextField>
                       </TableCell>
                     </TableRow>
+                  )
+                })}
               </TableBody>
             </Table>
           </Box>
         </Scrollbar>
         </Grid>
-        <Grid xs={12}>
-            <Grid xs={12}>
-              <Button variant="text">
-              <Typography>
-                Add New Test Step   
-              </Typography>
-              <AddCircleIcon />
-              </Button>
-            </Grid>
-        </Grid>
       </Grid>
-    </Card>
   );
 };

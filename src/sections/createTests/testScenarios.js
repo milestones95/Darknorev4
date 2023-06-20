@@ -75,7 +75,7 @@ export const TestScenarios = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {items.map((customer) => {
+              {items.map((customer, i) => {
                 console.log(customer)
                 const createdAt = customer.createdAt;
                 const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"

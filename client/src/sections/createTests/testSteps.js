@@ -64,7 +64,6 @@ export const TestSteps = (props) => {
               {items.map((customer, i) => {
                 console.log(customer)
                 const createdAt = customer.createdAt;
-                const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
                 const isSelected = selected.includes(customer.testScenario);
                 return (
                     <TableRow
@@ -101,7 +100,7 @@ export const TestSteps = (props) => {
                       </TableCell>
                       <TableCell padding="checkbox">
                         <div align="center">
-                         <Button id={customer.id} onClick={event => handleRemove(event.target.id)}>
+                         <Button id={customer.id} onClick={event => handleRemove(event.currentTarget.id)}>
                           <CloseIcon />
                          </Button>
                         </div>

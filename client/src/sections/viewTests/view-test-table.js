@@ -148,30 +148,31 @@ export const ViewTestTable = (props) => {
                     </Button>
                   </TableCell>
                   </TableRow>
+                  <TableRow>
+                  <TableCell style={{ paddingBottom: 0, paddingTop: 0}} colSpan={3}>
                       <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                      <TableRow>
-                        <TableCell colSpan={3}>
-
-                        <div  align="right" style={{
+                        <div style={{
                           background: "#EBEDF1",
                         }}>
                           <Button variant="outlined" onClick={() => {navigator.clipboard.writeText(plainTextTestCase.current.value)}}>
                               Copy
                           </Button>
                         </div>
+                        <div style={{
+
+                        }}>
                         <TextField
                             id="outlined-multiline-static"
-                            label="Multiline"
+                            label="Plain English Test Case"
                             multiline
                             rows={4}
-                            defaultValue="Default Value"
-                            maxWidth
+                            sx={{width: "100%"}}
                             inputRef={plainTextTestCase}
                           />
-
-                            </TableCell>
-                          </TableRow>
+                        </div>
                     </Collapse>
+                    </TableCell>
+                  </TableRow>
             <TableRow>
               <TableCell>
                 <Stack
@@ -203,11 +204,11 @@ export const ViewTestTable = (props) => {
                     </Button>
                   </TableCell>
                   </TableRow>
+                  <TableRow>
+                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
                       <Collapse in={isOpen2} timeout="auto" unmountOnExit>
-                      <TableRow>
-                        <TableCell colSpan={3}>
                         <Box sx={{ margin: 1}}>
-                        <div  align="right" style={{
+                        <div align="right" style={{
                           background: "#EBEDF1",
                         }}>
                           <Button variant="outlined" onClick={() => {navigator.clipboard.writeText(code)}}>
@@ -222,20 +223,17 @@ export const ViewTestTable = (props) => {
                                 onChange={(evn) => setCode(evn.target.value)}
                                 padding={15}
                                 style={{
-
                                   fontSize: 12,
                                   backgroundColor: "#F9E9B9",
                                   fontFamily:
                                     "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace"
-
                                 }}
                                 fullWidth
                               />
                             </Box>
-                            </TableCell>
-                          </TableRow>
                     </Collapse>
-
+                    </TableCell>
+                  </TableRow>
             </TableBody>
           </Table>
         </Box>

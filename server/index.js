@@ -28,6 +28,7 @@ app.post("/api/createTestScenarios", async (req, res) => {
   console.log("data: " + JSON.stringify(data));
 
 
+
   const { data2, error2 } = await supabase
   .from('test_case')
   .insert([
@@ -46,14 +47,15 @@ console.log("data: " + JSON.stringify(data2));
   });
 
 app.get("/api/getTestScenarios", cors(), async (req, res) => {
-   
-    console.log("retrieved test scenarios");
-//     const {data, error} = await supabase
-//     .from('stories')
-//     .select('*')
-//     .eq('story_id', storyId)
-// return data
 
+  const { data, error } = await supabase
+  .from('test_case')
+  .select('*')
+
+
+    res.json({
+      tests: data
+      })
   });
 
   if (process.env.NODE_ENV === 'production') {

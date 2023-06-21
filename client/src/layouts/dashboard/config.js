@@ -10,11 +10,11 @@ import { SvgIcon } from '@mui/material';
 
 export const items = [
   {
-    title: 'Overview',
-    path: '/',
+    title: 'Tests',
+    path: '/tests',
     icon: (
       <SvgIcon fontSize="small">
-        <ChartBarIcon />
+        <UsersIcon />
       </SvgIcon>
     )
   },
@@ -24,33 +24,6 @@ export const items = [
     icon: (
       <SvgIcon fontSize="small">
         <UsersIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Companies',
-    path: '/companies',
-    icon: (
-      <SvgIcon fontSize="small">
-        <ShoppingBagIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Account',
-    path: '/account',
-    icon: (
-      <SvgIcon fontSize="small">
-        <UserIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Settings',
-    path: '/settings',
-    icon: (
-      <SvgIcon fontSize="small">
-        <CogIcon />
       </SvgIcon>
     )
   },
@@ -75,6 +48,42 @@ export const items = [
   {
     title: 'Error',
     path: '/404',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
+    title: 'View Test',
+    path: '/viewTest',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
+    title: 'Test Steps Page',
+    path: '/testStepsPage',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
+    title: 'Test Scenario Page',
+    path: '/testScenarioPage',
+    icon: (
+      <SvgIcon fontSize="small">
+        <XCircleIcon />
+      </SvgIcon>
+    )
+  },
+  {
+    title: 'CreateTests',
+    path: '/createTests',
     icon: (
       <SvgIcon fontSize="small">
         <XCircleIcon />

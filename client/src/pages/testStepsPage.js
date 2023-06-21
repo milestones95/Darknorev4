@@ -12,12 +12,12 @@ import { TestsSearch } from 'src/sections/viewTests/tests-search';
 import { applyPagination } from 'src/utils/apply-pagination';
 import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { v4 as uuidv4 } from 'uuid';
 
 const now = new Date();
 
-const data = [
-  {}, {}
-];
+
+const data = [{id: uuidv4()}, {id: uuidv4()}];
 
 const useCustomers = (page, rowsPerPage) => {
   return useMemo(
@@ -38,12 +38,7 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
-  const [testSteps, setTestSteps] = useState([{}, {}]);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const customers = useCustomers(page, rowsPerPage);
-  const customersIds = useCustomerIds(customers);
-  const customersSelection = useSelection(customersIds);
+  const [testSteps, setTestSteps] = useState([{id: uuidv4()}, {id: uuidv4()}]);
 
 
   const handlePageChange = useCallback(
@@ -61,8 +56,14 @@ const Page = () => {
   );
 
   function handleAddNewTestStep() {
-    const newTestSteps = testSteps.concat({});
+    const newTestSteps = testSteps.concat({id: uuidv4()});
     setTestSteps(newTestSteps)
+  }
+
+  function handleRemove(id) {
+    console.log(id)
+    const newList = testSteps.filter((item) => item.id !== id);
+    setTestSteps(newList);
   }
 
   return (
@@ -99,15 +100,7 @@ const Page = () => {
               <TestSteps
                 count={testSteps.length}
                 items={testSteps}
-                onDeselectAll={customersSelection.handleDeselectAll}
-                onDeselectOne={customersSelection.handleDeselectOne}
-                onPageChange={handlePageChange}
-                onRowsPerPageChange={handleRowsPerPageChange}
-                onSelectAll={customersSelection.handleSelectAll}
-                onSelectOne={customersSelection.handleSelectOne}
-                page={page}
-                rowsPerPage={rowsPerPage}
-                selected={customersSelection.selected}
+                handleRemove={handleRemove}
               />
               <Grid xs={12}>
                   <Grid xs={12}>
@@ -122,7 +115,9 @@ const Page = () => {
             </Card>
           </Stack>
           <div align="center">
-            <Button variant="contained" size="small" align="center" sx={{mt: 2}}>
+            <Button variant="contained" size="small" align="center" sx={{mt: 2}}
+               href="/viewTest"
+            >
               Add Test Steps
             </Button>
           </div>

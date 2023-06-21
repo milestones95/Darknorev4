@@ -107,12 +107,6 @@ const Page = () => {
                 <Typography variant="h4">
                   Test Name
                 </Typography>
-                <Stack
-                  alignItems="center"
-                  direction="row"
-                  spacing={1}
-                >
-                </Stack>
               </Stack>
               <div>
                 <Button
@@ -122,6 +116,7 @@ const Page = () => {
                     </SvgIcon>
                   )}
                   variant="contained"
+                  href="/createTests"
                 >
                   New Test
                 </Button>

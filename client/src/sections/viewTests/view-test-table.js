@@ -22,15 +22,15 @@ import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import Collapse from '@mui/material/Collapse';
 import { useState } from 'react';
 import Button from "@material-ui/core/Button";
-import React, { useRef, useEffect, Component } from 'react'
+import React, { useRef, Component } from 'react'
 import dynamic from "next/dynamic";
-// import "@uiw/react-textarea-code-editor/dist.css";
+import "@uiw/react-textarea-code-editor/dist.css";
 import Grid from '@mui/material/Grid';
 
-// const CodeEditor = dynamic(
-//   () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
-//   { ssr: false }
-// );
+const CodeEditor = dynamic(
+  () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
+  { ssr: false }
+);
 
 export const ViewTestTable = (props) => {
   const {
@@ -94,31 +94,7 @@ export const ViewTestTable = (props) => {
 
   const [ isOpen, setIsOpen ] = useState(false);
   const [ isOpen2, setIsOpen2 ] = useState(false);
-  const [ tests, setTests ] = useState([]);
 
-
-  useEffect(() => {
-    const fetchTests = async () => {
-      try {
-        console.log("i was clicked");
-        const response = await fetch("http://localhost:5000/api/getTestScenarios", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
-          
-          const data = await response.json();
-
-        setTests(data.tests);
-      } catch (error) {
-        console.error('Failed to fetch tests:', error);
-        setTests([]);
-      }
-    };
-
-    fetchTests();
-  }, []);
 
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component
 
@@ -238,7 +214,7 @@ export const ViewTestTable = (props) => {
                               Copy
                           </Button>
                         </div>
-                              {/* <CodeEditor
+                              <CodeEditor
                               component="div"
                                 value={code}
                                 language="csharp"
@@ -254,7 +230,7 @@ export const ViewTestTable = (props) => {
 
                                 }}
                                 fullWidth
-                              /> */}
+                              />
                             </Box>
                             </TableCell>
                           </TableRow>

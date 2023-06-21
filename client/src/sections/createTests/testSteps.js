@@ -15,14 +15,19 @@ import {
   Typography,
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
+import { getInitials } from 'src/utils/get-initials';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MenuItem from '@mui/material/MenuItem';
+import CloseIcon from '@mui/icons-material/Close';
 
 export const TestSteps = (props) => {
 
   const {
     count = 0,
+    handleRemove,
     items = [],
     onDeselectAll,
     onDeselectOne,
@@ -43,7 +48,7 @@ export const TestSteps = (props) => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell>
+                  <TableCell padding="checkbox">
                     Step
                   </TableCell>
                   <TableCell>
@@ -52,6 +57,7 @@ export const TestSteps = (props) => {
                   <TableCell sx={{mr: 2}}>
                     Page
                   </TableCell>
+                  <TableCell padding="checkbox" />
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -60,11 +66,10 @@ export const TestSteps = (props) => {
                 const createdAt = customer.createdAt;
                 const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
                 const isSelected = selected.includes(customer.testScenario);
-
                 return (
                     <TableRow
                     >
-                      <TableCell>
+                      <TableCell padding="checkbox">
                         {i + 1}
                       </TableCell>
                       <TableCell>
@@ -93,6 +98,13 @@ export const TestSteps = (props) => {
                               testpage2.com
                         </MenuItem>
                       </TextField>
+                      </TableCell>
+                      <TableCell padding="checkbox">
+                        <div align="center">
+                         <Button id={customer.id} onClick={event => handleRemove(event.target.id)}>
+                          <CloseIcon />
+                         </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   )

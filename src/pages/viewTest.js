@@ -122,6 +122,7 @@ const Page = () => {
                     </SvgIcon>
                   )}
                   variant="contained"
+                  href="/createTests"
                 >
                   New Test
                 </Button>

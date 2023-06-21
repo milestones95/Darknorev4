@@ -42,7 +42,7 @@ export const Layout = (props) => {
           >
             <Box
               component={NextLink}
-              href="/"
+              href="/tests"
               sx={{
                 display: 'inline-flex',
                 height: 32,

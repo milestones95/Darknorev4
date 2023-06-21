@@ -122,7 +122,9 @@ const Page = () => {
             </Card>
           </Stack>
           <div align="center">
-            <Button variant="contained" size="small" align="center" sx={{mt: 2}}>
+            <Button variant="contained" size="small" align="center" sx={{mt: 2}}
+               href="/viewTest"
+            >
               Add Test Steps
             </Button>
           </div>

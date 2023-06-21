@@ -147,7 +147,7 @@ export const TestInformation = () => {
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
           <Button variant="contained">
-            Next
+            Generate
           </Button>
         </CardActions>
       </Card>

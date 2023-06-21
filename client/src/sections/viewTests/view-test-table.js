@@ -107,7 +107,7 @@ export const ViewTestTable = (props) => {
               "Content-Type": "application/json",
             }
           });
-          
+
           const data = await response.json();
 
         setTests(data.tests);
@@ -129,137 +129,49 @@ export const ViewTestTable = (props) => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>
-                  Name
-                </TableCell>
-                <TableCell>
-                  Created Date
-                </TableCell>
-                <TableCell>
-                </TableCell>
+                <TableCell>Name</TableCell>
+                <TableCell>Created Date</TableCell>
+                <TableCell></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-
-            <TableRow>
-              <TableCell>
-                <Stack
-                    direction="row"
-                    spacing={2}
-                  >
-                  <Typography variant="subtitle2">
-                      Plain English Test Case
-                    </Typography>
-                  </Stack>
-                  </TableCell>
-                  <TableCell>
-                    11/12/1996
-                  </TableCell>
-                  <TableCell padding="checkbox">
-                    <Button
-                      onClick={() => {
-                        if (isOpen) {
-                          setIsOpen(false)
-                        }
-                        else {
-                          setIsOpen(true)
-                        }
-                      }
-                    }
-
-                    >
-                      {(isOpen) ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </Button>
-                  </TableCell>
+              {tests.map((test, index) => (
+                <React.Fragment key={index}>
+                  <TableRow>
+                    <TableCell>
+                      <Stack direction="row" spacing={2}>
+                        <Typography variant="subtitle2">{test.content}</Typography>
+                      </Stack>
+                    </TableCell>
+                    <TableCell>11/12/1996</TableCell>
+                    <TableCell padding="checkbox">
+                      <Button onClick={() => setIsOpen(!isOpen)}>
+                        {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                      <Collapse in={isOpen} timeout="auto" unmountOnExit>
-                      <TableRow>
-                        <TableCell colSpan={3}>
-
-                        <div  align="right" style={{
-                          background: "#EBEDF1",
-                        }}>
-                          <Button variant="outlined" onClick={() => {navigator.clipboard.writeText(plainTextTestCase.current.value)}}>
-                              Copy
+                  <Collapse in={isOpen} timeout="auto" unmountOnExit>
+                    <TableRow>
+                      <TableCell colSpan={3}>
+                        <div align="right" style={{ background: "#EBEDF1" }}>
+                          <Button variant="outlined" onClick={() => { navigator.clipboard.writeText(plainTextTestCase.current.value) }}>
+                            Copy
                           </Button>
                         </div>
                         <TextField
-                            id="outlined-multiline-static"
-                            label="Multiline"
-                            multiline
-                            rows={4}
-                            defaultValue="Default Value"
-                            maxWidth
-                            inputRef={plainTextTestCase}
-                          />
-
-                            </TableCell>
-                          </TableRow>
-                    </Collapse>
-            <TableRow>
-              <TableCell>
-                <Stack
-                    direction="row"
-                    spacing={2}
-                  >
-                  <Typography variant="subtitle2">
-                      Automated Test Case
-                    </Typography>
-                  </Stack>
-                  </TableCell>
-                  <TableCell>
-                    11/12/1996
-                  </TableCell>
-                  <TableCell padding="checkbox">
-                    <Button
-                      onClick={() => {
-                        if (isOpen2) {
-                          setIsOpen2(false)
-                        }
-                        else {
-                          setIsOpen2(true)
-                        }
-                      }
-                    }
-
-                    >
-                      {(isOpen2) ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </Button>
-                  </TableCell>
-                  </TableRow>
-                      <Collapse in={isOpen2} timeout="auto" unmountOnExit>
-                      <TableRow>
-                        <TableCell colSpan={3}>
-                        <Box sx={{ margin: 1}}>
-                        <div  align="right" style={{
-                          background: "#EBEDF1",
-                        }}>
-                          <Button variant="outlined" onClick={() => {navigator.clipboard.writeText(code)}}>
-                              Copy
-                          </Button>
-                        </div>
-                              {/* <CodeEditor
-                              component="div"
-                                value={code}
-                                language="csharp"
-                                placeholder="Please enter C# code."
-                                onChange={(evn) => setCode(evn.target.value)}
-                                padding={15}
-                                style={{
-
-                                  fontSize: 12,
-                                  backgroundColor: "#F9E9B9",
-                                  fontFamily:
-                                    "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace"
-
-                                }}
-                                fullWidth
-                              /> */}
-                            </Box>
-                            </TableCell>
-                          </TableRow>
-                    </Collapse>
-
+                          id="outlined-multiline-static"
+                          label="Multiline"
+                          multiline
+                          rows={4}
+                          defaultValue="Default Value"
+                          maxWidth
+                          inputRef={plainTextTestCase}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </Collapse>
+                </React.Fragment>
+              ))}
             </TableBody>
           </Table>
         </Box>

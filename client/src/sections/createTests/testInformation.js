@@ -74,45 +74,33 @@ export const TestInformation = () => {
               container
             >
             <Grid
-              xs={7}
+              xs={6}
             >
-                <Grid
-                  xs={8}
-                >
-                  <TextField
-                    fullWidth
-                    label="User Story Name"
-                    name="User Story Name"
-                    required
+                  <Grid
+                    xs={8}
+                  >
+                    <TextField
+                      fullWidth
+                      label="User Story Name"
+                      name="User Story Name"
+                      required
 
-                  />
+                    />
+                  </Grid>
+                  <Grid
+                    xs={8}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Base URL"
+                      name="Base URL"
+                      required
+                      placeholder="https://"
+                    />
+                  </Grid>
                 </Grid>
-                <Grid
-                  xs={8}
-                >
-                  <TextField
-                    fullWidth
-                    label="Protocol"
-                    name="Protocol"
-                    placeholder="https://"
-                    required
-                    select
-                  />
-                </Grid>
-                <Grid
-                  xs={8}
-                >
-                  <TextField
-                    fullWidth
-                    label="Base URL"
-                    name="Base URL"
-                    required
-                    placeholder="https://"
-                  />
-                </Grid>
-              </Grid>
               <Grid
-                xs={5}
+                xs={6}
               >
                 <Grid
                   xs={12}

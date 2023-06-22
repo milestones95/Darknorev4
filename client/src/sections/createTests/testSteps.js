@@ -62,9 +62,6 @@ export const TestSteps = (props) => {
               </TableHead>
               <TableBody>
               {items.map((customer, i) => {
-                console.log(customer)
-                const createdAt = customer.createdAt;
-                const isSelected = selected.includes(customer.testScenario);
                 return (
                     <TableRow
                     >
@@ -99,11 +96,11 @@ export const TestSteps = (props) => {
                       </TextField>
                       </TableCell>
                       <TableCell padding="checkbox">
-                        <div align="center">
-                         <Button id={customer.id} onClick={event => handleRemove(event.currentTarget.id)}>
+
+                         <Button id={customer.id} onClick={() => handleRemove(customer.id)}>
                           <CloseIcon />
                          </Button>
-                        </div>
+
                       </TableCell>
                     </TableRow>
                   )

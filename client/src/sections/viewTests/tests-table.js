@@ -12,10 +12,18 @@ import {
   TableHead,
   TablePagination,
   TableRow,
+  TextField,
   Typography
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
 import { getInitials } from 'src/utils/get-initials';
+import { ViewTestTable } from 'src/sections/viewTests/view-test-table';
+import Collapse from '@mui/material/Collapse';
+import { useState } from 'react';
+import Button from "@material-ui/core/Button";
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
+import React, { useRef, Component } from 'react'
 
 export const TestsTable = (props) => {
   const {
@@ -35,26 +43,18 @@ export const TestsTable = (props) => {
   const selectedSome = (selected.length > 0) && (selected.length < items.length);
   const selectedAll = (items.length > 0) && (selected.length === items.length);
 
+  const [ isOpen, setIsOpen ] = useState(false);
+  const [ isOpen2, setIsOpen2 ] = useState(false);
+  const [ isOpen3, setIsOpen3 ] = useState(false);
+  const plainTextTestCase = useRef('') //creating a refernce for TextField Component
+
   return (
     <Card>
       <Scrollbar>
         <Box sx={{ minWidth: 800 }}>
           <Table>
             <TableHead>
-              <TableRow >
-                <TableCell padding="checkbox">
-                <Checkbox
-                  checked={selectedAll}
-                  indeterminate={selectedSome}
-                  onChange={(event) => {
-                    if (event.target.checked) {
-                      onSelectAll?.();
-                    } else {
-                      onDeselectAll?.();
-                    }
-                  }}
-                />
-                </TableCell>
+              <TableRow>
                 <TableCell>
                   Name
                 </TableCell>
@@ -64,32 +64,11 @@ export const TestsTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-            {items.map((customer, i) => {
-
-              const createdAt = customer.createdAt;
-              const isSelected = selected.includes(customer.testScenario);
+              {items.map((customer) => {
                 return (
-                  <TableRow
-                  selected={isSelected}
-                  >
-                  <TableCell padding="checkbox">
-                    <Checkbox
-                      checked={isSelected}
-                      onChange={(event) => {
-                        if (event.target.checked) {
-                          onSelectOne?.(customer.testScenario);
-                        } else {
-                          onDeselectOne?.(customer.testScenario);
-                        }
-                      }}
-                    />
-                    </TableCell>
+                  <TableRow>
                     <TableCell>
-                      <Stack
-                        alignItems="center"
-                        direction="row"
-                        spacing={2}
-                      >
+                      <Stack alignItems="center" direction="row" spacing={2}>
                         <Typography variant="subtitle2">
                           {customer.testScenario}
                         </Typography>

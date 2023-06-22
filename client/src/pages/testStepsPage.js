@@ -14,55 +14,19 @@ import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { v4 as uuidv4 } from 'uuid';
 
-const now = new Date();
-
-
-const data = [{id: uuidv4()}, {id: uuidv4()}];
-
-const useCustomers = (page, rowsPerPage) => {
-  return useMemo(
-    () => {
-      return applyPagination(data, page, rowsPerPage);
-    },
-    [page, rowsPerPage]
-  );
-};
-
-const useCustomerIds = (customers) => {
-  return useMemo(
-    () => {
-      return customers.map((customer) => customer.id);
-    },
-    [customers]
-  );
-};
 
 const Page = () => {
-  const [testSteps, setTestSteps] = useState([{id: uuidv4()}, {id: uuidv4()}]);
-
-
-  const handlePageChange = useCallback(
-    (event, value) => {
-      setPage(value);
-    },
-    []
-  );
-
-  const handleRowsPerPageChange = useCallback(
-    (event) => {
-      setRowsPerPage(event.target.value);
-    },
-    []
-  );
+  const [testSteps, setTestSteps] = useState([{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]);
 
   function handleAddNewTestStep() {
-    const newTestSteps = testSteps.concat({id: uuidv4()});
+    const newTestSteps = testSteps.concat({id: uuidv4(), text:""});
     setTestSteps(newTestSteps)
   }
 
   function handleRemove(id) {
     console.log(id)
     const newList = testSteps.filter((item) => item.id !== id);
+    console.log(newList)
     setTestSteps(newList);
   }
 

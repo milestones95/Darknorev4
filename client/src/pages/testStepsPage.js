@@ -18,14 +18,16 @@ import { v4 as uuidv4 } from 'uuid';
 const Page = () => {
   const [testSteps, setTestSteps] = useState([{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]);
   const [scenarios, setScenarios] = useState([
-      {"scenario": "User enters a valid name and email address and submits the form successfully."},
-      {"scenario": "User does not enters a valid name and email address and submits the form successfully."},
-      {"scenario": "User does not enters a valid name and phone number and submits the form successfully."},
+      {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]}
   ])
 
-  function handleAddNewTestStep() {
-    const newTestSteps = testSteps.concat({id: uuidv4(), text:""});
-    setTestSteps(newTestSteps)
+  function handleAddNewTestStep(scenario) {
+    const newTestSteps = scenario.testSteps.concat({id: uuidv4(), text:""});
+    const newScenario = {id: scenario.id, "scenario": scenario.scenario, "testSteps": newTestSteps}
+    const getOtherScenarios = scenarios.filter((item) => item.id !== scenario.id);
+    setScenarios(getOtherScenarios.concat(newScenario))
   }
 
   function handleRemove(id) {
@@ -69,8 +71,8 @@ const Page = () => {
                       Scenario {i + 1} - {scenario.scenario}
                     </Typography>
                   <TestSteps
-                    count={testSteps.length}
-                    items={testSteps}
+                    count={scenario.testSteps.length}
+                    scenario={scenario}
                     handleRemove={handleRemove}
                     handleAddNewTestStep={handleAddNewTestStep}
                     scenarios={scenarios}

@@ -85,7 +85,6 @@ export const TestSteps = (props) => {
     count = 0,
     handleRemove,
     handleAddNewTestStep,
-    items = [],
     onDeselectAll,
     onDeselectOne,
     onPageChange = () => {},
@@ -94,6 +93,7 @@ export const TestSteps = (props) => {
     onSelectOne,
     page = 0,
     rowsPerPage = 0,
+    scenario,
     selected = []
   } = props;
 
@@ -118,7 +118,7 @@ export const TestSteps = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {items.map((customer, i) => {
+              {scenario.testSteps.map((customer, i) => {
                 return (
                   <Row
                     customer={customer}
@@ -134,7 +134,7 @@ export const TestSteps = (props) => {
         </Grid>
         <Grid xs={12}>
             <Grid xs={12}>
-              <Button variant="text" onClick={props.handleAddNewTestStep}>
+              <Button variant="text" onClick={() => props.handleAddNewTestStep(scenario)}>
               <Typography>
                 Add New Test Step
               </Typography>

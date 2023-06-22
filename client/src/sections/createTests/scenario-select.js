@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 
 export const SelectScenario = (props) => (
       <TextField
-      defaultValue=""
+      defaultValue="All"
       fullWidth
       select
       label="Select Scenario type "

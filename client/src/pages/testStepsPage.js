@@ -65,17 +65,8 @@ const Page = () => {
                 count={testSteps.length}
                 items={testSteps}
                 handleRemove={handleRemove}
+                handleAddNewTestStep={handleAddNewTestStep}
               />
-              <Grid xs={12}>
-                  <Grid xs={12}>
-                    <Button variant="text" onClick={handleAddNewTestStep}>
-                    <Typography>
-                      Add New Test Step
-                    </Typography>
-                    <AddCircleIcon sx={{ ml: 1 }}/>
-                    </Button>
-                  </Grid>
-              </Grid>
             </Card>
           </Stack>
           <div align="center">

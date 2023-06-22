@@ -22,12 +22,69 @@ import Button from '@mui/material/Button';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MenuItem from '@mui/material/MenuItem';
 import CloseIcon from '@mui/icons-material/Close';
+import React, { useRef, useEffect, Component } from 'react'
+
+function Row(props) {
+
+  return (
+    <React.Fragment key={props.index}>
+        <TableRow>
+          <TableCell padding="checkbox">
+            {props.index + 1}
+          </TableCell>
+          <TableCell>
+            <TextField
+              required
+              id="outlined-required"
+              label="Test Step"
+              placeholder="Enter Test Step"
+              multiline
+              fullWidth
+            />
+          </TableCell>
+          <TableCell sx={{mr: 2}}>
+          <TextField
+            required
+            select
+            id="outlined-required"
+            label="Choose Page"
+            placeholder="Choose Page"
+            fullWidth
+          >
+            <MenuItem key="testpage1" value="testpage1">
+                  testpage1.com
+            </MenuItem>
+            <MenuItem key="testpage2" value="testpage2">
+                  testpage2.com
+            </MenuItem>
+          </TextField>
+          </TableCell>
+          <TableCell padding="checkbox">
+             <Button id={props.customer.id} onClick={event => props.handleRemove(event.currentTarget.id)}>
+              <CloseIcon />
+             </Button>
+          </TableCell>
+        </TableRow>
+    </React.Fragment>
+  )
+}
+
+Row.propTypes = {
+  customer: PropTypes.arrayOf(
+     PropTypes.shape({
+       id: PropTypes.number.isRequired,
+     }),
+   ).isRequired,
+   index: PropTypes.number.isRequired,
+};
+
 
 export const TestSteps = (props) => {
 
   const {
     count = 0,
     handleRemove,
+    handleAddNewTestStep,
     items = [],
     onDeselectAll,
     onDeselectOne,
@@ -63,52 +120,27 @@ export const TestSteps = (props) => {
               <TableBody>
               {items.map((customer, i) => {
                 return (
-                    <TableRow
-                    >
-                      <TableCell padding="checkbox">
-                        {i + 1}
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          required
-                          id="outlined-required"
-                          label="Test Step"
-                          placeholder="Enter Test Step"
-                          multiline
-                          fullWidth
-                        />
-                      </TableCell>
-                      <TableCell sx={{mr: 2}}>
-                      <TextField
-                        required
-                        select
-                        id="outlined-required"
-                        label="Choose Page"
-                        placeholder="Choose Page"
-                        fullWidth
-                      >
-                        <MenuItem key="testpage1" value="testpage1">
-                              testpage1.com
-                        </MenuItem>
-                        <MenuItem key="testpage2" value="testpage2">
-                              testpage2.com
-                        </MenuItem>
-                      </TextField>
-                      </TableCell>
-                      <TableCell padding="checkbox">
-
-                         <Button id={customer.id} onClick={() => handleRemove(customer.id)}>
-                          <CloseIcon />
-                         </Button>
-
-                      </TableCell>
-                    </TableRow>
+                  <Row
+                    customer={customer}
+                    index={i}
+                    handleRemove={handleRemove}
+                  />
                   )
                 })}
               </TableBody>
             </Table>
           </Box>
         </Scrollbar>
+        </Grid>
+        <Grid xs={12}>
+            <Grid xs={12}>
+              <Button variant="text" onClick={props.handleAddNewTestStep}>
+              <Typography>
+                Add New Test Step
+              </Typography>
+              <AddCircleIcon sx={{ ml: 1 }}/>
+              </Button>
+            </Grid>
         </Grid>
       </Grid>
   );

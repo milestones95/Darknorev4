@@ -2,14 +2,15 @@ import MagnifyingGlassIcon from '@heroicons/react/24/solid/MagnifyingGlassIcon';
 import { Card, InputAdornment, OutlinedInput, SvgIcon } from '@mui/material';
 import TextField from '@mui/material/TextField';
 import MenuItem from '@mui/material/MenuItem';
+import PropTypes from 'prop-types';
 
-export const SelectScenario = () => (
-    <TextField
+export const SelectScenario = (props) => (
+      <TextField
       defaultValue=""
       fullWidth
       select
       label="Select Scenario type "
-
+      onChange={event => props.setDisplayedScenarios(event.target.value)}
       sx={{ maxWidth: 500 }}
     >
     <MenuItem key="All" value="All">
@@ -23,3 +24,7 @@ export const SelectScenario = () => (
       </MenuItem>
     </TextField>
 );
+
+SelectScenario.propTypes = {
+   setDisplayedScenarios: PropTypes.string.isRequired,
+};

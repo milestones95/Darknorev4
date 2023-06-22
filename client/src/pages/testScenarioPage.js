@@ -56,6 +56,7 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
+  const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const customers = useCustomers(page, rowsPerPage);
@@ -102,7 +103,9 @@ const Page = () => {
                 </Typography>
               </Stack>
             </Stack>
-            <SelectScenario />
+            <SelectScenario
+              setDisplayedScenarios={setDisplayedScenarios}
+            />
             <TestScenarios
               count={data.length}
               items={customers}
@@ -115,6 +118,7 @@ const Page = () => {
               page={page}
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}
+              displayedScenarios={displayedScenarios}
             />
           </Stack>
           <div align="center">

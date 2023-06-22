@@ -146,8 +146,8 @@ export const TestInformation = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained">
-            Generate
+          <Button variant="contained" href="/testStepsPage">
+            Next
           </Button>
         </CardActions>
       </Card>

@@ -118,7 +118,9 @@ const Page = () => {
             />
           </Stack>
           <div align="center">
-            <Button variant="contained" size="small" align="center" sx={{ mt: 2}}>
+            <Button variant="contained" size="small" align="center" sx={{ mt: 2}}
+              href="/testStepsPage"
+            >
               Next
             </Button>
           </div>

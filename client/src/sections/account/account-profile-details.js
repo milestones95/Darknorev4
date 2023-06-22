@@ -50,23 +50,18 @@ export const AccountProfileDetails = () => {
     []
   );
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = useCallback(
+    (event) => {
       event.preventDefault();
-      console.log("i was clicked");
-      const response = await fetch("http://localhost:5000/api/createTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ hola: "" }),
-      });
-    };
+    },
+    []
+  );
 
   return (
     <form
       autoComplete="off"
       noValidate
-      // onSubmit={handleSubmit}
+      onSubmit={handleSubmit}
     >
       <Card>
         <CardHeader
@@ -174,8 +169,8 @@ export const AccountProfileDetails = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" onClick={handleSubmit}> 
-            Blah details
+          <Button variant="contained">
+            Save details
           </Button>
         </CardActions>
       </Card>

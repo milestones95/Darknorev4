@@ -24,7 +24,7 @@ import { useState } from 'react';
 import Button from "@material-ui/core/Button";
 import React, { useRef, useEffect, Component } from 'react'
 import dynamic from "next/dynamic";
-// import "@uiw/react-textarea-code-editor/dist.css";
+import "@uiw/react-textarea-code-editor/dist.css";
 import Grid from '@mui/material/Grid';
 
 const CodeEditor = dynamic(
@@ -38,47 +38,18 @@ function Row(props) {
   const [ isOpen2, setIsOpen2 ] = useState(false);
   const [ isOpen3, setIsOpen3 ] = useState(false);
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component
-  const [code, setCode] = React.useState(
-      `/*
-        * C# Program to Display All the Prime Numbers Between 1 to 100
-        */
-
-        using System;
-        using System.Collections.Generic;
-        using System.Linq;
-        using System.Text;
-
-        namespace VS
-        {
-          class Program
-          {
+  const [code, setCode] = React.useState(`
+    // Hello World! program
+    namespace HelloWorld
+    {
+        class Hello {
             static void Main(string[] args)
             {
-              bool isPrime = true;
-              Console.WriteLine("Prime Numbers : ");
-              for (int i = 2; i <= 100; i++)
-              {
-                for (int j = 2; j <= 100; j++)
-                {
-                  if (i != j && i % j == 0)
-                  {
-                    isPrime = false;
-                    break;
-                  }
-                }
-
-                if (isPrime)
-                {
-                  Console.Write("\t" +i);
-                }
-                isPrime = true;
-              }
-              Console.ReadKey();
+                System.Console.WriteLine("Hello World!");
             }
-          }
         }
-        `
-    );
+    }
+  `);
   return (
     <React.Fragment key={props.index}>
       <TableRow>
@@ -160,8 +131,8 @@ function Row(props) {
                             Copy
                         </Button>
                         </div>
-                            <CodeEditor
-                            component="div"
+                        <CodeEditor
+                        component="div"
                               value={code}
                               language="csharp"
                               placeholder="Please enter C# code."

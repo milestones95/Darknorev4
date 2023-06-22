@@ -35,7 +35,8 @@ export const TestScenarios = (props) => {
     onSelectOne,
     page = 0,
     rowsPerPage = 0,
-    selected = []
+    selected = [],
+    scenarios
   } = props;
 
   const selectedSome = (selected.length > 0) && (selected.length < items.length);

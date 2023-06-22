@@ -119,6 +119,7 @@ const Page = () => {
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}
               displayedScenarios={displayedScenarios}
+              scenarios={scenarios}
             />
           </Stack>
           <div align="center">

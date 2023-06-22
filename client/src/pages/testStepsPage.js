@@ -17,6 +17,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 const Page = () => {
   const [testSteps, setTestSteps] = useState([{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]);
+  const [scenarios, setScenarios] = useState([
+      {"scenario": "User enters a valid name and email address and submits the form successfully."},
+      {"scenario": "User does not enters a valid name and email address and submits the form successfully."},
+      {"scenario": "User does not enters a valid name and phone number and submits the form successfully."},
+  ])
 
   function handleAddNewTestStep() {
     const newTestSteps = testSteps.concat({id: uuidv4(), text:""});
@@ -57,17 +62,22 @@ const Page = () => {
                 </Typography>
               </Stack>
             </Stack>
-            <Card sx={{ p: 2 }}>
-                <Typography sx={{ mb: 2 }}>
-                  Scenario 1 - User enters a valid name and email address and submits the form successfully.
-                </Typography>
-              <TestSteps
-                count={testSteps.length}
-                items={testSteps}
-                handleRemove={handleRemove}
-                handleAddNewTestStep={handleAddNewTestStep}
-              />
-            </Card>
+            {scenarios.map((scenario, i) => {
+              return (
+                <Card sx={{ p: 2 }}>
+                    <Typography sx={{ mb: 2 }}>
+                      Scenario {i + 1} - {scenario.scenario}
+                    </Typography>
+                  <TestSteps
+                    count={testSteps.length}
+                    items={testSteps}
+                    handleRemove={handleRemove}
+                    handleAddNewTestStep={handleAddNewTestStep}
+                    scenarios={scenarios}
+                  />
+                </Card>
+              )
+            })}
           </Stack>
           <div align="center">
             <Button variant="contained" size="small" align="center" sx={{mt: 2}}

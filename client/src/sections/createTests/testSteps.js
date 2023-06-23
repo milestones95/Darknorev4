@@ -23,12 +23,13 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MenuItem from '@mui/material/MenuItem';
 import CloseIcon from '@mui/icons-material/Close';
 import React, { useRef, useEffect, Component } from 'react'
+import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
 
   return (
-    <React.Fragment key={props.index}>
-        <TableRow>
+    <React.Fragment>
+        <TableRow key={uuidv4()}>
           <TableCell padding="checkbox">
             {props.index + 1}
           </TableCell>
@@ -39,6 +40,7 @@ function Row(props) {
               label="Test Step"
               placeholder="Enter Test Step"
               multiline
+              defaultValue={props.customer.id}
               fullWidth
             />
           </TableCell>
@@ -60,7 +62,7 @@ function Row(props) {
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
-             <Button id={props.customer.id} onClick={event => props.handleRemove(event.currentTarget.id)}>
+             <Button id={props.customer.id} onClick={() => props.handleRemove(props.indexOfScenarioArray, props.customer.id)}>
               <CloseIcon />
              </Button>
           </TableCell>
@@ -76,6 +78,7 @@ Row.propTypes = {
      }),
    ).isRequired,
    index: PropTypes.number.isRequired,
+   indexOfScenarioArray: PropTypes.number.isRequired,
 };
 
 
@@ -84,6 +87,7 @@ export const TestSteps = (props) => {
   const {
     count = 0,
     handleRemove,
+    indexOfScenarioArray,
     handleAddNewTestStep,
     onDeselectAll,
     onDeselectOne,
@@ -124,6 +128,7 @@ export const TestSteps = (props) => {
                     customer={customer}
                     index={i}
                     handleRemove={handleRemove}
+                    indexOfScenarioArray={indexOfScenarioArray}
                   />
                   )
                 })}
@@ -134,7 +139,7 @@ export const TestSteps = (props) => {
         </Grid>
         <Grid xs={12}>
             <Grid xs={12}>
-              <Button variant="text" onClick={() => props.handleAddNewTestStep(scenario)}>
+              <Button variant="text" onClick={() => props.handleAddNewTestStep(indexOfScenarioArray)}>
               <Typography>
                 Add New Test Step
               </Typography>

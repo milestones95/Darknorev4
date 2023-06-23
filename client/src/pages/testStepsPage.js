@@ -23,18 +23,18 @@ const Page = () => {
       {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]}
   ])
 
-  function handleAddNewTestStep(scenario) {
-    const newTestSteps = scenario.testSteps.concat({id: uuidv4(), text:""});
-    const newScenario = {id: scenario.id, "scenario": scenario.scenario, "testSteps": newTestSteps}
-    const getOtherScenarios = scenarios.filter((item) => item.id !== scenario.id);
-    setScenarios(getOtherScenarios.concat(newScenario))
+  function handleAddNewTestStep(index) {
+    const updatedScenarios = [...scenarios];
+    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text:""})
+    updatedScenarios[index].testSteps = updatedTestSteps
+    setScenarios(updatedScenarios)
   }
 
-  function handleRemove(id) {
-    console.log(id)
-    const newList = testSteps.filter((item) => item.id !== id);
-    console.log(newList)
-    setTestSteps(newList);
+  function handleRemove(index, id) {
+    const updatedScenarios = [...scenarios];
+    const updatedTestSteps = updatedScenarios[index].testSteps.filter((item) => item.id !== id);
+    updatedScenarios[index].testSteps = updatedTestSteps
+    setScenarios(updatedScenarios)
   }
 
   return (
@@ -76,6 +76,7 @@ const Page = () => {
                     handleRemove={handleRemove}
                     handleAddNewTestStep={handleAddNewTestStep}
                     scenarios={scenarios}
+                    indexOfScenarioArray={i}
                   />
                 </Card>
               )

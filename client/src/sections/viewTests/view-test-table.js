@@ -143,7 +143,7 @@ export const ViewTestTable = (props) => {
                         <Typography variant="subtitle2">{test.content}</Typography>
                       </Stack>
                     </TableCell>
-                    <TableCell>11/12/1996</TableCell>
+                    <TableCell>{test.created_datetime}</TableCell>
                     <TableCell padding="checkbox">
                       <Button onClick={() => setIsOpen(!isOpen)}>
                         {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}

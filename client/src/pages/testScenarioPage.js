@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
@@ -37,14 +38,7 @@ const data = [
   },
 ];
 
-const useCustomers = (page, rowsPerPage) => {
-  return useMemo(
-    () => {
-      return applyPagination(data, page, rowsPerPage);
-    },
-    [page, rowsPerPage]
-  );
-};
+
 
 const useCustomerIds = (customers) => {
   return useMemo(
@@ -57,11 +51,56 @@ const useCustomerIds = (customers) => {
 
 const Page = () => {
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
+
+
+  const router = useRouter();
+
+  console.log(router.query.response)
+  const response = JSON.parse(router.query.response || '{}');
+  console.log(response)
+
+  const breakupJson = response.result.content.split("\n");
+  const removeSpaces = breakupJson.filter((item) => item !== '');
+  const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
+  var scenarios = removeTestScenarioTest
+
+  const useScenarios = (page, rowsPerPage) => {
+    return useMemo(
+      () => {
+        return applyPagination(scenarios, page, rowsPerPage);
+      },
+      [page, rowsPerPage]
+    );
+  };
+
+  const handleSaveTests = async (event) => {
+    event.preventDefault();
+
+    const selectedItems = customersSelection.selected.map((selection) => {
+      return { content: selection };
+    });
+
+      // Send the API request
+      const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(selectedItems),
+      });
+
+      if (response.ok) {
+        router.push('/');
+      } else {
+        // Handle the error case
+        console.log('API request failed');
+      }
+
+  }
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const customers = useCustomers(page, rowsPerPage);
-  const customersIds = useCustomerIds(customers);
-  const customersSelection = useSelection(customersIds);
+  const scenarioList = useScenarios(page, rowsPerPage);
+  const customersSelection = useSelection(scenarioList);
   const handlePageChange = useCallback(
     (event, value) => {
       setPage(value);
@@ -75,6 +114,8 @@ const Page = () => {
     },
     []
   );
+
+
 
   return (
     <>
@@ -108,7 +149,7 @@ const Page = () => {
             />
             <TestScenarios
               count={data.length}
-              items={customers}
+              items={scenarioList}
               onDeselectAll={customersSelection.handleDeselectAll}
               onDeselectOne={customersSelection.handleDeselectOne}
               onPageChange={handlePageChange}
@@ -122,10 +163,9 @@ const Page = () => {
             />
           </Stack>
           <div align="center">
-            <Button variant="contained" size="small" align="center" sx={{ mt: 2}}
-              href="/testStepsPage"
+            <Button variant="contained" size="small" align="center" sx={{ mt: 2}} onClick={handleSaveTests}
             >
-              Next
+              Save Tests
             </Button>
           </div>
         </Container>

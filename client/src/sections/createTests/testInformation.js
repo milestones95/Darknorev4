@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Box,
   Button,
@@ -31,6 +32,8 @@ const states = [
 ];
 
 export const TestInformation = () => {
+  const router = useRouter();
+
   const [values, setValues] = useState({
     firstName: 'Anika',
     lastName: 'Visser',
@@ -39,6 +42,7 @@ export const TestInformation = () => {
     state: 'los-angeles',
     country: 'USA'
   });
+
 
   const handleChange = useCallback(
     (event) => {
@@ -50,12 +54,48 @@ export const TestInformation = () => {
     []
   );
 
-  const handleSubmit = useCallback(
-    (event) => {
-      event.preventDefault();
-    },
-    []
-  );
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+      console.log("generate clicked");
+
+      // Get the form field values
+      const name = event.target.elements.userStoryName.value;
+      const url = event.target.elements.baseUrl.value;
+      const userStoryDetails = event.target.elements.userStoryDescription.value;
+      const ac = event.target.elements.acceptanceCriteria.value;
+
+      // Create the request body
+      const requestBody = {
+        userStory: userStoryDetails,
+        acceptanceCriteria: ac,
+      };
+
+      // Send the API request
+      const response = await fetch("http://localhost:5000/api/createTestScenarios", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        router.push({
+          pathname: '/testScenarioPage',
+          query: { response: JSON.stringify(responseData) },
+        });
+      } else {
+        // Handle the error case
+        console.log('API request failed');
+      }
+
+
+    };
+
+    // const history = useHistory();
+
 
   return (
     <form
@@ -82,7 +122,7 @@ export const TestInformation = () => {
                     <TextField
                       fullWidth
                       label="User Story Name"
-                      name="User Story Name"
+                      name="userStoryName"
                       required
 
                     />
@@ -92,8 +132,8 @@ export const TestInformation = () => {
                   >
                     <TextField
                       fullWidth
-                      label="Base URL"
-                      name="Base URL"
+                      label="Base Url"
+                      name="baseUrl"
                       required
                       placeholder="https://"
                     />
@@ -109,7 +149,7 @@ export const TestInformation = () => {
                   fullWidth
                   fullHeight
                   label="User Story Description"
-                  name="User Story Description"
+                  name="userStoryDescription"
                   multiline
                   rows={4}
                 >
@@ -121,8 +161,8 @@ export const TestInformation = () => {
                   <TextField
                     fullWidth
                     fullHeight
-                    label="Acceptance Criteria Optional"
-                    name="Acceptance Criteria Optional"
+                    label="Acceptance Criteria"
+                    name="acceptanceCriteria"
                     multiline
                     rows={4}
                   >
@@ -134,8 +174,8 @@ export const TestInformation = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" href="/testStepsPage">
-            Next
+          <Button variant="contained" type="submit">
+            Generate Scenarios
           </Button>
         </CardActions>
       </Card>

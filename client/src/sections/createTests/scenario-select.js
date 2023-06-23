@@ -22,6 +22,9 @@ export const SelectScenario = (props) => (
       <MenuItem key="Non-Happy Path" value="Non-Happy Path">
             Non-Happy Path
       </MenuItem>
+      <MenuItem key="Edge Case" value="Edge Case">
+            Edge Case
+      </MenuItem>
     </TextField>
 );
 

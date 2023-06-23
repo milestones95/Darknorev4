@@ -26,32 +26,34 @@ import React, { useRef, useEffect, Component } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
-
+  console.log("props customer: ", props.customer)
   return (
     <React.Fragment>
-        <TableRow key={uuidv4()}>
+        <TableRow id={uuidv4()}>
           <TableCell padding="checkbox">
             {props.index + 1}
           </TableCell>
           <TableCell>
             <TextField
               required
-              id="outlined-required"
+              onChange={(e) => {props.handleTypingInTextField(props.indexOfScenarioArray, props.index, e.target.value)}}
               label="Test Step"
               placeholder="Enter Test Step"
               multiline
-              defaultValue={props.customer.id}
               fullWidth
+              defaultValue={props.customer.text}
             />
           </TableCell>
           <TableCell sx={{mr: 2}}>
           <TextField
             required
             select
-            id="outlined-required"
+            id={uuidv4()}
             label="Choose Page"
             placeholder="Choose Page"
             fullWidth
+            value={props.customer.webpage}
+            onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
           >
             <MenuItem key="testpage1" value="testpage1">
                   testpage1.com
@@ -62,7 +64,7 @@ function Row(props) {
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
-             <Button id={props.customer.id} onClick={() => props.handleRemove(props.indexOfScenarioArray, props.customer.id)}>
+             <Button id={uuidv4()} onClick={() => {props.handleRemove(props.indexOfScenarioArray, props.customer.id)}}>
               <CloseIcon />
              </Button>
           </TableCell>
@@ -74,8 +76,16 @@ function Row(props) {
 Row.propTypes = {
   customer: PropTypes.arrayOf(
      PropTypes.shape({
-       id: PropTypes.number.isRequired,
-     }),
+       id: PropTypes.string.isRequired,
+        // testSteps: PropTypes.arrayOf(
+            // PropTypes.shape({
+            // id: PropTypes.string.isRequired,
+            text: PropTypes.string.isRequired,
+            webpage: PropTypes.string.isRequired,
+          // })
+        // )
+       }
+     ),
    ).isRequired,
    index: PropTypes.number.isRequired,
    indexOfScenarioArray: PropTypes.number.isRequired,
@@ -89,6 +99,8 @@ export const TestSteps = (props) => {
     handleRemove,
     indexOfScenarioArray,
     handleAddNewTestStep,
+    handleTypingInTextField,
+    handleSelectingWebPage,
     onDeselectAll,
     onDeselectOne,
     onPageChange = () => {},
@@ -106,7 +118,7 @@ export const TestSteps = (props) => {
       <Grid xs={12}>
         <Scrollbar>
           <Box sx={{ minWidth: 800 }}>
-            <Table>
+            <Table id={uuidv4()}>
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
@@ -129,6 +141,8 @@ export const TestSteps = (props) => {
                     index={i}
                     handleRemove={handleRemove}
                     indexOfScenarioArray={indexOfScenarioArray}
+                    handleTypingInTextField={handleTypingInTextField}
+                    handleSelectingWebPage={handleSelectingWebPage}
                   />
                   )
                 })}

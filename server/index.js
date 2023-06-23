@@ -43,7 +43,6 @@ console.log("data: " + JSON.stringify(data2));
     res.json({
       result: "hello world"
       })
-   
   });
 
 app.get("/api/getTestScenarios", cors(), async (req, res) => {
@@ -68,5 +67,4 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'));
   });
   }
-  
   app.listen(process.env.PORT || 5000, () => { console.log("server started on port 5000")})

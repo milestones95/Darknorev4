@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 import Head from 'next/head';
 import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
@@ -16,18 +16,29 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const Page = () => {
-  const [testSteps, setTestSteps] = useState([{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]);
   const [scenarios, setScenarios] = useState([
-      {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]},
-      {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]},
-      {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:""}, {id: uuidv4(), text:""}]}
+      {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
   ])
 
   function handleAddNewTestStep(index) {
     const updatedScenarios = [...scenarios];
-    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text:""})
+    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text:"", webpage: ""})
     updatedScenarios[index].testSteps = updatedTestSteps
     setScenarios(updatedScenarios)
+  }
+
+  function handleTypingInTextField(scenarioArrayIndex, testStepArrayIndex, value) {
+    const updatedScenarios = [...scenarios];
+    updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].text = value;
+    setScenarios(updatedScenarios);
+  }
+
+  function handleSelectingWebPage(scenarioArrayIndex, testStepArrayIndex, value) {
+    const updatedScenarios = [...scenarios];
+    updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].webpage = value;
+    setScenarios(updatedScenarios);
   }
 
   function handleRemove(index, id) {
@@ -77,6 +88,8 @@ const Page = () => {
                     handleAddNewTestStep={handleAddNewTestStep}
                     scenarios={scenarios}
                     indexOfScenarioArray={i}
+                    handleTypingInTextField={handleTypingInTextField}
+                    handleSelectingWebPage={handleSelectingWebPage}
                   />
                 </Card>
               )

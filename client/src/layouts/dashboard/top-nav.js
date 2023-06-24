@@ -11,11 +11,15 @@ import {
   Stack,
   SvgIcon,
   Tooltip,
+  Typography,
   useMediaQuery
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
+import React, { useState, useEffect } from 'react';
+import NewTestWizard  from '/src/sections/layouts/new-test-wizard';
+import Grid from '@mui/material/Grid';
 
 const SIDE_NAV_WIDTH = 280;
 const TOP_NAV_HEIGHT = 64;
@@ -24,6 +28,23 @@ export const TopNav = (props) => {
   const { onNavOpen } = props;
   const lgUp = useMediaQuery((theme) => theme.breakpoints.up('lg'));
   const accountPopover = usePopover();
+  const [showTestWizard, setTestWizard] = useState(false);
+
+  // Determine if the button should be displayed based on the current page
+  const shouldShowTestWizard = () => {
+    const allowedPages = [
+                          '/createTests',
+                          '/testScenarioPage',
+                          '/testStepsPage'
+                        ]; // Add the paths of the pages where the button should appear
+
+    return allowedPages.some((path) => window.location.pathname.startsWith(path));
+  };
+
+  useEffect(() => {
+    setTestWizard(shouldShowTestWizard());
+  }, [window.location.pathname]);
+
 
   return (
     <>
@@ -53,19 +74,23 @@ export const TopNav = (props) => {
             px: 2
           }}
         >
+          {showTestWizard && (
+            <Grid container>
+              <Grid md={2}>
+                <Typography variant="h5">
+                  New Test
+                </Typography>
+              </Grid>
+              <Grid md={10}>
+                <NewTestWizard />
+              </Grid>
+            </Grid>
+          )}
           <Stack
             alignItems="center"
             direction="row"
             spacing={2}
           >
-            {!lgUp && (
-              <IconButton onClick={onNavOpen}>
-                <SvgIcon fontSize="small">
-                  <Bars3Icon />
-                </SvgIcon>
-              </IconButton>
-            )}
-
           </Stack>
           <Stack
             alignItems="center"
@@ -82,7 +107,7 @@ export const TopNav = (props) => {
 
               </IconButton>
             </Tooltip>
-          
+
           </Stack>
         </Stack>
       </Box>

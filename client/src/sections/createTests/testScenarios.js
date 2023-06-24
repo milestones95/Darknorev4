@@ -25,6 +25,7 @@ export const TestScenarios = (props) => {
 
   const {
     count = 0,
+    displayedScenarios,
     items = [],
     onDeselectAll,
     onDeselectOne,
@@ -34,7 +35,8 @@ export const TestScenarios = (props) => {
     onSelectOne,
     page = 0,
     rowsPerPage = 0,
-    selected = []
+    selected = [],
+    scenarios
   } = props;
 
   const selectedSome = (selected.length > 0) && (selected.length < items.length);
@@ -77,11 +79,122 @@ export const TestScenarios = (props) => {
               </TableHead>
               <TableBody>
               {items.map((customer, i) => {
-                console.log("customer" + customer)
-                const createdAt = customer.createdAt;
-                const scenioCellColor = (customer.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
+                console.log("items: " + items)
+                console.log("customer: " + customer)
+                var scenarioType, scenario = customer.split(":")
+                console.log(scenarioType, " ", scenario)
+                const scenioCellColor = (scenario[0] == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
                 const isSelected = selected.includes(customer);
 
+                if (displayedScenarios == "Happy Path") {
+                  if (scenario[0] == "Happy Path") {
+                    return(
+                        <TableRow
+                          hover
+                        >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                onSelectOne?.(customer.testScenario);
+                              } else {
+                                onDeselectOne?.(customer.testScenario);
+                              }
+                            }}
+                          />
+                          </TableCell>
+                          <TableCell>
+                            <Typography>
+                              {scenario[1]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ background: scenioCellColor }}>
+                            <Typography>
+                              {scenario[0]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                              {customer.createdAt}
+                          </TableCell>
+                        </TableRow>
+                        )
+                    }
+                    return
+                }
+
+                if (displayedScenarios == "Edge Case") {
+                  if (scenario[0] == "Edge Case") {
+                    return(
+                        <TableRow
+                          hover
+                        >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                onSelectOne?.(customer.testScenario);
+                              } else {
+                                onDeselectOne?.(customer.testScenario);
+                              }
+                            }}
+                          />
+                          </TableCell>
+                          <TableCell>
+                            <Typography>
+                              {scenario[1]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ background: scenioCellColor }}>
+                            <Typography>
+                              {scenario[0]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                              {customer.createdAt}
+                          </TableCell>
+                        </TableRow>
+                        )
+                    }
+                    return
+                }
+                if (displayedScenarios == "Non-Happy Path") {
+                  if (scenario[0] == "Non-Happy Path") {
+                    return(
+                        <TableRow
+                          hover
+                        >
+                        <TableCell padding="checkbox">
+                          <Checkbox
+                            checked={isSelected}
+                            onChange={(event) => {
+                              if (event.target.checked) {
+                                onSelectOne?.(customer.testScenario);
+                              } else {
+                                onDeselectOne?.(customer.testScenario);
+                              }
+                            }}
+                          />
+                          </TableCell>
+                          <TableCell>
+                            <Typography>
+                              {scenario[1]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell sx={{ background: scenioCellColor }}>
+                            <Typography>
+                              {scenario[0]}
+                            </Typography>
+                          </TableCell>
+                          <TableCell>
+                              {customer.createdAt}
+                          </TableCell>
+                        </TableRow>
+                        )
+                    }
+                    return
+                }
                 return(
                     <TableRow
                       hover
@@ -100,17 +213,17 @@ export const TestScenarios = (props) => {
                       </TableCell>
                       <TableCell>
                         <Typography>
-                          {customer}
+                          {scenario[1]}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ background: scenioCellColor }}>
                         <Typography>
-                          {customer.scenarioType}
+                          {scenario[0]}
                         </Typography>
                       </TableCell>
-                      {/* <TableCell>
+                      <TableCell>
                           {customer.createdAt}
-                      </TableCell> */}
+                      </TableCell>
                     </TableRow>
                     )
                     })}
@@ -126,6 +239,7 @@ export const TestScenarios = (props) => {
 
 TestScenarios.propTypes = {
   count: PropTypes.number,
+  displayedScenarios: PropTypes.string,
   items: PropTypes.array,
   onDeselectAll: PropTypes.func,
   onDeselectOne: PropTypes.func,

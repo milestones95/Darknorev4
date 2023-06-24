@@ -56,7 +56,7 @@ export const TestInformation = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    
+
       console.log("generate clicked");
 
       // Get the form field values
@@ -84,7 +84,7 @@ export const TestInformation = () => {
         userStory: userStoryDetails,
         acceptanceCriteria: ac,
       };
-    
+
       // Send the API request
       const response = await fetch("http://localhost:5000/api/createTestScenarios", {
         method: "POST",
@@ -104,6 +104,11 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> main
     };
 
     // const history = useHistory();
@@ -126,33 +131,33 @@ export const TestInformation = () => {
               container
             >
             <Grid
-              xs={7}
+              xs={6}
             >
-                <Grid
-                  xs={8}
-                >
-                  <TextField
-                    fullWidth
-                    label="User Story Name"
-                    name="userStoryName"
-                    required
+                  <Grid
+                    xs={8}
+                  >
+                    <TextField
+                      fullWidth
+                      label="User Story Name"
+                      name="userStoryName"
+                      required
 
-                  />
+                    />
+                  </Grid>
+                  <Grid
+                    xs={8}
+                  >
+                    <TextField
+                      fullWidth
+                      label="Base Url"
+                      name="baseUrl"
+                      required
+                      placeholder="https://"
+                    />
+                  </Grid>
                 </Grid>
-                <Grid
-                  xs={8}
-                >
-                  <TextField
-                    fullWidth
-                    label="Base URL"
-                    name="baseUrl"
-                    required
-                    placeholder="https://"
-                  />
-                </Grid>
-              </Grid>
               <Grid
-                xs={5}
+                xs={6}
               >
                 <Grid
                   xs={12}

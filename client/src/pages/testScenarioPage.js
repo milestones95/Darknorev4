@@ -50,12 +50,19 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
+  const [displayedScenarios, setDisplayedScenarios] = useState("All");
+
 
   const router = useRouter();
+
+  console.log(router.query.response)
   const response = JSON.parse(router.query.response || '{}');
+  console.log(response)
 
-
-  const scenarios = response.result.content.split("\n");
+  const breakupJson = response.result.content.split("\n");
+  const removeSpaces = breakupJson.filter((item) => item !== '');
+  const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
+  var scenarios = removeTestScenarioTest
 
   const useScenarios = (page, rowsPerPage) => {
     return useMemo(
@@ -72,7 +79,7 @@ const Page = () => {
     const selectedItems = customersSelection.selected.map((selection) => {
       return { content: selection };
     });
-    
+
       // Send the API request
       const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
         method: "POST",
@@ -83,15 +90,13 @@ const Page = () => {
       });
 
       if (response.ok) {
-        router.push('/viewTest');
+        router.push('/');
       } else {
         // Handle the error case
         console.log('API request failed');
       }
 
   }
-
-
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const scenarioList = useScenarios(page, rowsPerPage);
@@ -116,7 +121,7 @@ const Page = () => {
     <>
       <Head>
         <title>
-          Customers | Devias Kit
+          Test Scenarios | Darknore
         </title>
       </Head>
       <Box
@@ -139,7 +144,9 @@ const Page = () => {
                 </Typography>
               </Stack>
             </Stack>
-            <SelectScenario />
+            <SelectScenario
+              setDisplayedScenarios={setDisplayedScenarios}
+            />
             <TestScenarios
               count={data.length}
               items={scenarioList}
@@ -152,6 +159,7 @@ const Page = () => {
               page={page}
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}
+              displayedScenarios={displayedScenarios}
             />
           </Stack>
           <div align="center">

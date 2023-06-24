@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useRef } from 'react';
 import Head from 'next/head';
 import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
@@ -14,63 +14,45 @@ import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { v4 as uuidv4 } from 'uuid';
 
-const now = new Date();
-
-
-const data = [{id: uuidv4()}, {id: uuidv4()}];
-
-const useCustomers = (page, rowsPerPage) => {
-  return useMemo(
-    () => {
-      return applyPagination(data, page, rowsPerPage);
-    },
-    [page, rowsPerPage]
-  );
-};
-
-const useCustomerIds = (customers) => {
-  return useMemo(
-    () => {
-      return customers.map((customer) => customer.id);
-    },
-    [customers]
-  );
-};
 
 const Page = () => {
-  const [testSteps, setTestSteps] = useState([{id: uuidv4()}, {id: uuidv4()}]);
+  const [scenarios, setScenarios] = useState([
+      {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
+  ])
 
-
-  const handlePageChange = useCallback(
-    (event, value) => {
-      setPage(value);
-    },
-    []
-  );
-
-  const handleRowsPerPageChange = useCallback(
-    (event) => {
-      setRowsPerPage(event.target.value);
-    },
-    []
-  );
-
-  function handleAddNewTestStep() {
-    const newTestSteps = testSteps.concat({id: uuidv4()});
-    setTestSteps(newTestSteps)
+  function handleAddNewTestStep(index) {
+    const updatedScenarios = [...scenarios];
+    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text:"", webpage: ""})
+    updatedScenarios[index].testSteps = updatedTestSteps
+    setScenarios(updatedScenarios)
   }
 
-  function handleRemove(id) {
-    console.log(id)
-    const newList = testSteps.filter((item) => item.id !== id);
-    setTestSteps(newList);
+  function handleTypingInTextField(scenarioArrayIndex, testStepArrayIndex, value) {
+    const updatedScenarios = [...scenarios];
+    updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].text = value;
+    setScenarios(updatedScenarios);
+  }
+
+  function handleSelectingWebPage(scenarioArrayIndex, testStepArrayIndex, value) {
+    const updatedScenarios = [...scenarios];
+    updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].webpage = value;
+    setScenarios(updatedScenarios);
+  }
+
+  function handleRemove(index, id) {
+    const updatedScenarios = [...scenarios];
+    const updatedTestSteps = updatedScenarios[index].testSteps.filter((item) => item.id !== id);
+    updatedScenarios[index].testSteps = updatedTestSteps
+    setScenarios(updatedScenarios)
   }
 
   return (
     <>
       <Head>
         <title>
-          Customers | Devias Kit
+          Test Steps | Darknore
         </title>
       </Head>
       <Box
@@ -93,26 +75,25 @@ const Page = () => {
                 </Typography>
               </Stack>
             </Stack>
-            <Card sx={{ p: 2 }}>
-                <Typography sx={{ mb: 2 }}>
-                  Scenario 1 - User enters a valid name and email address and submits the form successfully.
-                </Typography>
-              <TestSteps
-                count={testSteps.length}
-                items={testSteps}
-                handleRemove={handleRemove}
-              />
-              <Grid xs={12}>
-                  <Grid xs={12}>
-                    <Button variant="text" onClick={handleAddNewTestStep}>
-                    <Typography>
-                      Add New Test Step
+            {scenarios.map((scenario, i) => {
+              return (
+                <Card sx={{ p: 2 }}>
+                    <Typography sx={{ mb: 2 }}>
+                      Scenario {i + 1} - {scenario.scenario}
                     </Typography>
-                    <AddCircleIcon sx={{ ml: 1 }}/>
-                    </Button>
-                  </Grid>
-              </Grid>
-            </Card>
+                  <TestSteps
+                    count={scenario.testSteps.length}
+                    scenario={scenario}
+                    handleRemove={handleRemove}
+                    handleAddNewTestStep={handleAddNewTestStep}
+                    scenarios={scenarios}
+                    indexOfScenarioArray={i}
+                    handleTypingInTextField={handleTypingInTextField}
+                    handleSelectingWebPage={handleSelectingWebPage}
+                  />
+                </Card>
+              )
+            })}
           </Stack>
           <div align="center">
             <Button variant="contained" size="small" align="center" sx={{mt: 2}}

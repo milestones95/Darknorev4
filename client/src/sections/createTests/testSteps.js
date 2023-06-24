@@ -22,13 +22,85 @@ import Button from '@mui/material/Button';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import MenuItem from '@mui/material/MenuItem';
 import CloseIcon from '@mui/icons-material/Close';
+import React, { useRef, useEffect, Component } from 'react'
+import { v4 as uuidv4 } from 'uuid';
+
+function Row(props) {
+  console.log("props customer: ", props.customer)
+  return (
+    <React.Fragment>
+        <TableRow id={uuidv4()}>
+          <TableCell padding="checkbox">
+            {props.index + 1}
+          </TableCell>
+          <TableCell>
+            <TextField
+              required
+              onChange={(e) => {props.handleTypingInTextField(props.indexOfScenarioArray, props.index, e.target.value)}}
+              label="Test Step"
+              placeholder="Enter Test Step"
+              multiline
+              fullWidth
+              defaultValue={props.customer.text}
+            />
+          </TableCell>
+          <TableCell sx={{mr: 2}}>
+          <TextField
+            required
+            select
+            id={uuidv4()}
+            label="Choose Page"
+            placeholder="Choose Page"
+            fullWidth
+            value={props.customer.webpage}
+            onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
+          >
+            <MenuItem key="testpage1" value="testpage1">
+                  testpage1.com
+            </MenuItem>
+            <MenuItem key="testpage2" value="testpage2">
+                  testpage2.com
+            </MenuItem>
+          </TextField>
+          </TableCell>
+          <TableCell padding="checkbox">
+             <Button id={uuidv4()} onClick={() => {props.handleRemove(props.indexOfScenarioArray, props.customer.id)}}>
+              <CloseIcon />
+             </Button>
+          </TableCell>
+        </TableRow>
+    </React.Fragment>
+  )
+}
+
+Row.propTypes = {
+  customer: PropTypes.arrayOf(
+     PropTypes.shape({
+       id: PropTypes.string.isRequired,
+        // testSteps: PropTypes.arrayOf(
+            // PropTypes.shape({
+            // id: PropTypes.string.isRequired,
+            text: PropTypes.string.isRequired,
+            webpage: PropTypes.string.isRequired,
+          // })
+        // )
+       }
+     ),
+   ).isRequired,
+   index: PropTypes.number.isRequired,
+   indexOfScenarioArray: PropTypes.number.isRequired,
+};
+
 
 export const TestSteps = (props) => {
 
   const {
     count = 0,
     handleRemove,
-    items = [],
+    indexOfScenarioArray,
+    handleAddNewTestStep,
+    handleTypingInTextField,
+    handleSelectingWebPage,
     onDeselectAll,
     onDeselectOne,
     onPageChange = () => {},
@@ -37,6 +109,7 @@ export const TestSteps = (props) => {
     onSelectOne,
     page = 0,
     rowsPerPage = 0,
+    scenario,
     selected = []
   } = props;
 
@@ -45,7 +118,7 @@ export const TestSteps = (props) => {
       <Grid xs={12}>
         <Scrollbar>
           <Box sx={{ minWidth: 800 }}>
-            <Table>
+            <Table id={uuidv4()}>
               <TableHead>
                 <TableRow>
                   <TableCell padding="checkbox">
@@ -61,57 +134,32 @@ export const TestSteps = (props) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-              {items.map((customer, i) => {
-                console.log(customer)
-                const createdAt = customer.createdAt;
-                const isSelected = selected.includes(customer.testScenario);
+              {scenario.testSteps.map((customer, i) => {
                 return (
-                    <TableRow
-                    >
-                      <TableCell padding="checkbox">
-                        {i + 1}
-                      </TableCell>
-                      <TableCell>
-                        <TextField
-                          required
-                          id="outlined-required"
-                          label="Test Step"
-                          placeholder="Enter Test Step"
-                          multiline
-                          fullWidth
-                        />
-                      </TableCell>
-                      <TableCell sx={{mr: 2}}>
-                      <TextField
-                        required
-                        select
-                        id="outlined-required"
-                        label="Choose Page"
-                        placeholder="Choose Page"
-                        fullWidth
-                      >
-                        <MenuItem key="testpage1" value="testpage1">
-                              testpage1.com
-                        </MenuItem>
-                        <MenuItem key="testpage2" value="testpage2">
-                              testpage2.com
-                        </MenuItem>
-                      </TextField>
-                      </TableCell>
-                      <TableCell padding="checkbox">
-                        <div align="center">
-                         <Button id={customer.id} onClick={event => handleRemove(event.currentTarget.id)}>
-                          <CloseIcon />
-                         </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                  <Row
+                    customer={customer}
+                    index={i}
+                    handleRemove={handleRemove}
+                    indexOfScenarioArray={indexOfScenarioArray}
+                    handleTypingInTextField={handleTypingInTextField}
+                    handleSelectingWebPage={handleSelectingWebPage}
+                  />
                   )
                 })}
               </TableBody>
             </Table>
           </Box>
         </Scrollbar>
+        </Grid>
+        <Grid xs={12}>
+            <Grid xs={12}>
+              <Button variant="text" onClick={() => props.handleAddNewTestStep(indexOfScenarioArray)}>
+              <Typography>
+                Add New Test Step
+              </Typography>
+              <AddCircleIcon sx={{ ml: 1 }}/>
+              </Button>
+            </Grid>
         </Grid>
       </Grid>
   );

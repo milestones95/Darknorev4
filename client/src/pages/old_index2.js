@@ -7,40 +7,33 @@ import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
 import { Box, Button, Container, Stack, SvgIcon, Typography } from '@mui/material';
 import { useSelection } from 'src/hooks/use-selection';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { ViewTestTable } from 'src/sections/viewTests/view-test-table';
+import { TestsTable } from 'src/sections/viewTests/tests-table';
+import { TestsSearch } from 'src/sections/viewTests/tests-search';
 import { applyPagination } from 'src/utils/apply-pagination';
 
 const now = new Date();
 
 const data = [
   {
-    id: '5e887ac47eed253091be10cb',
-    address: {
-      city: 'Cleveland',
-      country: 'USA',
-      state: 'Ohio',
-      street: '2849 Fulton Street'
-    },
-    avatar: '/assets/avatars/avatar-carson-darrin.png',
-    createdAt: subDays(subHours(now, 7), 1).getTime(),
-    email: 'carson.darrin@devias.io',
-    name: 'Plain English Test Case',
-    phone: '304-428-3097'
+    testScenario: 'User enters a valid name and email address and submits the form successfully.',
+    scenarioType: "Happy Path",
+    creationDate: "06/19/2023"
   },
   {
-    id: '5e887b209c28ac3dd97f6db5',
-    address: {
-      city: 'Atlanta',
-      country: 'USA',
-      state: 'Georgia',
-      street: '1865  Pleasant Hill Road'
-    },
-    avatar: '/assets/avatars/avatar-fran-perez.png',
-    createdAt: subDays(subHours(now, 1), 2).getTime(),
-    email: 'fran.perez@devias.io',
-    name: 'Automated Test Case',
-    phone: '712-351-5711'
-  }
+    testScenario: 'User enters a valid name and a valid email address with special characters and submits the form successfully.',
+    scenarioType: "Happy Path",
+    creationDate: "06/19/2023"
+  },
+  {
+    testScenario: 'User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.',
+    scenarioType: "Non-Happy Path",
+    creationDate: "06/19/2023"
+  },
+  {
+    testScenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
+    scenarioType: "Non-Happy Path",
+    creationDate: "06/19/2023"
+  },
 ];
 
 const useCustomers = (page, rowsPerPage) => {
@@ -105,7 +98,7 @@ const Page = () => {
             >
               <Stack spacing={1}>
                 <Typography variant="h4">
-                  Test Name
+                  Tests
                 </Typography>
               </Stack>
               <div>
@@ -122,7 +115,7 @@ const Page = () => {
                 </Button>
               </div>
             </Stack>
-            <ViewTestTable
+            <TestsTable
               count={data.length}
               items={customers}
               onDeselectAll={customersSelection.handleDeselectAll}

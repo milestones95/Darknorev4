@@ -86,7 +86,7 @@ const Page = () => {
     <>
       <Head>
         <title>
-          Customers | Devias Kit
+          View Tests | Darknore
         </title>
       </Head>
       <Box

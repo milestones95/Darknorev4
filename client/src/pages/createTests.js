@@ -8,7 +8,7 @@ const Page = () => (
   <>
     <Head>
       <title>
-        Account | Devias Kit
+        Create Tests | Darknore
       </title>
     </Head>
     <Box

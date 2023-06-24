@@ -121,7 +121,7 @@ const Page = () => {
     <>
       <Head>
         <title>
-          Customers | Devias Kit
+          Test Scenarios | Darknore
         </title>
       </Head>
       <Box

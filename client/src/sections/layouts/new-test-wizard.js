@@ -21,7 +21,6 @@ export default function NewTestWizard() {
         setCurrentSteps((1,2))
     if (window.location.pathname.startsWith('/testStepsPage'))
         setCurrentSteps((1,2,3))
-
   }, [window.location.pathname]);
 
 

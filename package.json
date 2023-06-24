@@ -9,5 +9,8 @@
     "build": "cd client && npm install && npm run build"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "react-router-dom": "^6.14.0"
+  }
 }

@@ -52,7 +52,7 @@ const Page = () => {
     <>
       <Head>
         <title>
-          Customers | Devias Kit
+          Test Steps | Darknore
         </title>
       </Head>
       <Box

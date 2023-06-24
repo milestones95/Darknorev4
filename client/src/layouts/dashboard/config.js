@@ -7,6 +7,8 @@ import UserPlusIcon from '@heroicons/react/24/solid/UserPlusIcon';
 import UsersIcon from '@heroicons/react/24/solid/UsersIcon';
 import XCircleIcon from '@heroicons/react/24/solid/XCircleIcon';
 import { SvgIcon } from '@mui/material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 export const items = [
   {
@@ -14,7 +16,7 @@ export const items = [
     path: '/',
     icon: (
       <SvgIcon fontSize="small">
-        <UsersIcon />
+        <VisibilityIcon />
       </SvgIcon>
     )
   },
@@ -28,29 +30,11 @@ export const items = [
     )
   },
   {
-    title: 'Test Steps Page',
-    path: '/testStepsPage',
-    icon: (
-      <SvgIcon fontSize="small">
-        <XCircleIcon />
-      </SvgIcon>
-    )
-  },
-  {
-    title: 'Test Scenario Page',
-    path: '/testScenarioPage',
-    icon: (
-      <SvgIcon fontSize="small">
-        <XCircleIcon />
-      </SvgIcon>
-    )
-  },
-  {
     title: 'CreateTests',
     path: '/createTests',
     icon: (
       <SvgIcon fontSize="small">
-        <XCircleIcon />
+        <AddCircleOutlineIcon />
       </SvgIcon>
     )
   }

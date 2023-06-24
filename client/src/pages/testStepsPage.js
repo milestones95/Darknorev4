@@ -16,6 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 
 
 const Page = () => {
+
+  const menuItems = [
+    { key: "testpage1", value: "testpage1", label: "testpage1.com" },
+    { key: "testpage2", value: "testpage2", label: "testpage2.com" },
+  ];
   const [scenarios, setScenarios] = useState([
       {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
       {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
@@ -90,6 +95,7 @@ const Page = () => {
                     indexOfScenarioArray={i}
                     handleTypingInTextField={handleTypingInTextField}
                     handleSelectingWebPage={handleSelectingWebPage}
+                    urlList={menuItems}
                   />
                 </Card>
               )

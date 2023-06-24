@@ -65,6 +65,20 @@ export const TestInformation = () => {
       const userStoryDetails = event.target.elements.userStoryDescription.value;
       const ac = event.target.elements.acceptanceCriteria.value;
 
+
+        // Send the API request
+        const urlsParsed = await fetch("http://localhost:8000/api/scrape-urls", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({url: "https://www.darknore.com"}),
+        });
+
+        const parsedUrls = await urlsParsed.json();
+        console.log("response data: " + JSON.stringify(parsedUrls));
+        
+    
       // Create the request body
       const requestBody = {
         userStory: userStoryDetails,
@@ -90,8 +104,11 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
+<<<<<<< HEAD
+=======
 
 
+>>>>>>> main
     };
 
     // const history = useHistory();

@@ -27,14 +27,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
 
-  const {
-    urls
-  } = props;
-  
+  const { urls, customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
+
+
+  const handleRowRemove = () => {
+    handleRemove(indexOfScenarioArray, customer.id);
+  };
+
   console.log("prop list: ", JSON.stringify(urls));
 
   return (
-    <React.Fragment>
+    <React.Fragment key={customer.id}>
         <TableRow id={uuidv4()}>
           <TableCell padding="checkbox">
             {props.index + 1}
@@ -67,7 +70,7 @@ function Row(props) {
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
-             <Button id={uuidv4()} onClick={() => {props.handleRemove(props.indexOfScenarioArray, props.customer.id)}}>
+             <Button id={uuidv4()} onClick={() => {handleRowRemove()}}>
               <CloseIcon />
              </Button>
           </TableCell>
@@ -127,6 +130,7 @@ export const TestSteps = (props) => {
               {scenario.testSteps.map((customer, i) => {
                 return (
                   <Row
+                    customer={customer}
                     index={i}
                     handleRemove={handleRemove}
                     indexOfScenarioArray={indexOfScenarioArray}

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Box,
@@ -11,6 +11,7 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import { TestCreationData } from 'src/contexts/test-creation-context';
 
 const states = [
   {
@@ -32,6 +33,9 @@ const states = [
 ];
 
 export const TestInformation = () => {
+
+  const { testCreationData, addUserStory } = useContext(TestCreationData);
+
   const router = useRouter();
 
   const [values, setValues] = useState({
@@ -55,7 +59,7 @@ export const TestInformation = () => {
   );
 
   const handleSubmit = async (event) => {
-    event.preventDefault();
+      event.preventDefault();
 
       console.log("generate clicked");
 
@@ -64,6 +68,9 @@ export const TestInformation = () => {
       const url = event.target.elements.baseUrl.value;
       const userStoryDetails = event.target.elements.userStoryDescription.value;
       const ac = event.target.elements.acceptanceCriteria.value;
+
+
+      addUserStory(name, url, userStoryDetails, ac)
 
 
         // Send the API request
@@ -77,8 +84,8 @@ export const TestInformation = () => {
 
         const parsedUrls = await urlsParsed.json();
         console.log("response data: " + JSON.stringify(parsedUrls));
-        
-    
+
+
       // Create the request body
       const requestBody = {
         userStory: userStoryDetails,
@@ -104,11 +111,7 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
-<<<<<<< HEAD
-=======
 
-
->>>>>>> main
     };
 
     // const history = useHistory();

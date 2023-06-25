@@ -50,6 +50,7 @@ function Row(props) {
               placeholder="Enter Test Step"
               multiline
               fullWidth
+              defaultValue={props.customer.text}
             />
           </TableCell>
           <TableCell sx={{mr: 2}}>
@@ -60,6 +61,7 @@ function Row(props) {
             label="Choose Page"
             placeholder="Choose Page"
             fullWidth
+            defaultValue={props.customer.webpage}
             onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
           >
         {urls.map((url) => (

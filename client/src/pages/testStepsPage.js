@@ -42,6 +42,7 @@ const Page = () => {
     const updatedScenarios = [...scenarios];
     updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].text = value;
     setScenarios(updatedScenarios);
+    console.log(updatedScenarios)
   }
 
   function handleSelectingWebPage(scenarioArrayIndex, testStepArrayIndex, value) {
@@ -51,18 +52,18 @@ const Page = () => {
   }
 
   function handleRemove(scenarioArrayIndex, id) {
-    const updatedScenarios = [...scenarios];
-    const scenarioToUpdate = updatedScenarios.find(
-      (scenario) => scenario.id === scenarios[scenarioArrayIndex].id
-    );
+    setScenarios((prevScenarios) => {
+      const updatedScenarios = [...prevScenarios];
+      const scenarioToUpdate = updatedScenarios[scenarioArrayIndex];
 
-    if (scenarioToUpdate) {
-      const updatedTestSteps = scenarioToUpdate.testSteps.filter(
-        (testStep) => testStep.id !== id
-      );
-      scenarioToUpdate.testSteps = updatedTestSteps;
-    }
-    setScenarios(updatedScenarios);
+      if (scenarioToUpdate) {
+        const updatedTestSteps = scenarioToUpdate.testSteps.filter(
+          (testStep) => testStep.id !== id
+        );
+        scenarioToUpdate.testSteps = updatedTestSteps;
+      }
+      return updatedScenarios;
+    });
   }
 
 function handleCompletingTestSteps() {

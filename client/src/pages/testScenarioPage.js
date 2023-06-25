@@ -65,19 +65,39 @@ const Page = () => {
   const response = JSON.parse(router.query.response || '{}');
   console.log(response)
 
+
+
+    const testCaseObject = parseTestCases(response.result.content);
+    const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
+    console.log("test case object: " + JSON.stringify(testCaseObject));
+
   const breakupJson = response.result.content.split("\n");
   const removeSpaces = breakupJson.filter((item) => item !== '');
   const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
-  var scenarios = removeTestScenarioTest
+  var scenarios = removeTestScenarioTest;
+
+  console.log("scenarios: " + scenarios);
+
+  function parseTestCases(string) {
+    const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
+    const testCases = [];
+    let match;
+  
+    while ((match = testCaseRegex.exec(string)) !== null) {
+      const scenarioType = match[1];
+      const testCase = match[2];
+      testCases.push({ scenario_type: scenarioType, test_case: testCase });
+    }
+  
+    return testCases;
+  }
 
   const useScenarios = (page, rowsPerPage) => {
-    return useMemo(
-      () => {
-        return applyPagination(scenarios, page, rowsPerPage);
-      },
-      [page, rowsPerPage]
-    );
+    return useMemo(() => {
+      return applyPagination(testCaseObject.map((testCase) => testCase.test_case), page, rowsPerPage);
+    }, [page, rowsPerPage]);
   };
+  
 
   const handleSaveTests = async (event) => {
     event.preventDefault();
@@ -86,6 +106,8 @@ const Page = () => {
     const selectedItems = customersSelection.selected.map((selection) => {
       return { content: selection };
     });
+
+    console.log("selected items: " + selectedItems);
 
       // Send the API request
       const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
@@ -108,6 +130,8 @@ const Page = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const scenarioList = useScenarios(page, rowsPerPage);
+
+  console.log("scnenario list: " + scenarioList);
   const customersSelection = useSelection(scenarioList);
   const handlePageChange = useCallback(
     (event, value) => {
@@ -157,7 +181,7 @@ const Page = () => {
             />
             <TestScenarios
               count={data.length}
-              items={scenarioList}
+              items={testCaseObject}
               onDeselectAll={customersSelection.handleDeselectAll}
               onDeselectOne={customersSelection.handleDeselectOne}
               onPageChange={handlePageChange}

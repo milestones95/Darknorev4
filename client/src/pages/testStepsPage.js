@@ -17,6 +17,11 @@ import { TestCreationData } from 'src/contexts/test-creation-context';
 
 
 const Page = () => {
+
+  const menuItems = [
+    { key: "testpage1", value: "testpage1", label: "testpage1.com" },
+    { key: "testpage2", value: "testpage2", label: "testpage2.com" },
+  ];
   const [scenarios, setScenarios] = useState([
       {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
       {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
@@ -104,6 +109,7 @@ function handleCompletingTestSteps() {
                     indexOfScenarioArray={i}
                     handleTypingInTextField={handleTypingInTextField}
                     handleSelectingWebPage={handleSelectingWebPage}
+                    urlList={menuItems}
                   />
                 </Card>
               )

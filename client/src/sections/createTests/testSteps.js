@@ -26,12 +26,22 @@ import React, { useRef, useEffect, Component } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
+<<<<<<< HEAD
   const { customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
 
 
   const handleRowRemove = () => {
     handleRemove(indexOfScenarioArray, customer.id);
   };
+=======
+
+  const {
+    urls
+  } = props;
+  
+  console.log("prop list: ", JSON.stringify(urls));
+
+>>>>>>> 2a31f1716a698ffb30adaca684b2bedfafb4e182
   return (
     <React.Fragment key={customer.id}>
         <TableRow id={uuidv4()}>
@@ -46,7 +56,6 @@ function Row(props) {
               placeholder="Enter Test Step"
               multiline
               fullWidth
-              defaultValue={props.customer.text}
             />
           </TableCell>
           <TableCell sx={{mr: 2}}>
@@ -57,15 +66,13 @@ function Row(props) {
             label="Choose Page"
             placeholder="Choose Page"
             fullWidth
-            value={props.customer.webpage}
             onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
           >
-            <MenuItem key="testpage1" value="testpage1">
-                  testpage1.com
+        {urls.map((url) => (
+            <MenuItem key={url.key} value={url.value}>
+              {url.label}
             </MenuItem>
-            <MenuItem key="testpage2" value="testpage2">
-                  testpage2.com
-            </MenuItem>
+          ))}
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
@@ -79,21 +86,7 @@ function Row(props) {
 }
 
 Row.propTypes = {
-  customer: PropTypes.arrayOf(
-     PropTypes.shape({
-       id: PropTypes.string.isRequired,
-        // testSteps: PropTypes.arrayOf(
-            // PropTypes.shape({
-            // id: PropTypes.string.isRequired,
-            text: PropTypes.string.isRequired,
-            webpage: PropTypes.string.isRequired,
-          // })
-        // )
-       }
-     ),
-   ).isRequired,
-   index: PropTypes.number.isRequired,
-   indexOfScenarioArray: PropTypes.number.isRequired,
+   urlList: PropTypes.array
 };
 
 
@@ -115,7 +108,8 @@ export const TestSteps = (props) => {
     page = 0,
     rowsPerPage = 0,
     scenario,
-    selected = []
+    selected = [],
+    urlList = [],
   } = props;
 
   return (
@@ -142,12 +136,12 @@ export const TestSteps = (props) => {
               {scenario.testSteps.map((customer, i) => {
                 return (
                   <Row
-                    customer={customer}
                     index={i}
                     handleRemove={handleRemove}
                     indexOfScenarioArray={indexOfScenarioArray}
                     handleTypingInTextField={handleTypingInTextField}
                     handleSelectingWebPage={handleSelectingWebPage}
+                    urls={urlList}
                   />
                   )
                 })}

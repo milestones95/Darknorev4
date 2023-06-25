@@ -104,11 +104,6 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
-<<<<<<< HEAD
-=======
-
-
->>>>>>> main
     };
 
     // const history = useHistory();

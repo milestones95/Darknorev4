@@ -31,6 +31,20 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
       })
   });
 
+  app.get("/api/viewTests", cors(), async (req, res) => {
+
+    let { data, error } = await supabase
+    .rpc('gettestcases')
+
+    if (error) console.error(error)
+    else console.log(data)
+  
+  
+      res.json({
+        tests: data
+        })
+    });
+
   app.post("/api/createTestScenarios", async (req, res) => {
 
   
@@ -55,6 +69,46 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
   
 })
 
+app.post("/api/createTestCases", async (req, res) => {
+
+  try {
+    for (const testCase of req.body) {
+      const { data, error } = await supabase
+        .from('test_case')
+        .insert([
+          {
+            content: testCase.content,
+            // Include other properties here if necessary
+          }
+        ]);
+
+      if (error) {
+        console.error('Error inserting test case:', error.message);
+      } else {
+        console.log('Test case inserted successfully:', data);
+        //get id then do another insert into automated_test table
+
+        const { data2, error2 } = await supabase
+        .from('automated_test')
+        .insert([
+          {
+            test_case_id: "test case id",//Change this to the real id
+            content: testCase.test_content,
+            // Include other properties here if necessary
+          }
+        ]);
+      }
+    }
+  } catch (error) {
+    console.error('Error inserting test cases:', error.message);
+  }
+
+
+  res.json({
+    result: "saved"
+    })
+})
+
 app.post("/api/saveTestScenarios", async (req, res) => {
 
   console.log("body: " + JSON.stringify(req.body));
@@ -65,6 +119,14 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     req.body
   )
 
+  // //Get the id of the test case scenario
+
+  // const { test_cases, error } = await supabase
+  // .from('test_case')
+  // .insert(
+  //   req.body
+  // )
+
   console.log("error: " + JSON.stringify(error));
   console.log("data: " + JSON.stringify(data));
 
@@ -73,7 +135,6 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     result: "saved"
     })
 })
-
 
   if (process.env.NODE_ENV === 'production') {
     // Exprees will serve up production assets

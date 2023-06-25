@@ -11,6 +11,7 @@ import { createEmotionCache } from 'src/utils/create-emotion-cache';
 import 'simplebar-react/dist/simplebar.min.css';
 import React, { createContext, useState } from 'react';
 import { TestCreationDataProvider } from 'src/contexts/test-creation-context';
+import { BrowserRouter as Router } from 'react-router-dom';
 
 const clientSideEmotionCache = createEmotionCache();
 

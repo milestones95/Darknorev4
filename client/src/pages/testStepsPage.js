@@ -4,7 +4,7 @@ import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
-import { Box, Button, Card, Container, Stack, SvgIcon, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, Container, Stack, SvgIcon, Typography } from '@mui/material';
 import { useSelection } from 'src/hooks/use-selection';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { TestSteps } from 'src/sections/createTests/testSteps';
@@ -14,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { v4 as uuidv4 } from 'uuid';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import { useRouter } from 'next/navigation';
 
 
 const Page = () => {
@@ -27,6 +28,14 @@ const Page = () => {
       {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
       {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
   ])
+
+  const router = useRouter();
+  const [showAlert, setShowAlert] = useState(false);
+  const handleAlertClose = () => {
+    setShowAlert(false);
+
+  };
+
 
   const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
   console.log(testCreationData)
@@ -67,8 +76,22 @@ const Page = () => {
   }
 
 function handleCompletingTestSteps() {
+  for (let i = 0; i < scenarios.length; i++) {
+    console.log(scenarios[i].testSteps);
+    for (let j = 0; j < scenarios[i].testSteps.length; j++) {
+      console.log(scenarios[i].testSteps[j].text.trim());
+      if (scenarios[i].testSteps[j].text.trim() === '' &&
+          scenarios[i].testSteps[j].webpage.trim() === '') {
+        setShowAlert(true)
+        return
+      }
+    }
+  }
     updateScenarios(scenarios);
     emptyData()
+    router.push({
+      pathname: '/',
+    });
   }
 
   return (
@@ -93,6 +116,11 @@ function handleCompletingTestSteps() {
               spacing={4}
             >
               <Stack spacing={1}>
+              {showAlert && (
+                  <Alert severity="error" onClose={handleAlertClose}>
+                    Please complete all of your test steps.
+                  </Alert>
+                )}
                 <Typography variant="h4">
                   Tests Steps
                 </Typography>
@@ -121,7 +149,7 @@ function handleCompletingTestSteps() {
           </Stack>
           <div align="center">
             <Button variant="contained" size="small" align="center" sx={{mt: 2}}
-               href="/" onClick={handleCompletingTestSteps}
+              onClick={handleCompletingTestSteps}
             >
               Add Test Steps
             </Button>

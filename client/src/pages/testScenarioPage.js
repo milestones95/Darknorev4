@@ -12,6 +12,7 @@ import { TestScenarios } from 'src/sections/createTests/testScenarios';
 import { SelectScenario } from 'src/sections/createTests/scenario-select';
 import { applyPagination } from 'src/utils/apply-pagination';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { TestCreationData } from 'src/contexts/test-creation-context';
 
 const now = new Date();
@@ -55,6 +56,11 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const handleAlertClose = () => {
+    setShowAlert(false);
+  };
+
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const { testCreationData, updateScenarios } = useContext(TestCreationData);
 
@@ -82,13 +88,13 @@ const Page = () => {
     const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
     const testCases = [];
     let match;
-  
+
     while ((match = testCaseRegex.exec(string)) !== null) {
       const scenarioType = match[1];
       const testCase = match[2];
       testCases.push({ scenario_type: scenarioType, test_case: testCase });
     }
-  
+
     return testCases;
   }
 
@@ -97,7 +103,7 @@ const Page = () => {
       return applyPagination(testCaseObject.map((testCase) => testCase.test_case), page, rowsPerPage);
     }, [page, rowsPerPage]);
   };
-  
+
 
   const handleSaveTests = async (event) => {
     event.preventDefault();
@@ -107,8 +113,12 @@ const Page = () => {
       return { content: selection };
     });
 
-    console.log("selected items: " + selectedItems);
-
+    console.log(selectedItems);
+    console.log((selectedItems.length === 0) ? true : false);
+    if (selectedItems.length === 0) {
+      setShowAlert(true)
+      return
+    }
       // Send the API request
       const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
         method: "POST",
@@ -147,8 +157,6 @@ const Page = () => {
     []
   );
 
-
-
   return (
     <>
       <Head>
@@ -175,6 +183,11 @@ const Page = () => {
                   Tests Scenario
                 </Typography>
               </Stack>
+              {showAlert && (
+               <Alert severity="error" onClose={handleAlertClose}>
+                 Please select one of the scenarios below
+               </Alert>
+             )}
             </Stack>
             <SelectScenario
               setDisplayedScenarios={setDisplayedScenarios}

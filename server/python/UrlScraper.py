@@ -53,8 +53,10 @@ def get_urls_from_homepage(url):
                 absolute_url = urljoin(url, href)
                 urls.add(absolute_url)  # Add URL to the set
         
-        print("all urls found: " + str(urls)) 
-        return urls
+        
+        array_of_urls = list(urls)  # Convert set to list
+
+        return array_of_urls
     else:
         # Request was unsuccessful
         print("Failed to retrieve {}. Status code: {}".format(url, response.status_code))

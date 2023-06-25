@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useRef } from 'react';
+import { useCallback, useMemo, useState, useRef, useEffect, useContext} from 'react';
 import Head from 'next/head';
 import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
@@ -13,6 +13,7 @@ import { applyPagination } from 'src/utils/apply-pagination';
 import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { v4 as uuidv4 } from 'uuid';
+import { TestCreationData } from 'src/contexts/test-creation-context';
 
 
 const Page = () => {
@@ -21,11 +22,44 @@ const Page = () => {
     { key: "testpage1", value: "testpage1", label: "testpage1.com" },
     { key: "testpage2", value: "testpage2", label: "testpage2.com" },
   ];
+
+  const [urlList, setUrlList] = useState(['']);
   const [scenarios, setScenarios] = useState([
-      {id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
-      {id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
-      {id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
+      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
+      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
   ])
+
+  useEffect(() => {
+    const fetchWebPages = async () => {
+      try {
+        const urlsParsed = await fetch("http://localhost:8000/api/scrape-urls", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({url: "https://www.darknore.com"}),
+        });
+
+        const response = await urlsParsed.json();
+        console.log("hello");
+        console.log(response); // Check the response data in the console
+
+        setUrlList(response);
+        console.log("url list: ", urlList);
+
+
+      } catch (error) {
+        console.error('Failed to fetch tests:', error);
+        setUrlList([]);
+      }
+    };
+
+    fetchWebPages();
+  }, []);
+
+  const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
+  console.log("test creation dat on steps page: " + JSON.stringify(testCreationData))
 
   function handleAddNewTestStep(index) {
     const updatedScenarios = [...scenarios];
@@ -38,6 +72,7 @@ const Page = () => {
     const updatedScenarios = [...scenarios];
     updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].text = value;
     setScenarios(updatedScenarios);
+    console.log(updatedScenarios)
   }
 
   function handleSelectingWebPage(scenarioArrayIndex, testStepArrayIndex, value) {
@@ -46,11 +81,24 @@ const Page = () => {
     setScenarios(updatedScenarios);
   }
 
-  function handleRemove(index, id) {
-    const updatedScenarios = [...scenarios];
-    const updatedTestSteps = updatedScenarios[index].testSteps.filter((item) => item.id !== id);
-    updatedScenarios[index].testSteps = updatedTestSteps
-    setScenarios(updatedScenarios)
+  function handleRemove(scenarioArrayIndex, id) {
+    setScenarios((prevScenarios) => {
+      const updatedScenarios = [...prevScenarios];
+      const scenarioToUpdate = updatedScenarios[scenarioArrayIndex];
+
+      if (scenarioToUpdate) {
+        const updatedTestSteps = scenarioToUpdate.testSteps.filter(
+          (testStep) => testStep.id !== id
+        );
+        scenarioToUpdate.testSteps = updatedTestSteps;
+      }
+      return updatedScenarios;
+    });
+  }
+
+function handleCompletingTestSteps() {
+    updateScenarios(scenarios);
+    emptyData()
   }
 
   return (
@@ -95,7 +143,7 @@ const Page = () => {
                     indexOfScenarioArray={i}
                     handleTypingInTextField={handleTypingInTextField}
                     handleSelectingWebPage={handleSelectingWebPage}
-                    urlList={menuItems}
+                    urlList={urlList}
                   />
                 </Card>
               )
@@ -103,7 +151,7 @@ const Page = () => {
           </Stack>
           <div align="center">
             <Button variant="contained" size="small" align="center" sx={{mt: 2}}
-               href="/viewTest"
+               href="/" onClick={handleCompletingTestSteps}
             >
               Add Test Steps
             </Button>

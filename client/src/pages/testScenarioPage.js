@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useContext } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { subDays, subHours } from 'date-fns';
@@ -12,29 +12,34 @@ import { TestScenarios } from 'src/sections/createTests/testScenarios';
 import { SelectScenario } from 'src/sections/createTests/scenario-select';
 import { applyPagination } from 'src/utils/apply-pagination';
 import TextField from '@mui/material/TextField';
+import { TestCreationData } from 'src/contexts/test-creation-context';
 
 const now = new Date();
 
 const data = [
   {
-    testScenario: 'User enters a valid name and email address and submits the form successfully.',
+    scenario: 'User enters a valid name and email address and submits the form successfully.',
     scenarioType: "Happy Path",
-    createdAt: "06/19/2023"
+    createdAt: "06/19/2023",
+    testSteps: [{id: "", testStep: "", webpage:""}]
   },
   {
-    testScenario: 'User enters a valid name and a valid email address with special characters and submits the form successfully.',
+    scenario: 'User enters a valid name and a valid email address with special characters and submits the form successfully.',
     scenarioType: "Happy Path",
-    createdAt: "06/19/2023"
+    createdAt: "06/19/2023",
+    testSteps: [{id: "", testStep: "", webpage:""}]
   },
   {
-    testScenario: 'User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.',
+    scenario: 'User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.',
     scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023"
+    createdAt: "06/19/2023",
+    testSteps: [{id: "", testStep: "", webpage:""}]
   },
   {
-    testScenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
+    scenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
     scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023"
+    createdAt: "06/19/2023",
+    testSteps: [{id: "", testStep: "", webpage:""}]
   },
 ];
 
@@ -51,26 +56,27 @@ const useCustomerIds = (customers) => {
 
 const Page = () => {
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
+  const { testCreationData, updateScenarios } = useContext(TestCreationData);
 
-
+  // console.log(testCreationData)
   const router = useRouter();
 
-  console.log(router.query.response)
+  // console.log(router.query.response)
   const response = JSON.parse(router.query.response || '{}');
-  console.log(response)
+  // console.log(response)
 
 
 
     const testCaseObject = parseTestCases(response.result.content);
     const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
-    console.log("test case object: " + JSON.stringify(testCaseObject));
+    // console.log("test case object: " + JSON.stringify(testCaseObject));
 
   const breakupJson = response.result.content.split("\n");
   const removeSpaces = breakupJson.filter((item) => item !== '');
   const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
   var scenarios = removeTestScenarioTest;
 
-  console.log("scenarios: " + scenarios);
+  // console.log("scenarios: " + scenarios);
 
   function parseTestCases(string) {
     const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
@@ -95,12 +101,13 @@ const Page = () => {
 
   const handleSaveTests = async (event) => {
     event.preventDefault();
+    updateScenarios(data)
 
     const selectedItems = customersSelection.selected.map((selection) => {
       return { content: selection };
     });
 
-    console.log("selected items: " + selectedItems);
+    // console.log("selected items: " + selectedItems);
 
       // Send the API request
       const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
@@ -112,13 +119,14 @@ const Page = () => {
       });
 
       if (response.ok) {
-        router.push('/');
+        router.push('/testStepsPage');
       } else {
         // Handle the error case
         console.log('API request failed');
       }
 
   }
+
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const scenarioList = useScenarios(page, rowsPerPage);

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useState, useContext } from 'react';
 import Head from 'next/head';
 import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
@@ -9,6 +9,7 @@ import { useSelection } from 'src/hooks/use-selection';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { ViewTestTable } from 'src/sections/viewTests/view-test-table';
 import { applyPagination } from 'src/utils/apply-pagination';
+import { TestCreationData } from 'src/contexts/test-creation-context';
 
 const now = new Date();
 
@@ -62,12 +63,14 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
+  const { testCreationData } = useContext(TestCreationData);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const customers = useCustomers(page, rowsPerPage);
   const customersIds = useCustomerIds(customers);
   const customersSelection = useSelection(customersIds);
 
+  console.log(testCreationData)
   const handlePageChange = useCallback(
     (event, value) => {
       setPage(value);

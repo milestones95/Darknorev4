@@ -42,7 +42,7 @@ export const TestScenarios = (props) => {
   const selectedSome = (selected.length > 0) && (selected.length < items.length);
   const selectedAll = (items.length > 0) && (selected.length === items.length);
 
-  console.log("items: " + items);
+  // console.log("items: " + items);
 
   return (
     <Card>
@@ -79,8 +79,6 @@ export const TestScenarios = (props) => {
               </TableHead>
               <TableBody>
               {items.map((customer, i) => {
-                console.log("items: " + items)
-                console.log("customer: " + customer)
                 // var scenarioType, scenario = customer.split(":")
                 // console.log(scenarioType, " ", scenario)
                 const scenioCellColor = (customer.scenario_type == "Happy Path") ? "#E7F8F3" : "#FAD4D4"

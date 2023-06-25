@@ -27,14 +27,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
 
-  const {
-    urls
-  } = props;
-  
-  console.log("prop list: ", JSON.stringify(urls));
+  const { urls, customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
+
+
+  const handleRowRemove = () => {
+    handleRemove(indexOfScenarioArray, customer.id);
+  };
+
+  // console.log("prop list: ", JSON.stringify(urls));
 
   return (
-    <React.Fragment>
+    <React.Fragment key={customer.id}>
         <TableRow id={uuidv4()}>
           <TableCell padding="checkbox">
             {props.index + 1}
@@ -47,6 +50,7 @@ function Row(props) {
               placeholder="Enter Test Step"
               multiline
               fullWidth
+              defaultValue={props.customer.text}
             />
           </TableCell>
           <TableCell sx={{mr: 2}}>
@@ -57,17 +61,18 @@ function Row(props) {
             label="Choose Page"
             placeholder="Choose Page"
             fullWidth
+            defaultValue={props.customer.webpage}
             onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
           >
-        {urls.map((url) => (
-            <MenuItem key={url.key} value={url.value}>
-              {url.label}
-            </MenuItem>
-          ))}
+          {urls.map((url, index) => (
+          <MenuItem key={index} value={url}>
+            {url}
+          </MenuItem>
+        ))}
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
-             <Button id={uuidv4()} onClick={() => {props.handleRemove(props.indexOfScenarioArray, props.customer.id)}}>
+             <Button id={uuidv4()} onClick={() => {handleRowRemove()}}>
               <CloseIcon />
              </Button>
           </TableCell>
@@ -127,6 +132,7 @@ export const TestSteps = (props) => {
               {scenario.testSteps.map((customer, i) => {
                 return (
                   <Row
+                    customer={customer}
                     index={i}
                     handleRemove={handleRemove}
                     indexOfScenarioArray={indexOfScenarioArray}

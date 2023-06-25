@@ -26,9 +26,14 @@ import React, { useRef, useEffect, Component } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
-  console.log("props customer: ", props.customer)
+  const { customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
+
+
+  const handleRowRemove = () => {
+    handleRemove(indexOfScenarioArray, customer.id);
+  };
   return (
-    <React.Fragment>
+    <React.Fragment key={customer.id}>
         <TableRow id={uuidv4()}>
           <TableCell padding="checkbox">
             {props.index + 1}
@@ -64,7 +69,7 @@ function Row(props) {
           </TextField>
           </TableCell>
           <TableCell padding="checkbox">
-             <Button id={uuidv4()} onClick={() => {props.handleRemove(props.indexOfScenarioArray, props.customer.id)}}>
+             <Button id={uuidv4()} onClick={() => {handleRowRemove()}}>
               <CloseIcon />
              </Button>
           </TableCell>

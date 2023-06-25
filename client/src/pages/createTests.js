@@ -4,41 +4,44 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { AccountProfile } from 'src/sections/account/account-profile';
 import { TestInformation } from 'src/sections/createTests/testInformation';
 
-const Page = () => (
-  <>
-    <Head>
-      <title>
-        Create Tests | Darknore
-      </title>
-    </Head>
-    <Box
-      component="main"
-      sx={{
-        flexGrow: 1,
-        py: 8
-      }}
-    >
-      <Container maxWidth="lg">
-        <Stack spacing={3}>
-          <div>
-            <Grid
-              container
-              spacing={3}
-            >
+const Page = () => {
+  return (
+    <>
+      <Head>
+        <title>
+          Create Tests | Darknore
+        </title>
+      </Head>
+      <Box
+        component="main"
+        sx={{
+          flexGrow: 1,
+          py: 8
+        }}
+      >
+        <Container maxWidth="lg">
+          <Stack spacing={3}>
+            <div>
               <Grid
-                xs={12}
-                md={12}
-                lg={12}
+                container
+                spacing={3}
               >
-                <TestInformation />
+                <Grid
+                  xs={12}
+                  md={12}
+                  lg={12}
+                >
+                  <TestInformation />
+                </Grid>
               </Grid>
-            </Grid>
-          </div>
-        </Stack>
-      </Container>
-    </Box>
-  </>
-);
+            </div>
+          </Stack>
+        </Container>
+      </Box>
+    </>
+  )
+};
+
 
 Page.getLayout = (page) => (
   <DashboardLayout>

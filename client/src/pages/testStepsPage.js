@@ -52,10 +52,14 @@ const Page = () => {
 
   function handleRemove(scenarioArrayIndex, id) {
     const updatedScenarios = [...scenarios];
-    const scenarioToUpdate = updatedScenarios.find((scenario) => scenario.id === scenarios[scenarioArrayIndex].id);
+    const scenarioToUpdate = updatedScenarios.find(
+      (scenario) => scenario.id === scenarios[scenarioArrayIndex].id
+    );
 
     if (scenarioToUpdate) {
-      const updatedTestSteps = scenarioToUpdate.testSteps.filter((testStep) => testStep.id !== id);
+      const updatedTestSteps = scenarioToUpdate.testSteps.filter(
+        (testStep) => testStep.id !== id
+      );
       scenarioToUpdate.testSteps = updatedTestSteps;
     }
     setScenarios(updatedScenarios);
@@ -65,7 +69,6 @@ function handleCompletingTestSteps() {
     updateScenarios(scenarios);
     emptyData()
   }
-
 
   return (
     <>

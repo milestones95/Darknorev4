@@ -33,7 +33,7 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
 
   app.post("/api/createTestScenarios", async (req, res) => {
 
-  
+
     const requestBody = JSON.stringify(req.body);
 
     console.log("body: " + requestBody);
@@ -51,8 +51,8 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
     res.json({
         result: completion.data.choices[0].message
         })
-  
-  
+
+
 })
 
 app.post("/api/saveTestScenarios", async (req, res) => {

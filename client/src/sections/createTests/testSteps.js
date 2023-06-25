@@ -26,22 +26,16 @@ import React, { useRef, useEffect, Component } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 
 function Row(props) {
-<<<<<<< HEAD
-  const { customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
+
+  const { urls, customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
 
 
   const handleRowRemove = () => {
     handleRemove(indexOfScenarioArray, customer.id);
   };
-=======
 
-  const {
-    urls
-  } = props;
-  
   console.log("prop list: ", JSON.stringify(urls));
 
->>>>>>> 2a31f1716a698ffb30adaca684b2bedfafb4e182
   return (
     <React.Fragment key={customer.id}>
         <TableRow id={uuidv4()}>
@@ -136,6 +130,7 @@ export const TestSteps = (props) => {
               {scenario.testSteps.map((customer, i) => {
                 return (
                   <Row
+                    customer={customer}
                     index={i}
                     handleRemove={handleRemove}
                     indexOfScenarioArray={indexOfScenarioArray}

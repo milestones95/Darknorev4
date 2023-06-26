@@ -21,15 +21,6 @@ export const items = [
     )
   },
   {
-    title: 'Login',
-    path: '/auth/login',
-    icon: (
-      <SvgIcon fontSize="small">
-        <LockClosedIcon />
-      </SvgIcon>
-    )
-  },
-  {
     title: 'CreateTests',
     path: '/createTests',
     icon: (

@@ -3,20 +3,37 @@ import { createContext, useState } from 'react';
 export const TestCreationData = createContext();
 
 export const TestCreationDataProvider = ({ children }) => {
-     const [testCreationData, setTestCreationData] = useState({
-         userStoryName: "",
-         baseURL: "",
-         userStoryDescription: "",
-         acceptanceCriteria: "",
-         scenarios: [
-           {
-             scenarioType: "", createdAt: "",
-             id: "",
-             scenario: "",
-             testSteps: [{id: "", testStep: "", webpage:""}]
-           }
-         ]
-     })
+
+  const [testCreationData, setTestCreationData] = useState({
+    userStoryName: '',
+    baseURL: '',
+    userStoryDescription: '',
+    acceptanceCriteria: '',
+    scenarios: []
+  });
+
+  const addScenario = (scenario) => {
+    setTestCreationData((prevData) => ({
+      ...prevData,
+      scenarios: prevData.scenarios ? [...prevData.scenarios, scenario] : [scenario]
+    }));
+    
+  };
+
+    //  const [testCreationData, setTestCreationData] = useState({
+    //      userStoryName: "",
+    //      baseURL: "",
+    //      userStoryDescription: "",
+    //      acceptanceCriteria: "",
+    //      scenarios: [
+    //        {
+    //          scenarioType: "", createdAt: "",
+    //          id: "",
+    //          scenario: "",
+    //          testSteps: [{id: "", testStep: "", webpage:""}]
+    //        }
+    //      ]
+    //  })
 
     const addUserStory = (userStoryName, baseURL, userStoryDescription, acceptanceCriteria) => {
           console.log(userStoryName, baseURL, userStoryDescription, acceptanceCriteria)
@@ -24,15 +41,7 @@ export const TestCreationDataProvider = ({ children }) => {
               userStoryName: userStoryName,
               baseURL: baseURL,
               userStoryDescription: userStoryDescription,
-              acceptanceCriteria: acceptanceCriteria,
-              scenarios: [
-                {
-                  scenarioType: "", createdAt: "",
-                  id: "",
-                  scenario: "",
-                  testSteps: [{id: "", testStep: "", webpage:""}]
-                }
-              ]
+              acceptanceCriteria: acceptanceCriteria
           }
           setTestCreationData(updatedStestData);
       };;
@@ -41,6 +50,8 @@ export const TestCreationDataProvider = ({ children }) => {
         var updatedData = {...testCreationData}
         updatedData.scenarios = newScenarios
         setTestCreationData(updatedData)
+
+        console.log("final test creation data: ", testCreationData);
     };
 
   const emptyData = () => {
@@ -51,16 +62,16 @@ export const TestCreationDataProvider = ({ children }) => {
         acceptanceCriteria: "",
         scenarios: [
           {
-            scenarioType: "", createdAt: "",
+            scenarioType: "", 
             id: "",
             scenario: "",
-            testSteps: [{id: "", testStep: "", webpage:""}]
+            testSteps: [{id: "", text: "", webpage:""}]
           }
         ]
     })
   }
   return (
-    <TestCreationData.Provider value={{ testCreationData, addUserStory, updateScenarios, emptyData }}>
+    <TestCreationData.Provider value={{ testCreationData, addUserStory, addScenario, updateScenarios, emptyData }}>
       {children}
     </TestCreationData.Provider>
   );

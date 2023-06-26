@@ -4,7 +4,7 @@ import { subDays, subHours } from 'date-fns';
 import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
 import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
-import { Box, Button, Card, Container, Stack, SvgIcon, Typography } from '@mui/material';
+import { Alert, Box, Button, Card, Container, Stack, SvgIcon, Typography } from '@mui/material';
 import { useSelection } from 'src/hooks/use-selection';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { TestSteps } from 'src/sections/createTests/testSteps';
@@ -14,6 +14,7 @@ import Grid from '@mui/material/Grid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { v4 as uuidv4 } from 'uuid';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import { useRouter } from 'next/navigation';
 
 
 const Page = () => {
@@ -24,11 +25,6 @@ const Page = () => {
   ];
 
   const [urlList, setUrlList] = useState(['']);
-  const [scenarios, setScenarios] = useState([
-      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
-      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and email address and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]},
-      {scenarioType: "Happy Path", createdAt: "06/19/2023", id: uuidv4(), "scenario": "User does not enters a valid name and phone number and submits the form successfully.", "testSteps":[{id: uuidv4(), text:'', webpage:""}, {id: uuidv4(), text:'', webpage:""}]}
-  ])
 
   useEffect(() => {
     const fetchWebPages = async () => {
@@ -58,17 +54,32 @@ const Page = () => {
     fetchWebPages();
   }, []);
 
+  const router = useRouter();
+  const [showAlert, setShowAlert] = useState(false);
+  const handleAlertClose = () => {
+    setShowAlert(false);
+
+  };
+
+
   const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
+  console.log("test creation data scen: ", testCreationData.scenarios);
+
+  const [scenarios, setScenarios] = useState(testCreationData.scenarios)
+
+
   console.log("test creation dat on steps page: " + JSON.stringify(testCreationData))
 
   function handleAddNewTestStep(index) {
     const updatedScenarios = [...scenarios];
-    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text:"", webpage: ""})
+    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: updatedScenarios[index].id, text: updatedScenarios[index].content, webpage: ""})
     updatedScenarios[index].testSteps = updatedTestSteps
     setScenarios(updatedScenarios)
   }
 
   function handleTypingInTextField(scenarioArrayIndex, testStepArrayIndex, value) {
+
+    console.log("step value: ", value);
     const updatedScenarios = [...scenarios];
     updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].text = value;
     setScenarios(updatedScenarios);
@@ -76,6 +87,8 @@ const Page = () => {
   }
 
   function handleSelectingWebPage(scenarioArrayIndex, testStepArrayIndex, value) {
+    console.log("web page value: ", value);
+
     const updatedScenarios = [...scenarios];
     updatedScenarios[scenarioArrayIndex].testSteps[testStepArrayIndex].webpage = value;
     setScenarios(updatedScenarios);
@@ -96,9 +109,51 @@ const Page = () => {
     });
   }
 
-function handleCompletingTestSteps() {
+const handleCompletingTestSteps = async (event) =>  {
+  event.preventDefault();
+
+  for (let i = 0; i < scenarios.length; i++) {
+    console.log(scenarios[i].testSteps);
+    for (let j = 0; j < scenarios[i].testSteps.length; j++) {
+      console.log(scenarios[i].testSteps[j].text.trim());
+      if (scenarios[i].testSteps[j].text.trim() === '' &&
+          scenarios[i].testSteps[j].webpage.trim() === '') {
+        setShowAlert(true)
+        return
+      }
+    }
+  }
     updateScenarios(scenarios);
+
+    const testPayload = {
+      testCase: testCreationData,
+      urls: urlList
+    };
+
+    //Create all test cases
+    const response = await fetch("http://localhost:5000/api/generateAutomatedTests", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(testPayload),
+    });
+
+    if (response.ok) {
+      const responseData = await response.json();
+      router.push({
+        pathname: '/testScenarioPage',
+        query: { response: JSON.stringify(responseData) },
+      });
+    } else {
+      // Handle the error case
+      console.log('API request failed');
+    }
+
     emptyData()
+    // router.push({
+    //   pathname: '/',
+    // });
   }
 
   return (
@@ -123,6 +178,11 @@ function handleCompletingTestSteps() {
               spacing={4}
             >
               <Stack spacing={1}>
+              {showAlert && (
+                  <Alert severity="error" onClose={handleAlertClose}>
+                    Please complete all of your test steps.
+                  </Alert>
+                )}
                 <Typography variant="h4">
                   Tests Steps
                 </Typography>
@@ -151,9 +211,9 @@ function handleCompletingTestSteps() {
           </Stack>
           <div align="center">
             <Button variant="contained" size="small" align="center" sx={{mt: 2}}
-               href="/" onClick={handleCompletingTestSteps}
+              onClick={handleCompletingTestSteps}
             >
-              Add Test Steps
+              Create Automated tests
             </Button>
           </div>
         </Container>

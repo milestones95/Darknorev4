@@ -1,6 +1,7 @@
-import { useCallback, useState, useContext } from 'react';
+import { useCallback, useState, useContext, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import {
+  Alert,
   Box,
   Button,
   Card,
@@ -33,8 +34,8 @@ const states = [
 ];
 
 export const TestInformation = () => {
-
   const { testCreationData, addUserStory } = useContext(TestCreationData);
+  const [showAlert, setShowAlert] = useState(false);
 
   const router = useRouter();
 
@@ -67,6 +68,14 @@ export const TestInformation = () => {
       const url = event.target.elements.baseUrl.value;
       const userStoryDetails = event.target.elements.userStoryDescription.value;
       const ac = event.target.elements.acceptanceCriteria.value;
+
+      if (event.target.elements.userStoryName.value.trim() === '' &&
+          event.target.elements.baseUrl.value.trim() === '' &&
+          event.target.elements.userStoryDescription.value.trim() === '' &&
+          event.target.elements.acceptanceCriteria.value.trim() === '') {
+            setShowAlert(true)
+            return;
+      }
 
 
       addUserStory(name, url, userStoryDetails, ac)
@@ -111,8 +120,9 @@ export const TestInformation = () => {
       }
     };
 
-    // const history = useHistory();
-
+    const handleAlertClose = () => {
+      setShowAlert(false);
+    };
 
   return (
     <form
@@ -126,6 +136,11 @@ export const TestInformation = () => {
           title="Test Information"
         />
         <CardContent sx={{ pt: 0 }}>
+        {showAlert && (
+            <Alert severity="error" onClose={handleAlertClose}>
+              Please fill in all of the text fields.
+            </Alert>
+          )}
           <Box sx={{ m: -1.5 }}>
             <Grid
               container
@@ -141,7 +156,6 @@ export const TestInformation = () => {
                       label="User Story Name"
                       name="userStoryName"
                       required
-
                     />
                   </Grid>
                   <Grid
@@ -169,6 +183,7 @@ export const TestInformation = () => {
                   name="userStoryDescription"
                   multiline
                   rows={4}
+                  required
                 >
                 </TextField>
                 </Grid>
@@ -182,6 +197,7 @@ export const TestInformation = () => {
                     name="acceptanceCriteria"
                     multiline
                     rows={4}
+                    required
                   >
                   </TextField>
                 </Grid>

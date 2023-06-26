@@ -69,6 +69,29 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
 
 })
 
+app.post("/api/generateAutomatedTests", async (req, res) => {
+
+
+  const requestBody = JSON.stringify(req.body);
+
+  console.log("body: " + requestBody);
+  const completion = await openai.createChatCompletion({
+    model: "gpt-3.5-turbo",
+    messages:[
+      {"role": "system", "content": "You are an assistant who is a SDET that writes automated UI tests in selenium and java. You avoid using xpath to find elements and first try to use element id or name. Using xpath to get an element is your last resort. Use Testng framework for things like assertions.  You take test case scenarios and create automated tests."},
+      {"role": "user", "content":   "Use the provided test case, test steps, and html pages provided in json format to  write the automated test cases in selenium java. The test steps provided should go together into one automated test case. Only provide code, do not use any other words in conversation. Here is the json object: " + 
+      requestBody,}
+    ],
+    temperature: 0.5,
+  });
+  console.log(completion.data.choices[0].message);
+res.json({
+    result: completion.data.choices[0].message
+    })
+
+
+})
+
 app.post("/api/createTestCases", async (req, res) => {
 
   try {

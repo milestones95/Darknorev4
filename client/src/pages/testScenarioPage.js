@@ -12,7 +12,10 @@ import { TestScenarios } from 'src/sections/createTests/testScenarios';
 import { SelectScenario } from 'src/sections/createTests/scenario-select';
 import { applyPagination } from 'src/utils/apply-pagination';
 import TextField from '@mui/material/TextField';
+import Alert from '@mui/material/Alert';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import { v4 as uuidv4 } from 'uuid';
+
 
 const now = new Date();
 
@@ -43,27 +46,25 @@ const data = [
   },
 ];
 
-
-
-const useCustomerIds = (customers) => {
-  return useMemo(
-    () => {
-      return customers.map((customer) => customer.testScenario);
-    },
-    [customers]
-  );
-};
-
 const Page = () => {
+  const [showAlert, setShowAlert] = useState(false);
+  const handleAlertClose = () => {
+    setShowAlert(false);
+  };
+
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
-  const { testCreationData, updateScenarios } = useContext(TestCreationData);
+  // const { testCreationData, updateScenarios } = useContext(TestCreationData);
+  const { testCreationData, addScenario } = useContext(TestCreationData);
+
 
   // console.log(testCreationData)
   const router = useRouter();
 
+
+  console.log("helllooo")
   // console.log(router.query.response)
   const response = JSON.parse(router.query.response || '{}');
-  // console.log(response)
+  console.log("response: ", response)
 
 
 
@@ -82,48 +83,83 @@ const Page = () => {
     const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
     const testCases = [];
     let match;
-  
+
     while ((match = testCaseRegex.exec(string)) !== null) {
       const scenarioType = match[1];
       const testCase = match[2];
-      testCases.push({ scenario_type: scenarioType, test_case: testCase });
+      testCases.push({ id: uuidv4(), scenario_type: scenarioType, test_case: testCase });
     }
-  
+
+    console.log("test cases: ", testCases)
     return testCases;
   }
 
   const useScenarios = (page, rowsPerPage) => {
     return useMemo(() => {
-      return applyPagination(testCaseObject.map((testCase) => testCase.test_case), page, rowsPerPage);
+      return applyPagination(testCaseObject, page, rowsPerPage);
     }, [page, rowsPerPage]);
   };
   
 
+
   const handleSaveTests = async (event) => {
     event.preventDefault();
-    updateScenarios(data)
+    // updateScenarios(data)
+
+    console.log("customer selection: ", customersSelection);
+
+    
 
     const selectedItems = customersSelection.selected.map((selection) => {
-      return { content: selection };
+      // Find the corresponding scenario object using the selection value
+      const selectedScenario = testCaseObject.find((scenario) => scenario.test_case === selection);
+  
+      console.log("selectedScenario", selectedScenario);
+      // Extract the id and scenario_type properties
+      const { id, scenario_type } = selectedScenario;
+  
+      return {
+        content: selection,
+        id,
+        scenarioType: scenario_type,
+      };
     });
 
-    // console.log("selected items: " + selectedItems);
+    console.log(selectedItems);
+    console.log((selectedItems.length === 0) ? true : false);
+    if (selectedItems.length === 0) {
+      setShowAlert(true)
+      return
+    }
+
+    selectedItems.forEach((item) => {
+      addScenario({
+        scenarioType: item.scenarioType,
+        id: item.id,
+        scenario: item.content,
+        testSteps: [{ id: '', testStep: '', webpage: '' }]
+      });
+    });
+
+    console.log("test creation data after selected items only: ", testCreationData);
+
+    router.push('/testStepsPage');
 
       // Send the API request
-      const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedItems),
-      });
+      // const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: JSON.stringify(selectedItems),
+      // });
 
-      if (response.ok) {
-        router.push('/testStepsPage');
-      } else {
-        // Handle the error case
-        console.log('API request failed');
-      }
+      // if (response.ok) {
+      //   router.push('/testStepsPage');
+      // } else {
+      //   // Handle the error case
+      //   console.log('API request failed');
+      // }
 
   }
 
@@ -146,8 +182,6 @@ const Page = () => {
     },
     []
   );
-
-
 
   return (
     <>
@@ -175,6 +209,11 @@ const Page = () => {
                   Tests Scenario
                 </Typography>
               </Stack>
+              {showAlert && (
+               <Alert severity="error" onClose={handleAlertClose}>
+                 Please select one of the scenarios below
+               </Alert>
+             )}
             </Stack>
             <SelectScenario
               setDisplayedScenarios={setDisplayedScenarios}
@@ -183,11 +222,21 @@ const Page = () => {
               count={data.length}
               items={testCaseObject}
               onDeselectAll={customersSelection.handleDeselectAll}
-              onDeselectOne={customersSelection.handleDeselectOne}
+              onDeselectOne={(test_case, id, scenario_type) => {
+                customersSelection.handleDeselectOne(test_case);
+                // Handle the deselected scenario by passing its id and scenario_type
+                console.log('Deselected Scenario ID:', id);
+                console.log('Deselected Scenario Type:', scenario_type);
+              }}
               onPageChange={handlePageChange}
               onRowsPerPageChange={handleRowsPerPageChange}
               onSelectAll={customersSelection.handleSelectAll}
-              onSelectOne={customersSelection.handleSelectOne}
+              onSelectOne={(test_case, id, scenario_type) => {
+                customersSelection.handleSelectOne(test_case);
+                // Handle the selected scenario by passing its id and scenario_type
+                console.log('Selected Scenario ID:', id);
+                console.log('Selected Scenario Type:', scenario_type);
+              }}
               page={page}
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}

@@ -95,9 +95,9 @@ export const TestScenarios = (props) => {
                             checked={isSelected}
                             onChange={(event) => {
                               if (event.target.checked) {
-                                onSelectOne?.(customer.test_case);
+                                onSelectOne?.(customer.test_case, customer.id, customer.scenario_type);
                               } else {
-                                onDeselectOne?.(customer.test_scenario_type);
+                                onDeselectOne?.(customer.test_case, customer.id, customer.scenario_type);
                               }
                             }}
                           />

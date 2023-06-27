@@ -31,6 +31,14 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
       })
   });
 
+  app.get("/api/getTestAutomatedTests", cors(), async (req, res) => {
+
+    const { data, error } = await supabase
+    .from('automated_tests')
+    .select('*')
+    res.json([data])
+    });
+
   app.post("/api/createTestScenarios", async (req, res) => {
 
 

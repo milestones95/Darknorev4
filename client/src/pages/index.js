@@ -70,7 +70,6 @@ const Page = () => {
   const customersIds = useCustomerIds(customers);
   const customersSelection = useSelection(customersIds);
 
-  console.log(testCreationData)
   const handlePageChange = useCallback(
     (event, value) => {
       setPage(value);

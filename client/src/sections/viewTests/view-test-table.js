@@ -38,27 +38,27 @@ function Row(props) {
   const [ isOpen2, setIsOpen2 ] = useState(false);
   const [ isOpen3, setIsOpen3 ] = useState(false);
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component
-  const [code, setCode] = React.useState(`
-    // Hello World! program
-    namespace HelloWorld
-    {
-        class Hello {
-            static void Main(string[] args)
-            {
-                System.Console.WriteLine("Hello World!");
-            }
-        }
-    }
-  `);
+  const [code, setCode] = React.useState(props.code);
+
+  const timestamp = props.testCase.created_at; // Replace this with your timestamp string
+
+  const date = new Date(timestamp);
+  const options = {
+    month: 'numeric',
+    day: 'numeric',
+    year: 'numeric'
+  };
+
+  const formattedDate = date.toLocaleDateString(undefined, options);
   return (
     <React.Fragment key={props.index}>
       <TableRow>
         <TableCell>
           <Stack direction="row" spacing={2}>
-            <Typography variant="subtitle2">{props.test.content}</Typography>
+            <Typography variant="subtitle2">{props.testCase.content}</Typography>
           </Stack>
         </TableCell>
-        <TableCell>11/12/1996</TableCell>
+        <TableCell>{formattedDate}</TableCell>
         <TableCell padding="checkbox">
           <Button onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
@@ -70,44 +70,8 @@ function Row(props) {
           <Collapse in={isOpen} timeout="auto" unmountOnExit>
             <Table>
               <TableHead>
-                <TableRow>
-                  <TableCell>Test Type</TableCell>
-                  <TableCell padding="checkbox" />
-                </TableRow>
               </TableHead>
               <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="subtitle2">Plain English Test Case</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell padding="checkbox">
-                    <Button onClick={() => setIsOpen2(!isOpen2)}>
-                      {isOpen2 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
-                      <Collapse in={isOpen2} timeout="auto" unmountOnExit>
-                        <div align="right" style={{ background: "#EBEDF1" }}>
-                          <Button variant="outlined" onClick={() => { navigator.clipboard.writeText(plainTextTestCase.current.value) }}>
-                            Copy
-                          </Button>
-                        </div>
-                        <TextField
-                          id="outlined-multiline-static"
-                          label="Multiline"
-                          multiline
-                          rows={4}
-                          defaultValue="Default Value"
-                          sx={{width:"100%"}}
-                          inputRef={plainTextTestCase}
-                        />
-                      </Collapse>
-                    </TableCell>
-                  </TableRow>
                 <TableRow>
                   <TableCell>
                     <Stack direction="row" spacing={2}>
@@ -159,7 +123,7 @@ function Row(props) {
 }
 
 Row.propTypes = {
-  tests: PropTypes.arrayOf(
+  testCase: PropTypes.arrayOf(
      PropTypes.shape({
        content: PropTypes.string.isRequired,
        created_datetime: PropTypes.string.isRequired,
@@ -167,6 +131,7 @@ Row.propTypes = {
      }),
    ).isRequired,
    index: PropTypes.number.isRequired,
+   code: PropTypes.string.isRequired,
 };
 
 export const ViewTestTable = (props) => {
@@ -190,10 +155,28 @@ export const ViewTestTable = (props) => {
 
   const [ isOpen, setIsOpen ] = useState([]);
   const [ isOpen2, setIsOpen2 ] = useState(false);
-  const [ tests, setTests ] = useState([]);
-
+  const [ testCases, setTestCases ] = useState([]);
+  const [ automatedTests, setAutomatedTests] = useState([]);
 
   useEffect(() => {
+
+    const fetchAutomatedTests = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/getTestAutomatedTests", {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+            }
+          });
+
+        const data = await response.json();
+        setAutomatedTests(data);
+      } catch (error) {
+        console.error('Failed to fetch automatedTests:', error);
+        setAutomatedTests([]);
+      }
+    };
+
     const fetchTests = async () => {
       try {
         console.log("i was clicked");
@@ -204,15 +187,15 @@ export const ViewTestTable = (props) => {
             }
           });
 
-        const data = await response.json();
-        setTests(data.tests);
+        const data = await response.json()
+        setTestCases(data.tests);
       } catch (error) {
         console.error('Failed to fetch tests:', error);
-        setTests([]);
+        setTestCases([]);
       }
     };
 
-    fetchTests();
+    fetchTests().then(fetchAutomatedTests());
   }, []);
 
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component
@@ -230,10 +213,21 @@ export const ViewTestTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {tests.map((test, index) => { console.log(test); return (
+              {testCases.map((testCase, index) => {
+                  console.log(testCase);
+                  console.log(automatedTests);
+                  var code = {}
+                  if (automatedTests.length !== 0) {
+                     code = automatedTests[0].filter(
+                      (test) => test.test_case_id === testCase.id
+                    )[0].test_content
+                    console.log(code)
+                  }
+                  return (
                 <Row
-                  test={test}
+                  testCase={testCase}
                   index={index}
+                  code={code}
                 />
               )})}
             </TableBody>

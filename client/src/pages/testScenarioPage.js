@@ -110,7 +110,8 @@ const Page = () => {
 
   const useScenarios = (page, rowsPerPage) => {
     return useMemo(() => {
-      return applyPagination(scenarios.map((testCase) => testCase.test_case), page, rowsPerPage);
+      return applyPagination(scenarios.map((testCase) => {console.log("fixing checkboxes: ", testCase.test_case); return testCase.test_case}
+    ), page, rowsPerPage);
     }, [page, rowsPerPage]);
   };
 

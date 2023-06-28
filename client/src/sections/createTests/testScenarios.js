@@ -54,17 +54,7 @@ export const TestScenarios = (props) => {
               <TableHead>
                 <TableRow>
                 <TableCell padding="checkbox">
-                  <Checkbox
-                    checked={selectedAll}
-                    indeterminate={selectedSome}
-                    onChange={(event) => {
-                      if (event.target.checked) {
-                        onSelectAll?.();
-                      } else {
-                        onDeselectAll?.();
-                      }
-                    }}
-                  />
+                
                 </TableCell>
                   <TableCell>
                     Test Scenario

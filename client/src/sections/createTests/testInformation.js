@@ -82,17 +82,17 @@ export const TestInformation = () => {
       addUserStory(name, url, userStoryDetails, ac)
 
 
-        // Send the API request
-        const urlsParsed = await fetch("http://localhost:8000/api/scrape-urls", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({url: "https://www.darknore.com"}),
-        });
-
-        const parsedUrls = await urlsParsed.json();
-        console.log("response data: " + JSON.stringify(parsedUrls));
+        // // Send the API request
+        // const urlsParsed = await fetch("http://localhost:8000/api/scrape-urls", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({url: "https://www.darknore.com"}),
+        // });
+        //
+        // const parsedUrls = await urlsParsed.json();
+        // console.log("response data: " + JSON.stringify(parsedUrls));
 
 
       // Create the request body

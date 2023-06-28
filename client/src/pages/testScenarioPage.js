@@ -74,33 +74,43 @@ const Page = () => {
 
 
   const testCaseObject = parseTestCases(response.result.content);
-  const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
-  console.log("test case object: " + JSON.stringify(testCaseObject));
+  const scenarios = testCaseObject.Test_Case_Scenarios;
+  // const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
+  // console.log("test case object: " + JSON.stringify(testCaseObject));
+  //
+  // const breakupJson = response.result.content.split("\n");
+  // const removeSpaces = breakupJson.filter((item) => item !== '');
+  // const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
+  // var scenarios = removeTestScenarioTest;
 
-  const breakupJson = response.result.content.split("\n");
-  const removeSpaces = breakupJson.filter((item) => item !== '');
-  const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
-  var scenarios = removeTestScenarioTest;
-
-  console.log("scenarios: " + scenarios);
+  // console.log("scenarios: " + scenarios);
 
   function parseTestCases(string) {
-    const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
-    const testCases = [];
-    let match;
+    // const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
+    // const testCases = [];
+    // let match;
+    //
+    // while ((match = testCaseRegex.exec(string)) !== null) {
+    //   const scenarioType = match[1];
+    //   const testCase = match[2];
+    //   testCases.push({ scenario_type: scenarioType, test_case: testCase });
+    // }
+    //
+    // return testCases;
+    // Enclose the objects within an array
+    console.log("no quotes shawty: ", string)
+    // const validJsonString = `[${string}]`;
+    const escapedJsonString = string.replace(/'/g, '"');
+    // Parse the JSON string
+    const jsonObject = JSON.parse(string);
 
-    while ((match = testCaseRegex.exec(string)) !== null) {
-      const scenarioType = match[1];
-      const testCase = match[2];
-      testCases.push({ scenario_type: scenarioType, test_case: testCase });
-    }
-
-    return testCases;
+    console.log("i am JSON!!!", jsonObject);
+    return jsonObject
   }
 
   const useScenarios = (page, rowsPerPage) => {
     return useMemo(() => {
-      return applyPagination(testCaseObject.map((testCase) => testCase.test_case), page, rowsPerPage);
+      return applyPagination(scenarios.map((testCase) => testCase.test_case), page, rowsPerPage);
     }, [page, rowsPerPage]);
   };
 
@@ -108,10 +118,22 @@ const Page = () => {
   const handleSaveTests = async (event) => {
     event.preventDefault();
     updateScenarios(data)
+    //
+    // const selectedItems = customersSelection.selected.map((selection) => {
+    //   return { content: selection, scenarioType: selection.scenario_type };
+    // });
 
     const selectedItems = customersSelection.selected.map((selection) => {
-      return { content: selection };
-    });
+      // Find the corresponding scenario object using the selection value
+      const selectedScenario = scenarios.find((scenario) => scenario.test_case === selection);
+
+      console.log("selectedScenario", selectedScenario);
+      // Extract the id and scenario_type properties
+      const { id, scenario_type } = selectedScenario;
+
+      return {
+        content: selection,
+        scenarioType: scenario_type }});
 
     console.log('i am selected items: ', selectedItems);
     console.log((selectedItems.length === 0) ? true : false);
@@ -196,8 +218,8 @@ const Page = () => {
               setDisplayedScenarios={setDisplayedScenarios}
             />
             <TestScenarios
-              count={data.length}
-              items={testCaseObject}
+              count={scenarios.length}
+              items={scenarios}
               onDeselectAll={customersSelection.handleDeselectAll}
               onDeselectOne={customersSelection.handleDeselectOne}
               onPageChange={handlePageChange}

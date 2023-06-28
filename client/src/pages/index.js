@@ -10,6 +10,7 @@ import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
 import { ViewTestTable } from 'src/sections/viewTests/view-test-table';
 import { applyPagination } from 'src/utils/apply-pagination';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import { SelectScenario } from 'src/sections/createTests/scenario-select';
 
 const now = new Date();
 
@@ -63,6 +64,8 @@ const useCustomerIds = (customers) => {
 };
 
 const Page = () => {
+  const [displayedScenarios, setDisplayedScenarios] = useState("All");
+
   const { testCreationData } = useContext(TestCreationData);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(5);
@@ -109,6 +112,9 @@ const Page = () => {
                 <Typography variant="h4">
                   Test Name
                 </Typography>
+                <SelectScenario
+                  setDisplayedScenarios={setDisplayedScenarios}
+                />
               </Stack>
               <div>
                 <Button
@@ -136,6 +142,7 @@ const Page = () => {
               page={page}
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}
+              displayedScenarios={displayedScenarios}
             />
           </Stack>
         </Container>

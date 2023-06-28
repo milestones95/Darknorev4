@@ -7,6 +7,11 @@
       "secure": false,
       "changeOrigin": true
     },
+    "/api/getHtmlBodies": {
+      "target": "http://localhost:8000",
+      "secure": false,
+      "changeOrigin": true
+    },
     "/api/saveTestScenarios": {
       "target": "http://localhost:5000",
       "secure": false,

@@ -5,10 +5,10 @@ export const TestCreationData = createContext();
 export const TestCreationDataProvider = ({ children }) => {
 
   const [testCreationData, setTestCreationData] = useState({
-    userStoryName: '',
-    baseURL: '',
-    userStoryDescription: '',
-    acceptanceCriteria: '',
+    userStoryName: "",
+    baseURL: "",
+    userStoryDescription: "",
+    acceptanceCriteria: "",
     scenarios: []
   });
 
@@ -19,21 +19,6 @@ export const TestCreationDataProvider = ({ children }) => {
     }));
     
   };
-
-    //  const [testCreationData, setTestCreationData] = useState({
-    //      userStoryName: "",
-    //      baseURL: "",
-    //      userStoryDescription: "",
-    //      acceptanceCriteria: "",
-    //      scenarios: [
-    //        {
-    //          scenarioType: "", createdAt: "",
-    //          id: "",
-    //          scenario: "",
-    //          testSteps: [{id: "", testStep: "", webpage:""}]
-    //        }
-    //      ]
-    //  })
 
     const addUserStory = (userStoryName, baseURL, userStoryDescription, acceptanceCriteria) => {
           console.log(userStoryName, baseURL, userStoryDescription, acceptanceCriteria)
@@ -65,7 +50,8 @@ export const TestCreationDataProvider = ({ children }) => {
             scenarioType: "", 
             id: "",
             scenario: "",
-            testSteps: [{id: "", text: "", webpage:""}]
+            testSteps: [{id: "", text: "", webpage:"", html:""}],
+            code: ""
           }
         ]
     })

@@ -19,33 +19,6 @@ import { v4 as uuidv4 } from 'uuid';
 
 const now = new Date();
 
-const data = [
-  {
-    scenario: 'User enters a valid name and email address and submits the form successfully.',
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters a valid name and a valid email address with special characters and submits the form successfully.',
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.',
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-];
-
 const Page = () => {
   const [showAlert, setShowAlert] = useState(false);
   const handleAlertClose = () => {
@@ -69,7 +42,7 @@ const Page = () => {
 
 
     const testCaseObject = parseTestCases(response.result.content);
-    const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
+    console.log("test case object", testCaseObject);
     // console.log("test case object: " + JSON.stringify(testCaseObject));
 
   const breakupJson = response.result.content.split("\n");
@@ -137,7 +110,8 @@ const Page = () => {
         scenarioType: item.scenarioType,
         id: item.id,
         scenario: item.content,
-        testSteps: [{ id: '', testStep: '', webpage: '' }]
+        testSteps: [{ id: "", text: "", webpage: "", html:"" }],
+        code:''
       });
     });
 
@@ -219,7 +193,7 @@ const Page = () => {
               setDisplayedScenarios={setDisplayedScenarios}
             />
             <TestScenarios
-              count={data.length}
+              count={testCaseObject.length}
               items={testCaseObject}
               onDeselectAll={customersSelection.handleDeselectAll}
               onDeselectOne={(test_case, id, scenario_type) => {

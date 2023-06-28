@@ -87,7 +87,7 @@ export const TestInformation = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({url: "https://www.darknore.com"}),
+          body: JSON.stringify({url: url}),
         });
 
         const parsedUrls = await urlsParsed.json();

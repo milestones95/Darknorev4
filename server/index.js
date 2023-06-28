@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors middleware
 supabase = require("./SupabaseServer.js")
 const { Configuration, OpenAIApi } = require("openai");
+const axios = require('axios');
 
 
 const configuration = new Configuration({
@@ -26,6 +27,7 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
   .select('*')
 
 
+    console.log('data: ', data);
     res.json({
       tests: data
       })
@@ -49,6 +51,8 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
 
 
     const requestBody = JSON.stringify(req.body);
+    console.log("hello i'm here scenarios!!!!")
+
 
     console.log("body: " + requestBody);
     const completion = await openai.createChatCompletion({
@@ -70,27 +74,132 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
 })
 
 app.post("/api/generateAutomatedTests", async (req, res) => {
-
-
   const requestBody = JSON.stringify(req.body);
 
-  console.log("body: " + requestBody);
-  const completion = await openai.createChatCompletion({
-    model: "gpt-3.5-turbo",
-    messages:[
-      {"role": "system", "content": "You are an assistant who is a SDET that writes automated UI tests in selenium and java. You avoid using xpath to find elements and first try to use element id or name. Using xpath to get an element is your last resort. Use Testng framework for things like assertions.  You take test case scenarios and create automated tests."},
-      {"role": "user", "content":   "Use the provided test case, test steps, and html pages provided in json format to  write the automated test cases in selenium java. The test steps provided should go together into one automated test case. Only provide code, do not use any other words in conversation. Here is the json object: " + 
-      requestBody,}
-    ],
-    temperature: 0.5,
-  });
-  console.log(completion.data.choices[0].message);
-res.json({
-    result: completion.data.choices[0].message
-    })
+  try {
+    // Make an HTTP POST request to your Python API
+    // const response = await axios.post('http://localhost:8000/api/getHtmlBodies', requestBody, {
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+
+    // // Process the response from the Python API
+    // const responseData = response.data;
+    // console.log('Response from Python API:', response);
+
+    const testObject = {
+      "testSteps": [
+        {
+          "id": "06b7b934-3acf-4287-a081-cfd4136fdbc0",
+          "testStep": "click contact us button",
+          "webpage": "https://www.darknore.com/",
+          "html": "<a class=\"button cp-button w-button\" href=\"/darknore-quote-form\">Contact Us</a></div>"
+        },
+        {
+          "id": "06b7b934-3acf-4287-a081-cfd4136fdba3",
+          "testStep": "fill out form with name and email fields",
+          "webpage": "https://www.darknore.com/darknore-quote-form",
+          "html": "<form data-name=\"Darknore Form\" data-wf-element-id=\"c6e8a98d-c7ea-aac4-635e-c08eba40f6a3\" data-wf-page-id=\"63a76722c7b14482b016ab7e\" id=\"wf-form-Darknore-Form\" method=\"get\" name=\"wf-form-Darknore-Form\"><label for=\"name\">Name</label><input class=\"w-input\" data-name=\"name\" id=\"name\" maxlength=\"256\" name=\"name\" placeholder=\"\" required=\"\" type=\"text\"/><label for=\"email\">Email Address</label><input class=\"w-input\" data-name=\"Email\" id=\"email\" maxlength=\"256\" name=\"email\" placeholder=\"\" required=\"\" type=\"email\"/><input class=\"w-button\" data-wait=\"Please wait...\" id=\"submit-inquiry\" type=\"submit\" value=\"Submit\"/></form><div class=\"w-form-done\"><div>Thank you! Your submission has been received!</div></div>"
+        }
+      ]
+    };
+    
+    console.log("stringify test object: " + JSON.stringify(testObject));
+    
+    // console.log("response scenarios: " + JSON.stringify(response.data.scenarios[0]));
+    
+    const systemMessage = {
+      "role": "system",
+      "content": "You are an assistant who is an SDET that writes automated UI tests in Selenium and C#. You read the test case description and then look at the list of test steps. You use those test steps to convert into code in order to complete a UI test case. You avoid using XPath to find elements and first try to use element ID or name. Using XPath to get an element is your last resort. The response should only consist of source code."
+    };
+    
+    const userMessages = [
+      {
+        "role": "user",
+        "content": "Here is the scenario: As a user, I can submit my contact information to the form on my website. The form consists of only a name field and an email field."
+      }
+    ];
+    
+    let concatenatedResponses = ""; // Variable to store concatenated responses
+    
+    // Loop through each individual test step
+    for (const testStep of testObject.testSteps) {
+      const apiInput = {
+        messages: [
+          systemMessage,
+          ...userMessages,
+          {
+            "role": "user",
+            "content": JSON.stringify(testStep)
+          }
+        ],
+        model: "gpt-3.5-turbo",
+        temperature: 0.5
+      };
+    
+      console.log("object defined");
+    
+      try {
+        const completion = await openai.createChatCompletion(apiInput);
+        const response = completion.data.choices[0].message.content;
+        console.log("Response for test step: " + testStep.testStep + "\n" + response);
+    
+        concatenatedResponses += response + "\n"; // Concatenate the response with a newline separator
+      } catch (error) {
+        console.error('API error:', error.response.data);
+      }
+    }
+    
+    console.log("Concatenated Responses: " + concatenatedResponses);
+    
+    // Handle the concatenated responses here
+    
 
 
-})
+
+
+    // Assign the response to the 'code' property in the current scenario object
+    // testObject.code = gptResponse;
+    // console.log('code: ', testObject.code);
+    // Loop through scenarios and call the API for each scenario
+    // for (let i = 0; i < responseData.scenarios.length; i++) {
+    //   const scenario = responseData.scenarios[i];
+
+    //   console.log("scenario: ", scenario);
+    //   const apiInput = {
+    //     messages: [
+    //       {"role": "system", "content": "You are an assistant who is an SDET that writes automated UI tests in Selenium and C#. You avoid using XPath to find elements and first try to use element ID or name. Using XPath to get an element is your last resort. The response should only consist of source code."},
+    //       {"role": "user", "content": "Here is the scenario: " + JSON.stringify(scenario)}
+    //     ],
+    //     model: "gpt-3.5-turbo",
+    //     temperature: 0.5
+    //   };
+
+    //   // Make API call for the current scenario
+    //   const completion = await openai.createChatCompletion(apiInput);
+    //   const response = completion.data.choices[0].message.content;
+
+    //   // Assign the response to the 'code' property in the current scenario object
+    //   scenario.code = response;
+    //   console.log('code: ', scenario.code);
+
+    //   // Delay for 1 second before processing the next scenario
+    //   if (i < responseData.scenarios.length - 1) {
+    //     await new Promise((resolve) => setTimeout(resolve, 1000));
+    //   }
+    // }
+
+    // res.json({
+    // result: completion.data.choices[0].message
+    // })
+    res.status(200).send('Success');
+  } catch (error) {
+    console.error('Error occurred:', error.message);
+    res.status(500).send('Internal Server Error');
+  }
+});
+
 
 app.post("/api/createTestCases", async (req, res) => {
 

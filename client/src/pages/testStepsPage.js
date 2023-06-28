@@ -17,6 +17,7 @@ import { TestCreationData } from 'src/contexts/test-creation-context';
 import { useRouter } from 'next/navigation';
 
 
+
 const Page = () => {
 
   const menuItems = [
@@ -25,6 +26,7 @@ const Page = () => {
   ];
 
   const [urlList, setUrlList] = useState(['']);
+  const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
 
   useEffect(() => {
     const fetchWebPages = async () => {
@@ -34,7 +36,7 @@ const Page = () => {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({url: "https://www.darknore.com"}),
+          body: JSON.stringify({url: testCreationData.baseURL}),
         });
 
         const response = await urlsParsed.json();
@@ -62,7 +64,6 @@ const Page = () => {
   };
 
 
-  const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
   console.log("test creation data scen: ", testCreationData.scenarios);
 
   const [scenarios, setScenarios] = useState(testCreationData.scenarios)
@@ -72,7 +73,7 @@ const Page = () => {
 
   function handleAddNewTestStep(index) {
     const updatedScenarios = [...scenarios];
-    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: updatedScenarios[index].id, text: updatedScenarios[index].content, webpage: ""})
+    const updatedTestSteps = updatedScenarios[index].testSteps.concat({id: uuidv4(), text: updatedScenarios[index].content, webpage: "", html:""})
     updatedScenarios[index].testSteps = updatedTestSteps
     setScenarios(updatedScenarios)
   }
@@ -139,16 +140,16 @@ const handleCompletingTestSteps = async (event) =>  {
       body: JSON.stringify(testPayload),
     });
 
-    if (response.ok) {
-      const responseData = await response.json();
-      router.push({
-        pathname: '/testScenarioPage',
-        query: { response: JSON.stringify(responseData) },
-      });
-    } else {
-      // Handle the error case
-      console.log('API request failed');
-    }
+    // if (response.ok) {
+    //   const responseData = await response.json();
+    //   router.push({
+    //     pathname: '/testScenarioPage',
+    //     query: { response: JSON.stringify(responseData) },
+    //   });
+    // } else {
+    //   // Handle the error case
+    //   console.log('API request failed');
+    // }
 
     emptyData()
     // router.push({

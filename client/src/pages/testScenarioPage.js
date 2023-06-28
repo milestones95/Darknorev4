@@ -73,9 +73,9 @@ const Page = () => {
 
 
 
-    const testCaseObject = parseTestCases(response.result.content);
-    const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
-    console.log("test case object: " + JSON.stringify(testCaseObject));
+  const testCaseObject = parseTestCases(response.result.content);
+  const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
+  console.log("test case object: " + JSON.stringify(testCaseObject));
 
   const breakupJson = response.result.content.split("\n");
   const removeSpaces = breakupJson.filter((item) => item !== '');
@@ -113,12 +113,13 @@ const Page = () => {
       return { content: selection };
     });
 
-    console.log(selectedItems);
+    console.log('i am selected items: ', selectedItems);
     console.log((selectedItems.length === 0) ? true : false);
     if (selectedItems.length === 0) {
       setShowAlert(true)
       return
     }
+      console.log("About to call the api!!!")
       // Send the API request
       const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
         method: "POST",
@@ -127,9 +128,11 @@ const Page = () => {
         },
         body: JSON.stringify(selectedItems),
       });
+      console.log("YOU CALLED ME!!!!!!!")
 
       if (response.ok) {
-        router.push('/testStepsPage');
+        router.push('/');
+        console.log("response was ok")
       } else {
         // Handle the error case
         console.log('API request failed');

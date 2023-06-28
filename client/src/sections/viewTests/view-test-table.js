@@ -48,6 +48,8 @@ function Row(props) {
     day: 'numeric',
     year: 'numeric'
   };
+  const scenioCellColor = (props.testCase.scenarioType == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
+
 
   const formattedDate = date.toLocaleDateString(undefined, options);
   return (
@@ -58,66 +60,11 @@ function Row(props) {
             <Typography variant="subtitle2">{props.testCase.content}</Typography>
           </Stack>
         </TableCell>
-        <TableCell>{formattedDate}</TableCell>
-        <TableCell padding="checkbox">
-          <Button onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-          </Button>
+        <TableCell sx={{ background: scenioCellColor }}>
+          {props.testCase.scenarioType}
         </TableCell>
+        <TableCell>{formattedDate}</TableCell>
       </TableRow>
-      <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
-          <Collapse in={isOpen} timeout="auto" unmountOnExit>
-            <Table>
-              <TableHead>
-              </TableHead>
-              <TableBody>
-                <TableRow>
-                  <TableCell>
-                    <Stack direction="row" spacing={2}>
-                      <Typography variant="subtitle2">Automated Test Case</Typography>
-                    </Stack>
-                  </TableCell>
-                  <TableCell padding="checkbox">
-                    <Button onClick={() => setIsOpen3(!isOpen3)}>
-                      {isOpen3 ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                    </Button>
-                  </TableCell>
-                </TableRow>
-                <TableRow>
-                  <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={3}>
-                      <Collapse in={isOpen3} timeout="auto" unmountOnExit>
-                      <Box sx={{ margin: 1}}>
-                        <div  align="right" style={{
-                        background: "#EBEDF1",
-                        }}>
-                        <Button variant="outlined" onClick={() => {navigator.clipboard.writeText(code)}}>
-                            Copy
-                        </Button>
-                        </div>
-                        <CodeEditor
-                        component="div"
-                              value={code}
-                              language="csharp"
-                              placeholder="Please enter C# code."
-                              onChange={(evn) => setCode(evn.target.value)}
-                              padding={15}
-                              style={{
-                                fontSize: 12,
-                                backgroundColor: "#F9E9B9",
-                                fontFamily:
-                                  "ui-monospace,SFMono-Regular,SF Mono,Consolas,Liberation Mono,Menlo,monospace"
-                              }}
-                            />
-                          </Box>
-                      </Collapse>
-                    </TableCell>
-                  </TableRow>
-              </TableBody>
-            </Table>
-          </Collapse>
-      </TableCell>
-    </TableRow>
     </React.Fragment>
   )
 }
@@ -137,6 +84,7 @@ Row.propTypes = {
 export const ViewTestTable = (props) => {
   const {
     count = 0,
+    displayedScenarios,
     items = [],
     onDeselectAll,
     onDeselectOne,
@@ -208,6 +156,7 @@ export const ViewTestTable = (props) => {
             <TableHead>
               <TableRow>
                 <TableCell>Name</TableCell>
+                <TableCell>Scenario Type</TableCell>
                 <TableCell>Created Date</TableCell>
                 <TableCell></TableCell>
               </TableRow>
@@ -215,21 +164,40 @@ export const ViewTestTable = (props) => {
             <TableBody>
               {testCases.map((testCase, index) => {
                   console.log(testCase);
-                  console.log(automatedTests);
-                  var code = {}
-                  if (automatedTests.length !== 0) {
-                     code = automatedTests[0].filter(
-                      (test) => test.test_case_id === testCase.id
-                    )[0].test_content
-                    console.log(code)
+                  console.log(displayedScenarios)
+                  if (displayedScenarios === 'All') {
+                        return (
+                      <Row
+                        testCase={testCase}
+                        index={index}
+                      />
+                    )
                   }
-                  return (
-                <Row
-                  testCase={testCase}
-                  index={index}
-                  code={code}
-                />
-              )})}
+                  if (testCase.scenarioType === 'Happy Path'&& displayedScenarios === 'Happy Path') {
+                        return (
+                      <Row
+                        testCase={testCase}
+                        index={index}
+                      />
+                    )
+                  }
+                  if (testCase.scenarioType === 'Non-Happy Path' && displayedScenarios === 'Non-Happy Path') {
+                        return (
+                      <Row
+                        testCase={testCase}
+                        index={index}
+                      />
+                    )
+                  }
+                  if (testCase.scenarioType === 'Edge Case' && displayedScenarios === 'Edge Case') {
+                        return (
+                      <Row
+                        testCase={testCase}
+                        index={index}
+                      />
+                    )
+                  }
+                  return })}
             </TableBody>
           </Table>
         </Box>

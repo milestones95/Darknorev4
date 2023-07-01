@@ -109,8 +109,8 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
-      app.use(express.static("",'../client/src/App.js'));
-
+      app.use(express.static("",'client/src/App.js'));
+      console.log("i am dir: ", __dirname)
       // Express serve up index.html file if it doesn't recognize the route
       app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../client/_'));

@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors middleware
 supabase = require("./SupabaseServer.js")
 const { Configuration, OpenAIApi } = require("openai");
+const path = require('path');
 
 
 const configuration = new Configuration({
@@ -104,8 +105,6 @@ app.post("/api/saveTestScenarios", async (req, res) => {
 
 
   if (process.env.NODE_ENV === 'production') {
-
-    const path = require('path');
 
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {

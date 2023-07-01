@@ -109,7 +109,7 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
-      app.use(express.static(path.join(__dirname, '../client/build')));
+      app.use(express.static('../client/build'));
 
       console.log("directorypath before: "+ path.join(__dirname, '../client/build'))
     

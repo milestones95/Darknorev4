@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npm cache clean --force",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cd server && npm install && node index.js",
     "build": "cd client && npm install && npm run build"

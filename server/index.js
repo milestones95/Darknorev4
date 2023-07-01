@@ -111,15 +111,6 @@ app.post("/api/saveTestScenarios", async (req, res) => {
       // Express will serve up production assets
       app.use(express.static('../client/src/build/index.html'));
 
-      app.get('/', (req, res) => {
-        const directoryPath = __dirname;
-        res.send(`The current directory is: ${directoryPath}`);
-      });
-
-      app.listen(3000, () => {
-        console.log('Server is running on port 3000');
-      });
-
       // Express serve up index.html file if it doesn't recognize the route
       app.get('*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../client/_'));

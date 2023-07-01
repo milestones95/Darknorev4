@@ -109,7 +109,7 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
-      app.use(express.static('../client/src/pages/index.js'));
+      app.use(express.static('../client/src/App.js'));
 
       // Express serve up index.html file if it doesn't recognize the route
       app.get('*', (req, res) => {

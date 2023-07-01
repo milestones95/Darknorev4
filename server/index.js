@@ -109,7 +109,16 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
-      app.use(express.static('../client/src/pages/_app.js'));
+      app.use(express.static('../client/src/pages/index.js'));
+
+      app.get('/', (req, res) => {
+        const directoryPath = __dirname;
+        res.send(`The current directory is: ${directoryPath}`);
+      });
+
+      app.listen(3000, () => {
+        console.log('Server is running on port 3000');
+      });
 
       // Express serve up index.html file if it doesn't recognize the route
       app.get('*', (req, res) => {

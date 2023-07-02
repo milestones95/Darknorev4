@@ -43,7 +43,7 @@ const TestCreation = () => {
 };
 
 
-Page.getLayout = (page) => (
+TestCreation.getLayout = (page) => (
   <DashboardLayout>
     {page}
   </DashboardLayout>

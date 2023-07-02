@@ -116,7 +116,7 @@ function getFolders(dir) {
     // Exprees will serve up production assets
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
-      app.use(express.static('../client/build'));
+      // app.use(express.static('../client/build'));
 
       app.get('/', (req, res) => {
         const rootDir = __dirname; // The root directory of your JavaScript project

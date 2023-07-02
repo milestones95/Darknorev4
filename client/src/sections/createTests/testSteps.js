@@ -131,7 +131,7 @@ export const TestSteps = (props) => {
               <TableBody>
               {scenario.testSteps.map((customer, i) => {
                 return (
-                  <Row
+                  <Row key={i}
                     customer={customer}
                     index={i}
                     handleRemove={handleRemove}

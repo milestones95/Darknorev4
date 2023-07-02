@@ -79,7 +79,7 @@ export const TestScenarios = (props) => {
                 if (displayedScenarios == "Happy Path") {
                   if (customer.scenario_type == "Happy Path") {
                     return(
-                        <TableRow
+                        <TableRow key={i}
                           hover
                         >
                         <TableCell padding="checkbox">
@@ -116,7 +116,7 @@ export const TestScenarios = (props) => {
                 if (displayedScenarios == "Edge Case") {
                   if (customer.scenario_type == "Edge Case") {
                     return(
-                        <TableRow
+                        <TableRow key={i}
                           hover
                         >
                         <TableCell padding="checkbox">
@@ -152,7 +152,7 @@ export const TestScenarios = (props) => {
                 if (displayedScenarios == "Non-Happy Path") {
                   if (customer.scenario_type == "Non-Happy Path") {
                     return(
-                        <TableRow
+                        <TableRow key={i}
                           hover
                         >
                         <TableCell padding="checkbox">
@@ -186,7 +186,7 @@ export const TestScenarios = (props) => {
                     return
                 }
                 return(
-                    <TableRow
+                    <TableRow key={i}
                       hover
                     >
                     <TableCell padding="checkbox">

@@ -128,7 +128,7 @@ function handleCompletingTestSteps() {
             </Stack>
             {scenarios.map((scenario, i) => {
               return (
-                <Card sx={{ p: 2 }}>
+                <Card key={i} sx={{ p: 2 }}>
                     <Typography sx={{ mb: 2 }}>
                       Scenario {i + 1} - {scenario.scenario}
                     </Typography>

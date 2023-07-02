@@ -167,7 +167,7 @@ export const ViewTestTable = (props) => {
                   console.log(displayedScenarios)
                   if (displayedScenarios === 'All') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -175,7 +175,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Happy Path'&& displayedScenarios === 'Happy Path') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -183,7 +183,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Non-Happy Path' && displayedScenarios === 'Non-Happy Path') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -191,7 +191,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Edge Case' && displayedScenarios === 'Edge Case') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />

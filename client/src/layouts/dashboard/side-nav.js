@@ -57,7 +57,6 @@ export const SideNav = (props) => {
               <Typography
                 color="inherit"
                 variant="subtitle1"
-                variant="h2"
               >
                 Darknore
               </Typography>

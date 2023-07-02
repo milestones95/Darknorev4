@@ -1,5 +1,5 @@
 import { useCallback, useState, useContext, useEffect } from 'react';
-import { useRouter } from 'next/router';
+// import { useRouter } from 'next/router';
 import {
   Alert,
   Box,
@@ -37,7 +37,7 @@ export const TestInformation = () => {
   const {addUserStory } = useContext(TestCreationData);
   const [showAlert, setShowAlert] = useState(false);
 
-  const router = useRouter();
+  // const router = useRouter();
 
   const handleSubmit = async (event) => {
       event.preventDefault();
@@ -90,16 +90,16 @@ export const TestInformation = () => {
         body: JSON.stringify(requestBody),
       });
 
-      if (response.ok) {
-        const responseData = await response.json();
-        router.push({
-          pathname: '/testScenarioPage',
-          query: { response: JSON.stringify(responseData) },
-        });
-      } else {
-        // Handle the error case
-        console.log('API request failed');
-      }
+      // if (response.ok) {
+      //   const responseData = await response.json();
+      //   router.push({
+      //     pathname: '/testScenarioPage',
+      //     query: { response: JSON.stringify(responseData) },
+      //   });
+      // } else {
+      //   // Handle the error case
+      //   console.log('API request failed');
+      // }
 
     };
 

@@ -103,20 +103,7 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     })
 })
 
-// // Define a route to handle the request for listing folders
-// app.get('/folders', (req, res) => {
-//   const rootDir = __dirname; // The root directory of your JavaScript project
-//   const folders = getFolders(rootDir);
-//   res.json(folders);
-// });
 
-// Helper function to get folders recursively from a given directory
-function getFolders(dir) {
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => dirent.name);
-}
 
   if (process.env.NODE_ENV === 'production') {
 
@@ -124,9 +111,6 @@ function getFolders(dir) {
     if (process.env.NODE_ENV === 'production') {
       // Express will serve up production assets
       app.use(express.static('../client/build'));
-      const rootDir = __dirname; // The root directory of your JavaScript project
-      const folders = getFolders(rootDir);
-      res.json(folders);
 
       // Express serve up index.html file if it doesn't recognize the route
       app.get('*', (req, res) => {

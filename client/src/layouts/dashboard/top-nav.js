@@ -18,7 +18,7 @@ import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
 import React, { useState, useEffect } from 'react';
-import NewTestWizard  from '/src/sections/layouts/new-test-wizard';
+import NewTestWizard  from 'src/sections/layouts/new-test-wizard';
 import Grid from '@mui/material/Grid';
 
 const SIDE_NAV_WIDTH = 280;

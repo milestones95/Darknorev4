@@ -1,5 +1,5 @@
 import { useCallback, useState, useContext, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/router';
 import {
   Alert,
   Box,
@@ -34,30 +34,10 @@ const states = [
 ];
 
 export const TestInformation = () => {
-  const { testCreationData, addUserStory } = useContext(TestCreationData);
+  const {addUserStory } = useContext(TestCreationData);
   const [showAlert, setShowAlert] = useState(false);
 
   const router = useRouter();
-
-  const [values, setValues] = useState({
-    firstName: 'Anika',
-    lastName: 'Visser',
-    email: 'demo@devias.io',
-    phone: '',
-    state: 'los-angeles',
-    country: 'USA'
-  });
-
-
-  const handleChange = useCallback(
-    (event) => {
-      setValues((prevState) => ({
-        ...prevState,
-        [event.target.name]: event.target.value
-      }));
-    },
-    []
-  );
 
   const handleSubmit = async (event) => {
       event.preventDefault();

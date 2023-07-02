@@ -1,12 +1,16 @@
 import logo from './logo.svg';
 import './App.css';
 import TestCreation from 'src/pages/TestCreation'
+import { TestCreationDataProvider } from 'src/contexts/test-creation-context';
+
 
 function App() {
   return (
       <div className="App">
         <header className="App-header">
-        <TestCreation/>
+        <TestCreationDataProvider>
+          <TestCreation/>
+        </TestCreationDataProvider>
         </header>
       </div>
   );

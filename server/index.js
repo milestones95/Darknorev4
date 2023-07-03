@@ -107,10 +107,10 @@ app.post("/api/saveTestScenarios", async (req, res) => {
     // Exprees will serve up production assets
     const path = require('path');
 
-    app.use(express.static(path.join(__dirname, '../client/build')));
+    app.use(express.static(path.join(__dirname, '../client/out')));
     
     app.get('*', (req, res) => {
-      res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
+      res.sendFile(path.resolve(__dirname, '../client/out', 'index.html'));
     });
     
   }

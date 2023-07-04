@@ -31,7 +31,7 @@ const App = (props) => {
     <CacheProvider value={emotionCache}>
       <Head>
         <title>
-          Devias Kit
+          Darknore
         </title>
         <meta
           name="viewport"

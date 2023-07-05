@@ -116,7 +116,7 @@ const Page = () => {
                   setDisplayedScenarios={setDisplayedScenarios}
                 />
               </Stack>
-              <div>
+              {/* <div>
                 <Button
                   startIcon={(
                     <SvgIcon fontSize="small">
@@ -128,7 +128,7 @@ const Page = () => {
                 >
                   New Test
                 </Button>
-              </div>
+              </div> */}
             </Stack>
             <ViewTestTable
               count={data.length}

@@ -66,7 +66,6 @@ export const AuthProvider = (props) => {
   const initialized = useRef(false);
 
   const initialize = async () => {
-    console.log('in initialize');
     // Prevent from calling twice in development mode with React.StrictMode enabled
     if (initialized.current) {
       return;
@@ -126,7 +125,6 @@ export const AuthProvider = (props) => {
   );
 
   const skip = () => {
-    console.log('In skip')
     try {
       window.sessionStorage.setItem('authenticated', 'true');
     } catch (err) {
@@ -149,7 +147,6 @@ export const AuthProvider = (props) => {
   const signIn = async (email, password) => {
     const {data,error} = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      console.log(error)
       throw new Error('Please check your email and password');
     }
 

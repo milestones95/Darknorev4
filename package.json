@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cd server && npm install && node index.js",
-    "build": "cd client && npm install && npx next build && npx next export"
+    "build": "cd client && npm install --legacy-peer-deps && npx next build && npx next export"
   },
   "author": "",
   "license": "ISC",

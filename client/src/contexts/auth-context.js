@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
+import { supabase } from "../api/SupabaseClient";
 
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
@@ -81,11 +82,27 @@ export const AuthProvider = (props) => {
     }
 
     if (isAuthenticated) {
+      let user_data = null;
+      let refresh_token = window.sessionStorage.getItem('user_refresh_token');
+      if(refresh_token){
+        const { data, error } = await supabase.auth.refreshSession({ refresh_token })
+        user_data = data;
+        if(user_data.session){
+          window.sessionStorage.setItem('user_refresh_token', user_data.session.refresh_token);
+        }
+      }
+      // const { session, user } = data;
+      // const user = {
+      //   id: '5e86809283e28b96d2d38537',
+      //   avatar: '/assets/avatars/avatar-anika-visser.png',
+      //   name: 'Anika Visser',
+      //   email: 'anika.visser@devias.io'
+      // };
       const user = {
-        id: '5e86809283e28b96d2d38537',
+        id: user_data?.user?.id || '',
         avatar: '/assets/avatars/avatar-anika-visser.png',
-        name: 'Anika Visser',
-        email: 'anika.visser@devias.io'
+        name: user_data?.user?.email || '',
+        email: user_data?.user?.email || ''
       };
 
       dispatch({
@@ -128,21 +145,29 @@ export const AuthProvider = (props) => {
   };
 
   const signIn = async (email, password) => {
-    if (email !== 'demo@clockwork.com' || password !== 'clockworkIsTheBest1234!') {
+    const {data,error} = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
       throw new Error('Please check your email and password');
     }
 
     try {
       window.sessionStorage.setItem('authenticated', 'true');
+      window.sessionStorage.setItem('user_refresh_token', data.session.refresh_token);
     } catch (err) {
       console.error(err);
     }
 
+    // const user = {
+    //   id: '5e86809283e28b96d2d38537',
+    //   avatar: '/assets/avatars/avatar-anika-visser.png',
+    //   name: 'Anika Visser',
+    //   email: 'anika.visser@devias.io'
+    // };
     const user = {
-      id: '5e86809283e28b96d2d38537',
+      id: data.user.id || '5e86809283e28b96d2d38537',
       avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: 'Anika Visser',
-      email: 'anika.visser@devias.io'
+      name: data.user.email || 'Anika Visser',
+      email: data.user.email || 'anika.visser@devias.io'
     };
 
     dispatch({

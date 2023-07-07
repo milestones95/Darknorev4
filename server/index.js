@@ -20,10 +20,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
 app.get("/api/getTestScenarios", cors(), async (req, res) => {
-
+  const user_id = req.query.user_id;
   const { data, error } = await supabase
   .from('test_case')
   .select('*')
+  .eq('user_id', user_id)
 
 
     res.json({

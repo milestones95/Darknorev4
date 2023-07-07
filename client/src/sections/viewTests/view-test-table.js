@@ -26,6 +26,7 @@ import React, { useRef, useEffect, Component } from 'react'
 import dynamic from "next/dynamic";
 import "@uiw/react-textarea-code-editor/dist.css";
 import Grid from '@mui/material/Grid';
+import {useAuthContext} from '../../contexts/auth-context';
 
 const CodeEditor = dynamic(
   () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
@@ -105,6 +106,7 @@ export const ViewTestTable = (props) => {
   const [ isOpen2, setIsOpen2 ] = useState(false);
   const [ testCases, setTestCases ] = useState([]);
   const [ automatedTests, setAutomatedTests] = useState([]);
+  const { user } = useAuthContext();
 
   useEffect(() => {
 
@@ -128,7 +130,7 @@ export const ViewTestTable = (props) => {
     const fetchTests = async () => {
       try {
         console.log("i was clicked");
-        const response = await fetch("http://localhost:5000/api/getTestScenarios", {
+        const response = await fetch(`http://localhost:5000/api/getTestScenarios/?user_id=${user.id}`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -162,7 +164,7 @@ export const ViewTestTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {testCases.map((testCase, index) => {
+              {testCases && testCases.map((testCase, index) => {
                   console.log(testCase);
                   console.log(displayedScenarios)
                   if (displayedScenarios === 'All') {

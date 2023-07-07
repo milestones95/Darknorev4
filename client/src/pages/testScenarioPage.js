@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import { TestCreationData } from 'src/contexts/test-creation-context';
 import {useAuthContext} from '../contexts/auth-context';
+import {saveTestScenarios} from '../services/toDoServices';
 const now = new Date();
 
 const data = [
@@ -148,13 +149,7 @@ const Page = () => {
     }
       console.log("About to call the api!!!")
       // Send the API request
-      const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedItems),
-      });
+      const response = await saveTestScenarios(selectedItems)
       console.log("YOU CALLED ME!!!!!!!")
 
       if (response.ok) {

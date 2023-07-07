@@ -27,6 +27,7 @@ import dynamic from "next/dynamic";
 import "@uiw/react-textarea-code-editor/dist.css";
 import Grid from '@mui/material/Grid';
 import {useAuthContext} from '../../contexts/auth-context';
+import { getAllTestCases, getTestAutomatedTests } from '../../services/toDoServices'
 
 const CodeEditor = dynamic(
   () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
@@ -112,14 +113,8 @@ export const ViewTestTable = (props) => {
 
     const fetchAutomatedTests = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/getTestAutomatedTests", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+        const response = await getTestAutomatedTests()
 
-        const data = await response.json();
         setAutomatedTests(data);
       } catch (error) {
         console.error('Failed to fetch automatedTests:', error);
@@ -127,25 +122,19 @@ export const ViewTestTable = (props) => {
       }
     };
 
-    const fetchTests = async () => {
-      try {
-        console.log("i was clicked");
-        const response = await fetch(`http://localhost:5000/api/getTestScenarios/?user_id=${user.id}`, {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+      const fetchTests = async () => {
+        try {
+          console.log("i was clicked");
+          const response = await getAllTestCases(user.id);
 
-        const data = await response.json()
-        setTestCases(data.tests);
-      } catch (error) {
-        console.error('Failed to fetch tests:', error);
-        setTestCases([]);
-      }
-    };
+          setTestCases(response.tests);
+        } catch (error) {
+          console.error('Failed to fetch tests:', error);
+          setTestCases([]);
+        }
+      };
 
-    fetchTests().then(fetchAutomatedTests());
+      fetchTests().then(fetchAutomatedTests());
   }, []);
 
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component

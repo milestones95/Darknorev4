@@ -13,6 +13,7 @@ import {
   Unstable_Grid2 as Grid
 } from '@mui/material';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import {createTestScenarios} from '../../services/toDoServices'
 
 const states = [
   {
@@ -102,14 +103,7 @@ export const TestInformation = () => {
       };
 
       // Send the API request
-      const response = await fetch("http://localhost:5000/api/createTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
+      const response = await createTestScenarios(requestBody);
       if (response.ok) {
         const responseData = await response.json();
         router.push({

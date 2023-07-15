@@ -33,6 +33,7 @@ const getTestScenarios = async (req, res) => {
 
 // Create test Scenarios
 const createTestScenarios = async (req, res) => {
+  console.log(req);
     const requestBody = JSON.stringify(req.body);
   
     console.log("body: " + requestBody);

@@ -12,6 +12,7 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { TestCreationData } from 'src/contexts/test-creation-context';
 import {createTestScenarios} from '../../services/toDoServices'
 
@@ -37,6 +38,7 @@ const states = [
 export const TestInformation = () => {
   const { testCreationData, addUserStory } = useContext(TestCreationData);
   const [showAlert, setShowAlert] = useState(false);
+  const [isGeneratingScenarios, setIsGeneratingScenarios] = useState(false);
 
   const router = useRouter();
 
@@ -62,6 +64,7 @@ export const TestInformation = () => {
 
   const handleSubmit = async (event) => {
       event.preventDefault();
+      setIsGeneratingScenarios(true);
 
       console.log("generate clicked");
 
@@ -114,6 +117,7 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
+      setIsGeneratingScenarios(false);
 
     };
 
@@ -204,9 +208,9 @@ export const TestInformation = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" type="submit">
+          <LoadingButton variant="contained" type="submit" loading={isGeneratingScenarios}>
             Generate Scenarios
-          </Button>
+          </LoadingButton>
         </CardActions>
       </Card>
     </form>

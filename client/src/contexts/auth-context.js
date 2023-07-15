@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
-import { supabase } from "../api/SupabaseClient";
+import { supabase } from "../pages/api/SupabaseClient";
 
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',

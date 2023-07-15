@@ -1,5 +1,5 @@
 const { Configuration, OpenAIApi } = require("openai");
-const supabase = require("../SupabaseClient.js")
+const supabase = require("../SupabaseServer.js")
 
 const configuration = new Configuration({
   apiKey: process.env.OPENAI_API_KEY,

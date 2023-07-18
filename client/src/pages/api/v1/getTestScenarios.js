@@ -1,4 +1,4 @@
-const supabase = require("../SupabaseServer.js")
+const supabase = require("../SupabaseClient.js").supabase
 // get test case scenarios
 const getTestScenarios = async (req, res) => {
     console.log('getTestScenarios has been called')

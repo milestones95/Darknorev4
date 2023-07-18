@@ -4,4 +4,4 @@ import { createClient } from '@supabase/supabase-js'
   'https://abniisbhpxstkyezeosc.supabase.co',
   process.env.SUPABASE_KEY);
 
-   module.exports = supabase;
+   export default supabase;

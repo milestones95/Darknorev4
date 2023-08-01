@@ -69,18 +69,28 @@ export const TestInformation = () => {
       console.log("generate clicked");
 
       // Get the form field values
-      const name = event.target.elements.userStoryName.value;
-      const url = event.target.elements.baseUrl.value;
+      // const name = event.target.elements.userStoryName.value;
+      const name = '';
+
+      // const url = event.target.elements.baseUrl.value;
+      const url = '';
       const userStoryDetails = event.target.elements.userStoryDescription.value;
       const ac = event.target.elements.acceptanceCriteria.value;
 
-      if (event.target.elements.userStoryName.value.trim() === '' &&
-          event.target.elements.baseUrl.value.trim() === '' &&
-          event.target.elements.userStoryDescription.value.trim() === '' &&
-          event.target.elements.acceptanceCriteria.value.trim() === '') {
-            setShowAlert(true)
-            return;
-      }
+      // if (event.target.elements.userStoryName.value.trim() === '' &&
+      //     event.target.elements.baseUrl.value.trim() === '' &&
+      //     event.target.elements.userStoryDescription.value.trim() === '' &&
+      //     event.target.elements.acceptanceCriteria.value.trim() === '') {
+      //       setShowAlert(true)
+      //       return;
+      // }
+
+      if (
+      event.target.elements.userStoryDescription.value.trim() === '' &&
+      event.target.elements.acceptanceCriteria.value.trim() === '') {
+        setShowAlert(true)
+        return;
+  }
 
 
       addUserStory(name, url, userStoryDetails, ac)
@@ -149,7 +159,7 @@ export const TestInformation = () => {
             <Grid
               xs={6}
             >
-                  <Grid
+                  {/* <Grid
                     xs={8}
                   >
                     <TextField
@@ -169,7 +179,7 @@ export const TestInformation = () => {
                       required
                       placeholder="https://"
                     />
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               <Grid
                 xs={6}

@@ -50,7 +50,21 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
         model: "gpt-3.5-turbo",
         messages:[
         {"role": "system", "content": "You are an assistant that is a quality assurance tester. Your task is to create test case scenarios for based on a product’s user story and the acceptance criteria. The test case scenarios should include happy paths and nonhappy paths, and even edge cases. Declare each test case should be prepended by its scenario type separated by a colon. "},
-        {"role": "user", "content": "User story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.\nAcceptance criteria:\nWhen I click pause, netflix will save the scene where I stopped watching the show.\nIf there is a network error when I try to pause, netflix will use the last saved index of my show and will continue from that point when I return to watch netflix.\nWhen I press play, netflix will resume the show from the same place when I paused it."},
+        {"role": "user", "content":
+              `User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
+
+               Test Steps:
+               - A user logs into Netflix
+               - Look through several potenital shows
+               - Click into the show that interests me
+               - Then I click on the video player
+               - The user clicks the play arrow to pause the show
+               - When i press the play arrow again my show will resume where it left off
+
+               Acceptance criteria:
+               Verify that when a user clicks pause, netflix will save the scene where they stopped watching the show.\nIf there is a network error when they try to pause, netflix will use the last saved index of my show and will continue from that point when they return to watch netflix.\nWhen they press play, netflix will resume the show from the same place where they paused it.
+              `
+        },
         {"role": "assistant", "content": `
         {
             "Test_Case_Scenarios": [

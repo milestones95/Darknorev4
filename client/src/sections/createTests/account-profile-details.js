@@ -10,7 +10,7 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
-
+import {createTestScenarios} from "../../services/toDoServices";
 const states = [
   {
     value: 'alabama',
@@ -53,13 +53,7 @@ export const AccountProfileDetails = () => {
   const handleSubmit = async (event) => {
       event.preventDefault();
       console.log("i was clicked");
-      const response = await fetch("http://localhost:5000/api/createTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ hola: "" }),
-      });
+      const response = await createTestScenarios();
     };
 
   return (

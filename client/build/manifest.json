@@ -1,6 +1,11 @@
 {
+<<<<<<< HEAD
   "short_name": "React App",
   "name": "Create React App Sample",
+=======
+  "short_name": "Darknore",
+  "name": "Darknore",
+>>>>>>> e01b7f85a0f61f31060ef41dca4542213c665353
   "icons": [
     {
       "src": "favicon.ico",

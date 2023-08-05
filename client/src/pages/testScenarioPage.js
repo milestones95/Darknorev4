@@ -14,7 +14,8 @@ import { applyPagination } from 'src/utils/apply-pagination';
 import TextField from '@mui/material/TextField';
 import Alert from '@mui/material/Alert';
 import { TestCreationData } from 'src/contexts/test-creation-context';
-
+import {useAuthContext} from '../contexts/auth-context';
+import {saveTestScenarios} from '../services/toDoServices';
 const now = new Date();
 
 const data = [
@@ -61,6 +62,7 @@ const Page = () => {
     setShowAlert(false);
   };
 
+  const { user } = useAuthContext();
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const { testCreationData, updateScenarios } = useContext(TestCreationData);
 
@@ -134,7 +136,10 @@ const Page = () => {
 
       return {
         content: selection,
-        scenarioType: scenario_type }});
+        scenarioType: scenario_type,
+        user_id: user.id
+        }
+      });
 
     console.log('i am selected items: ', selectedItems);
     console.log((selectedItems.length === 0) ? true : false);
@@ -144,13 +149,7 @@ const Page = () => {
     }
       console.log("About to call the api!!!")
       // Send the API request
-      const response = await fetch("http://localhost:5000/api/saveTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedItems),
-      });
+      const response = await saveTestScenarios(selectedItems)
       console.log("YOU CALLED ME!!!!!!!")
 
       if (response.ok) {

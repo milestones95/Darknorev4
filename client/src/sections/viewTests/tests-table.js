@@ -64,9 +64,9 @@ export const TestsTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {items.map((customer) => {
+              {items.map((customer, i) => {
                 return (
-                  <TableRow>
+                  <TableRow key={i}>
                     <TableCell>
                       <Stack alignItems="center" direction="row" spacing={2}>
                         <Typography variant="subtitle2">

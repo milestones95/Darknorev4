@@ -12,7 +12,9 @@ import {
   TextField,
   Unstable_Grid2 as Grid
 } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 import { TestCreationData } from 'src/contexts/test-creation-context';
+import {createTestScenarios} from '../../services/toDoServices'
 
 const states = [
   {
@@ -36,27 +38,39 @@ const states = [
 export const TestInformation = () => {
   const {addUserStory } = useContext(TestCreationData);
   const [showAlert, setShowAlert] = useState(false);
+  const [isGeneratingScenarios, setIsGeneratingScenarios] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = async (event) => {
       event.preventDefault();
+      setIsGeneratingScenarios(true);
 
       console.log("generate clicked");
 
       // Get the form field values
-      const name = event.target.elements.userStoryName.value;
-      const url = event.target.elements.baseUrl.value;
+      // const name = event.target.elements.userStoryName.value;
+      const name = '';
+
+      // const url = event.target.elements.baseUrl.value;
+      const url = '';
       const userStoryDetails = event.target.elements.userStoryDescription.value;
       const ac = event.target.elements.acceptanceCriteria.value;
 
-      if (event.target.elements.userStoryName.value.trim() === '' &&
-          event.target.elements.baseUrl.value.trim() === '' &&
-          event.target.elements.userStoryDescription.value.trim() === '' &&
-          event.target.elements.acceptanceCriteria.value.trim() === '') {
-            setShowAlert(true)
-            return;
-      }
+      // if (event.target.elements.userStoryName.value.trim() === '' &&
+      //     event.target.elements.baseUrl.value.trim() === '' &&
+      //     event.target.elements.userStoryDescription.value.trim() === '' &&
+      //     event.target.elements.acceptanceCriteria.value.trim() === '') {
+      //       setShowAlert(true)
+      //       return;
+      // }
+
+      if (
+      event.target.elements.userStoryDescription.value.trim() === '' &&
+      event.target.elements.acceptanceCriteria.value.trim() === '') {
+        setShowAlert(true)
+        return;
+  }
 
 
       addUserStory(name, url, userStoryDetails, ac)
@@ -82,14 +96,7 @@ export const TestInformation = () => {
       };
 
       // Send the API request
-      const response = await fetch("http://localhost:5000/api/createTestScenarios", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestBody),
-      });
-
+      const response = await createTestScenarios(requestBody);
       if (response.ok) {
         const responseData = await response.json();
         router.push({
@@ -100,6 +107,7 @@ export const TestInformation = () => {
         // Handle the error case
         console.log('API request failed');
       }
+      setIsGeneratingScenarios(false);
 
     };
 
@@ -131,7 +139,7 @@ export const TestInformation = () => {
             <Grid
               xs={6}
             >
-                  <Grid
+                  {/* <Grid
                     xs={8}
                   >
                     <TextField
@@ -151,7 +159,7 @@ export const TestInformation = () => {
                       required
                       placeholder="https://"
                     />
-                  </Grid>
+                  </Grid> */}
                 </Grid>
               <Grid
                 xs={6}
@@ -190,9 +198,9 @@ export const TestInformation = () => {
         </CardContent>
         <Divider />
         <CardActions sx={{ justifyContent: 'flex-end' }}>
-          <Button variant="contained" type="submit">
+          <LoadingButton variant="contained" type="submit" loading={isGeneratingScenarios}>
             Generate Scenarios
-          </Button>
+          </LoadingButton>
         </CardActions>
       </Card>
     </form>

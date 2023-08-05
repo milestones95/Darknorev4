@@ -4,15 +4,14 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors middleware
+<<<<<<< HEAD
 supabase = require("./SupabaseServer.js")
 const { Configuration, OpenAIApi } = require("openai");
 const path = require('path');
+=======
+supabase = require("./SupabaseServer.js").default
+>>>>>>> e01b7f85a0f61f31060ef41dca4542213c665353
 
-
-const configuration = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
 
 
 app.use(bodyParser.json());
@@ -20,6 +19,7 @@ app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 
+<<<<<<< HEAD
 app.get("/api/getTestScenarios", cors(), async (req, res) => {
 
   const { data, error } = await supabase
@@ -94,8 +94,12 @@ app.get("/api/getTestScenarios", cors(), async (req, res) => {
     res.json({
         result: completion.data.choices[0].message
         })
+=======
+>>>>>>> e01b7f85a0f61f31060ef41dca4542213c665353
 
+app.use("/api/v1/", require("./routes/testRoute"));
 
+<<<<<<< HEAD
 })
 
 app.post("/api/saveTestScenarios", async (req, res) => {
@@ -134,3 +138,16 @@ app.post("/api/saveTestScenarios", async (req, res) => {
 
   }
   app.listen(process.env.PORT || 5000, () => { console.log("server started on port 5000")})
+=======
+if (process.env.NODE_ENV === 'production') {
+  // Exprees will serve up production assets
+  const path = require('path');
+
+  app.use(express.static(path.join(__dirname, '../client/out')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../client/out', 'index.html'));
+  });
+}
+app.listen(process.env.PORT || 5000, () => { console.log("server started on port 5000")})
+>>>>>>> e01b7f85a0f61f31060ef41dca4542213c665353

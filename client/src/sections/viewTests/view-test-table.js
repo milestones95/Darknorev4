@@ -26,6 +26,8 @@ import React, { useRef, useEffect, Component } from 'react'
 import dynamic from "next/dynamic";
 import "@uiw/react-textarea-code-editor/dist.css";
 import Grid from '@mui/material/Grid';
+import {useAuthContext} from '../../contexts/auth-context';
+import { getAllTestCases, getTestAutomatedTests } from '../../services/toDoServices'
 
 const CodeEditor = dynamic(
   () => import("@uiw/react-textarea-code-editor").then((mod) => mod.default),
@@ -105,19 +107,14 @@ export const ViewTestTable = (props) => {
   const [ isOpen2, setIsOpen2 ] = useState(false);
   const [ testCases, setTestCases ] = useState([]);
   const [ automatedTests, setAutomatedTests] = useState([]);
+  const { user } = useAuthContext();
 
   useEffect(() => {
 
     const fetchAutomatedTests = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/getTestAutomatedTests", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+        const response = await getTestAutomatedTests()
 
-        const data = await response.json();
         setAutomatedTests(data);
       } catch (error) {
         console.error('Failed to fetch automatedTests:', error);
@@ -125,25 +122,19 @@ export const ViewTestTable = (props) => {
       }
     };
 
-    const fetchTests = async () => {
-      try {
-        console.log("i was clicked");
-        const response = await fetch("http://localhost:5000/api/getTestScenarios", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            }
-          });
+      const fetchTests = async () => {
+        try {
+          console.log("i was clicked");
+          const response = await getAllTestCases(user.id);
 
-        const data = await response.json()
-        setTestCases(data.tests);
-      } catch (error) {
-        console.error('Failed to fetch tests:', error);
-        setTestCases([]);
-      }
-    };
+          setTestCases(response.tests);
+        } catch (error) {
+          console.error('Failed to fetch tests:', error);
+          setTestCases([]);
+        }
+      };
 
-    fetchTests().then(fetchAutomatedTests());
+      fetchTests().then(fetchAutomatedTests());
   }, []);
 
   const plainTextTestCase = useRef('') //creating a refernce for TextField Component
@@ -162,12 +153,12 @@ export const ViewTestTable = (props) => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {testCases.map((testCase, index) => {
+              {testCases && testCases.map((testCase, index) => {
                   console.log(testCase);
                   console.log(displayedScenarios)
                   if (displayedScenarios === 'All') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -175,7 +166,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Happy Path'&& displayedScenarios === 'Happy Path') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -183,7 +174,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Non-Happy Path' && displayedScenarios === 'Non-Happy Path') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />
@@ -191,7 +182,7 @@ export const ViewTestTable = (props) => {
                   }
                   if (testCase.scenarioType === 'Edge Case' && displayedScenarios === 'Edge Case') {
                         return (
-                      <Row
+                      <Row key={index}
                         testCase={testCase}
                         index={index}
                       />

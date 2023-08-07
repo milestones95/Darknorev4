@@ -12,6 +12,7 @@ export const ViewProjects = props => {
       {props.projects && props.projects.map((value, index) => {
         return (
           <Container
+            key={index}
             onClick={() => {
               addProjectName(value.name);
               window.location.assign("/?projectId=" + value.id + "&projectName=" + value.name)

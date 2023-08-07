@@ -176,9 +176,10 @@ export const ViewTestTable = props => {
     >
       {/* <Box> */}
       <Container style={{ display: "flex", flexDirection: "row", marginLeft: -20}}>
-        {array.map(() => {
+        {array.map((data, index) => {
           return (
             <Container
+              key={index}
               style={{
                 height: "100px",
                 width: "250px",

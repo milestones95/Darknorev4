@@ -18,6 +18,7 @@ export const ViewUserStories = props => {
       {props.userStories.map((value, index) => {
         return (
           <Container
+            key={index}
             onClick={() => {
               window.location.assign("/viewTests?userStoryId=" + value.id + "&projectId=" + getProjectId() + "&projectName=" + getProjectName());
             }}

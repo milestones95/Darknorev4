@@ -86,6 +86,7 @@ export const AuthProvider = (props) => {
       let refresh_token = window.sessionStorage.getItem('user_refresh_token');
       if(refresh_token){
         const { data, error } = await supabase.auth.refreshSession({ refresh_token })
+        console.log("🚀 ~ file: auth-context.js:89 ~ initialize ~ data:", data)
         user_data = data;
         if(user_data.session){
           window.sessionStorage.setItem('user_refresh_token', user_data.session.refresh_token);
@@ -146,6 +147,7 @@ export const AuthProvider = (props) => {
 
   const signIn = async (email, password) => {
     const {data,error} = await supabase.auth.signInWithPassword({ email, password });
+    console.log("🚀 ~ file: auth-context.js:150 ~ signIn ~ data:", data)
     if (error) {
       throw new Error('Please check your email and password');
     }
@@ -181,6 +183,7 @@ export const AuthProvider = (props) => {
   };
 
   const signOut = () => {
+    window.sessionStorage.setItem('authenticated', 'false');
     dispatch({
       type: HANDLERS.SIGN_OUT
     });

@@ -12,15 +12,22 @@ const steps = [
 ];
 
 export default function NewTestWizard() {
-  const [currentSteps, setCurrentSteps] = useState((1));
-
+  const [currentSteps, setCurrentSteps] = useState((0));
   useEffect(() => {
     if (window.location.pathname.startsWith('/createTests'))
-      setCurrentSteps((1))
+      if (window.location.search === "") {
+        setCurrentSteps((0))
+      } else {
+        setCurrentSteps((1))
+      }
     if (window.location.pathname.startsWith('/testScenarioPage'))
+      if (window.location.search.includes("userStoryName")) {
+        setCurrentSteps((0,1))
+      } else {
         setCurrentSteps((1,2))
-    if (window.location.pathname.startsWith('/testStepsPage'))
-        setCurrentSteps((1,2,3))
+      }
+    if (window.location.pathname.startsWith('/createProject'))
+        setCurrentSteps((1,2))
   }, [window.location.pathname]);
 
 

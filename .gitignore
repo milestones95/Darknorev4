@@ -16,7 +16,7 @@
 /build
 out
 .next
-
+.env
 # misc
 .DS_Store
 .eslintcache

@@ -5,6 +5,7 @@ import {
   Box,
   Card,
   Checkbox,
+  Container,
   Stack,
   Table,
   TableBody,
@@ -19,10 +20,13 @@ import { getInitials } from 'src/utils/get-initials';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import RemoveIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
+import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
+import {useContext, useEffect, useState} from 'react';
+import {useSelection} from 'src/hooks/use-selection';
+import {TestCreationData} from 'src/contexts/test-creation-context';
 
 export const TestScenarios = (props) => {
-
   const {
     count = 0,
     displayedScenarios,
@@ -36,13 +40,12 @@ export const TestScenarios = (props) => {
     page = 0,
     rowsPerPage = 0,
     selected = [],
-    scenarios
+    scenarios,
+    existingTestCases
   } = props;
 
   const selectedSome = (selected.length > 0) && (selected.length < items.length);
   const selectedAll = (items.length > 0) && (selected.length === items.length);
-
-  console.log("items: " + items);
 
   return (
     <Card>
@@ -62,17 +65,10 @@ export const TestScenarios = (props) => {
                   <TableCell>
                     Scenario Type
                   </TableCell>
-                  {/* <TableCell>
-                    Created Date
-                  </TableCell> */}
                 </TableRow>
               </TableHead>
               <TableBody>
-              {items.map((customer, i) => {
-                console.log("items: " + items)
-                console.log("customer: " + customer)
-                // var scenarioType, scenario = customer.split(":")
-                // console.log(scenarioType, " ", scenario)
+              {[...existingTestCases, ...items].map((customer, i) => {
                 const scenioCellColor = (customer.scenario_type == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
                 const isSelected = selected.includes(customer.test_case);
 
@@ -89,7 +85,7 @@ export const TestScenarios = (props) => {
                               if (event.target.checked) {
                                 onSelectOne?.(customer.test_case);
                               } else {
-                                onDeselectOne?.(customer.test_scenario_type);
+                                onDeselectOne?.(customer.test_case);
                               }
                             }}
                           />
@@ -101,11 +97,8 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {customer.scenario_type}
+                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
-                          </TableCell>
-                          <TableCell>
-                              {customer.createdAt}
                           </TableCell>
                         </TableRow>
                         )
@@ -138,7 +131,7 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {customer.scenario_type}
+                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
                           <TableCell>
@@ -174,12 +167,12 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {customer.scenario_type}
+                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          {/* <TableCell>
+                          <TableCell>
                               {customer.createdAt}
-                          </TableCell> */}
+                          </TableCell>
                         </TableRow>
                         )
                     }
@@ -202,13 +195,13 @@ export const TestScenarios = (props) => {
                       />
                       </TableCell>
                       <TableCell>
-                        <Typography>
+                        <Typography style={{width: "450px"}}>
                           {customer.test_case}
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ background: scenioCellColor }}>
                         <Typography>
-                          {customer.scenario_type}
+                          {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                         </Typography>
                       </TableCell>
                       <TableCell>

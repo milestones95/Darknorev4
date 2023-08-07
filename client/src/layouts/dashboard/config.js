@@ -12,7 +12,7 @@ import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 export const items = [
   {
-    title: 'View Tests',
+    title: 'Dashboard',
     path: '/',
     icon: (
       <SvgIcon fontSize="small">

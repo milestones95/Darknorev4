@@ -4,8 +4,8 @@ export const TestCreationData = createContext();
 
 export const TestCreationDataProvider = ({ children }) => {
      const [testCreationData, setTestCreationData] = useState({
+         projectName: "",
          userStoryName: "",
-         baseURL: "",
          userStoryDescription: "",
          acceptanceCriteria: "",
          scenarios: [
@@ -18,14 +18,33 @@ export const TestCreationDataProvider = ({ children }) => {
          ]
      })
 
-    const addUserStory = (userStoryName, baseURL, userStoryDescription, acceptanceCriteria) => {
-          console.log(userStoryName, baseURL, userStoryDescription, acceptanceCriteria)
+    const addProjectName = (projectName) => {
+      const updateStateData = {
+        projectName: projectName,
+        userStoryName: "",
+        userStoryDescription: "",
+        acceptanceCriteria: "",
+        scenarios: [
+          {
+            scenarioType: "", createdAt: "",
+            id: "",
+            scenario: "",
+            testSteps: [{id: "", testStep: "", webpage:""}]
+          }
+        ]
+      }
+      setTestCreationData(updateStateData);
+    }
+
+    const addUserStory = (projectName, userStoryName, userStoryDescription, acceptanceCriteria, scenarios) => {
+          console.log("🚀 ~ file: test-creation-context.js:40 ~ addUserStory ~ projectName, userStoryName, userStoryDescription, acceptanceCriteria, scenarios:", projectName, userStoryName, userStoryDescription, acceptanceCriteria, scenarios)
+          console.log(projectName, userStoryName, userStoryDescription, acceptanceCriteria)
           const updatedStestData = {
+              projectName: projectName,
               userStoryName: userStoryName,
-              baseURL: baseURL,
               userStoryDescription: userStoryDescription,
               acceptanceCriteria: acceptanceCriteria,
-              scenarios: [
+              scenarios: scenarios ? scenarios : [
                 {
                   scenarioType: "", createdAt: "",
                   id: "",
@@ -37,7 +56,8 @@ export const TestCreationDataProvider = ({ children }) => {
           setTestCreationData(updatedStestData);
       };;
 
-   const updateScenarios = (newScenarios) => {
+   const addTestCases = (newScenarios) => {
+        console.log("🚀 ~ file: test-creation-context.js:60 ~ addTestCases ~ newScenarios:", newScenarios)
         var updatedData = {...testCreationData}
         updatedData.scenarios = newScenarios
         setTestCreationData(updatedData)
@@ -46,7 +66,6 @@ export const TestCreationDataProvider = ({ children }) => {
   const emptyData = () => {
     setTestCreationData({
         userStoryName: "",
-        baseURL: "",
         userStoryDescription: "",
         acceptanceCriteria: "",
         scenarios: [
@@ -60,7 +79,7 @@ export const TestCreationDataProvider = ({ children }) => {
     })
   }
   return (
-    <TestCreationData.Provider value={{ testCreationData, addUserStory, updateScenarios, emptyData }}>
+    <TestCreationData.Provider value={{ testCreationData, addProjectName, addUserStory, addTestCases, emptyData }}>
       {children}
     </TestCreationData.Provider>
   );

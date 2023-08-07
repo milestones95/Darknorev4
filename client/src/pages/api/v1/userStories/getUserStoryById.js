@@ -19,7 +19,8 @@ const getUserStoryById = async (req, res) => {
         }
 
     } catch (err) {
-        console.log("Error While Getting Projects: ERROR => ", JSON.stringify(err));
+        console.log("🚀 ~ file: getUserStoryById.js:22 ~ getUserStoryById ~ err:", err)
+        // console.log("Error While Getting Projects: ERROR => ", JSON.stringify(err));
         res.json({ err });
     }
 }

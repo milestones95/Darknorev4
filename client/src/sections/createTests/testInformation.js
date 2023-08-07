@@ -21,6 +21,7 @@ import {SelectProjectAndUserStory} from "../selectProjectAndUserStory/selectProj
 import {generateTestCases} from "src/services/testCase";
 import {createTestScenarios} from "src/services/toDoServices";
 import SnackBar from "src/components/snackBar";
+import { useAuth } from "src/hooks/use-auth";
 
 const states = [
   {
@@ -53,7 +54,7 @@ export const TestInformation = props => {
   const [selectedAcceptanceCriteria, setSelectedAcceptanceCriteria] = useState(
     ""
   );
-
+  const auth = useAuth();
   const router = useRouter();
 
   const getProjectId = () => {
@@ -68,7 +69,7 @@ export const TestInformation = props => {
 
   const getAllCurrentUserStories = async () => {
     try {
-      const response = await getAllUserStories();
+      const response = await getAllUserStories(auth.user.id);
       setUserStories(response.data);
     } catch (error) {
       console.log("Error while getting current users stories", error);

@@ -94,6 +94,7 @@ const Page = () => {
     try {
       const response = await getAllProjects(auth.user.id);
       console.log("====> projects", JSON.stringify(response));
+      if(response.data)
       setProjects(response.data?.sort(function(project1, project2) {
         return new Date(project2.created_at) - new Date(project1.created_at);
       }));

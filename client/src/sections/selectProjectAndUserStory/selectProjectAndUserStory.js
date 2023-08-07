@@ -2,16 +2,16 @@ import { TextField, MenuItem, Grid, Menu } from "@mui/material";
 import {useEffect, useState} from "react";
 import {getAllProjects} from "src/services/project";
 import {getAllUserStories} from "src/services/userStory";
-
+import { useAuth } from "src/hooks/use-auth";
 export const SelectProjectAndUserStory = props => {
   const {selectedUserStory, setSelectedUserStory} = props;
   const [userStories, setUserStories] = useState([]);
   const [shouldCreateNewUserStory, setShouldCreateNewUserStory] = useState(false);
   const [disableUsetStoryDropdown, setDisableUsetStoryDropdown] = useState(true);
-
+  const auth = useAuth();
   const getAllCurrentUserStories = async () => {
     try {
-      const response = await getAllUserStories();
+      const response = await getAllUserStories(auth.user.id);
       setUserStories(response.data);
     } catch (error) {
       console.log("Error while getting current users stories", error);

@@ -14,9 +14,9 @@ export async function createNewUserStory(requestBody) {
     }
 }
 
-export async function getAllUserStories() {
+export async function getAllUserStories(user_id) {
     try {
-        const response = await fetch(`/api/v1/userStories/getAllUserStories`);
+        const response = await fetch(`/api/v1/userStories/getAllUserStories/?user_id=${user_id}`);
         return await response.json();
     } catch (err) {
         console.log("🚀 ~ file: userStory.js:22 ~ getAllUserStories ~ err:", err);

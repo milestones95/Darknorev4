@@ -118,20 +118,20 @@ export const TestInformation = props => {
     let queryParams = {};
     if (window.location.search === "") {
       queryParams = {
-        userStoryName: name
+        userStoryName: name,
+        ...requestBody
       };
     } else {
       const projectId = getProjectId();
       queryParams = {
-        projectId,
-        projectName: getProjectName()
+        projectId: projectId,
+        projectName: getProjectName(),
+        ...requestBody
       };
       try {
         const { data } = await getAllUserStoriesByProjectId(projectId);
-        console.log("==============>", data);
         if (data) {
           const object = data.find((item) => item.name === name);
-          console.log("=========>object", object)
           if(object) {
             setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
             setIsGeneratingScenarios(false);

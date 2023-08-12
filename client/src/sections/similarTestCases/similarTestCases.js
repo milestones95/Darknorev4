@@ -40,6 +40,18 @@ export const SimilarTestCases = props => {
   const [showAlert, setShowAlert] = useState(false);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
 
+  const {
+    customerSelections,
+    manuallyUpdatedTestCases,
+    setManuallyUpdatedTestCases,
+    addTestCases,
+    showSimilarTestCasesModal,
+    setShowSimilarTestCasesModal,
+    testCases,
+    isForCreatingTestCases,
+    setSelectedSimilarTestCases
+  } = props;
+
   const style = {
     position: "absolute",
     top: "20%",
@@ -55,14 +67,30 @@ export const SimilarTestCases = props => {
   };
 
   const handleSubmitTestCases = async (event) => {
-      event.preventDefault();
-      setShouldShowLoader(true);
+    event.preventDefault();
+    setShouldShowLoader(true);
 
+    if (isForCreatingTestCases) {
+      const testCases = customerSelections.selected.map(selection => {
+        const selectedScenario = manuallyUpdatedTestCases.find(
+          scenario => scenario.test_case === selection
+        );
+        console.log("🚀 ~ file: similarTestCases.js:78 ~ testCases ~ selectedScenario:", selectedScenario)
+        return {
+          test_case: selectedScenario.test_case,
+          scenario_type: selectedScenario.scenario_type
+        }
+      });
+      console.log("🚀 ~ file: similarTestCases.js:82 ~ testCases ~ testCases:", testCases)
+      setSelectedSimilarTestCases(testCases);
+      setShouldShowLoader(false);
+      setShowSimilarTestCasesModal(false);
+    } else {
       const userStoryId = props.userStoryId;
 
-      const promises = props.customerSelections.selected.map(async selection => {
+      const promises = customerSelections.selected.map(async selection => {
         // Find the corresponding scenario object using the selection value
-        const selectedScenario = props.testCases.find(
+        const selectedScenario = manuallyUpdatedTestCases.find(
           scenario => scenario.test_case === selection
         );
   
@@ -90,25 +118,28 @@ export const SimilarTestCases = props => {
         setShowAlert(true);
         return;
       }
-      props.addTestCases(selectedItems);
+      addTestCases(selectedItems);
       try {
         const response = await saveTestCases(selectedItems);
         if (response.status === 200) {
-          props.setShowSimilarTestCasesModal(false);
+          setShowSimilarTestCasesModal(false);
           window.location.reload();
         }
       } catch (error) {
+        setShouldShowLoader(false);
         console.log("Error while saving test cases:-", error);
       }
-    };
+      setShouldShowLoader(false);
+    }
+  };
 
   const handleAlertClose = () => {
     setShowAlert(false);
   }
   return (
     <Modal
-      open={props.showSimilarTestCasesModal}
-      onClose={() => props.setShowSimilarTestCasesModal(false)}
+      open={showSimilarTestCasesModal}
+      onClose={() => setShowSimilarTestCasesModal(false)}
       aria-labelledby="modal-modal-title"
       aria-describedby="modal-modal-description"
     >
@@ -128,14 +159,17 @@ export const SimilarTestCases = props => {
           </Grid>
         <SimpleBar style={{maxHeight: 300}}>
           <TestScenarios
-            items={props.testCases}
-            onDeselectAll={props.customerSelections.handleDeselectAll}
-            onDeselectOne={props.customerSelections.handleDeselectOne}
-            onSelectAll={props.customerSelections.handleSelectAll}
-            onSelectOne={props.customerSelections.handleSelectOne}
-            selected={props.customerSelections.selected}
+            items={testCases}
+            onDeselectAll={customerSelections.handleDeselectAll}
+            onDeselectOne={customerSelections.handleDeselectOne}
+            onSelectAll={customerSelections.handleSelectAll}
+            onSelectOne={customerSelections.handleSelectOne}
+            selected={customerSelections.selected}
             displayedScenarios={displayedScenarios}
             existingTestCases={[]}
+            manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+            setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
+            isForCreating={true}
           />
         </SimpleBar>
         <Grid style={{ display: "flex", justifyContent: "center", marginTop: "10px", marginBottom: "150px" }}>
@@ -148,7 +182,7 @@ export const SimilarTestCases = props => {
             sx={{mt: 2}}
             onClick={handleSubmitTestCases}
           >
-            Save Test Cases
+            {!isForCreatingTestCases ? "Save Test Cases" : "Done"}
           </LoadingButton>
         </Grid>
       </Grid>

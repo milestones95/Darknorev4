@@ -14,6 +14,7 @@ import {
   TablePagination,
   TableRow,
   Typography,
+  SvgIcon
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
 import { getInitials } from 'src/utils/get-initials';
@@ -25,8 +26,18 @@ import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
 import {useContext, useEffect, useState} from 'react';
 import {useSelection} from 'src/hooks/use-selection';
 import {TestCreationData} from 'src/contexts/test-creation-context';
+import {LoadingButton} from "@mui/lab";
+import {generateSimilarTestCases} from 'src/services/testCase';
+import {SimilarTestCases} from '../similarTestCases/similarTestCases';
 
 export const TestScenarios = (props) => {
+  const [selectedTestCase, setSelectedTestCase] = useState(null);
+  const [similarTestCases, setSimilarTestCases] = useState(JSON.stringify({}));
+  const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
+  const [shouldShowLoader, setShouldShowLoader] = useState(false);
+  const [showSimilarTestCasesModal, setShowSimilarTestCasesModal] = useState(false);
+  const [moreLikeThisButtonIndex, setMoreLikeThisButtonIndex] = useState(null);
+
   const {
     count = 0,
     displayedScenarios,
@@ -41,8 +52,47 @@ export const TestScenarios = (props) => {
     rowsPerPage = 0,
     selected = [],
     scenarios,
-    existingTestCases
+    existingTestCases,
+    setManuallyUpdatedTestCases,
+    manuallyUpdatedTestCases,
+    userStoryDetails,
+    acceptanceCriteria,
+    isForCreating
   } = props;
+  let updatedTestCases = [...manuallyUpdatedTestCases];
+
+  const getSimilarTestCases = async () => {
+    try {
+      const response = await generateSimilarTestCases({
+        user_story: userStoryDetails,
+        acceptance_criteria: acceptanceCriteria,
+        test_case: selectedTestCase
+      });
+      if (response.ok) {
+        const responseData = await response.json();
+        let newTestCases = [];
+        if (Object.keys(responseData).length > 0) {
+          newTestCases = parseTestCases(responseData.result.content).Test_Case_Scenarios;
+        }
+        setSimilarTestCases(newTestCases);
+      }
+    } catch (error) {
+      console.log("Error while getting similar test cases:-", error);
+    }
+  }
+
+  function parseTestCases(string) {
+    const jsonObject = JSON.parse(string);
+    return jsonObject;
+  }
+
+  useEffect(() => {
+    updatedTestCases = [...manuallyUpdatedTestCases, ...selectedSimilarTestCases];
+    console.log("🚀 ~ file: testScenarios.js:91 ~ useEffect ~ updatedTestCases:", updatedTestCases)
+    console.log("🚀 ~ file: testScenarios.js:91 ~ useEffect ~ selectedSimilarTestCases:", selectedSimilarTestCases)
+  }, [selectedSimilarTestCases]);
+
+  const customerSelections = useSelection(manuallyUpdatedTestCases);
 
   const selectedSome = (selected.length > 0) && (selected.length < items.length);
   const selectedAll = (items.length > 0) && (selected.length === items.length);
@@ -60,15 +110,17 @@ export const TestScenarios = (props) => {
                 
                 </TableCell>
                   <TableCell>
-                    Test Scenario
+                    Test Case
                   </TableCell>
                   <TableCell>
                     Scenario Type
                   </TableCell>
+                  {/* {!isForCreating ? <TableCell>
+                  </TableCell> : null} */}
                 </TableRow>
               </TableHead>
               <TableBody>
-              {[...existingTestCases, ...items].map((customer, i) => {
+              {updatedTestCases.map((customer, i) => {
                 const scenioCellColor = (customer.scenario_type == "Happy Path") ? "#E7F8F3" : "#FAD4D4"
                 const isSelected = selected.includes(customer.test_case);
 
@@ -91,15 +143,63 @@ export const TestScenarios = (props) => {
                           />
                           </TableCell>
                           <TableCell>
-                            <Typography>
-                              {customer.test_case}
-                            </Typography>
+                            <TextField
+                              fullWidth
+                              name="userStoryDescription"
+                              multiline
+                              required
+                              style={{
+                                marginTop: 10,
+                                backgroundColor: "#fff",
+                                paddingLeft: 10,
+                                border: "1px solid #fff"
+                              }}
+                              value={manuallyUpdatedTestCases.length > 0 && manuallyUpdatedTestCases[i].test_case}
+                              id="standard-basic"
+                              variant="standard"
+                              InputProps={{
+                                disableUnderline: true // <== added this
+                              }}
+                              onChange={async event => {
+                                if (isSelected) {
+                                  onDeselectOne?.(updatedTestCases[i].test_case);
+                                }
+                                updatedTestCases[i]["test_case"] = event.target.value;
+                                setManuallyUpdatedTestCases(updatedTestCases);
+                              }}
+                            />
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
+                          {/* {!isForCreating ? <TableCell>
+                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
+                            <LoadingButton
+                              startIcon={
+                                <SvgIcon
+                                  fontSize="small"
+                                  style={{borderRadius: "10px", fontWeight: "bold"}}
+                                >
+                                  <AddIcon />
+                                </SvgIcon>
+                              }
+                              onClick={async () => {
+                                setShouldShowLoader(true);
+                                setMoreLikeThisButtonIndex(i);
+                                setSelectedTestCase(customer.test_case);
+                                await getSimilarTestCases();
+                                setShouldShowLoader(false)
+                                setShowSimilarTestCasesModal(true);
+                              }}
+                              variant="outlined"
+                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
+                            >
+                              More like this
+                            </LoadingButton>
+                          </Container>
+                        </TableCell> : null} */}
                         </TableRow>
                         )
                     }
@@ -125,18 +225,63 @@ export const TestScenarios = (props) => {
                           />
                           </TableCell>
                           <TableCell>
-                            <Typography>
-                              {customer.test_case}
-                            </Typography>
+                            <TextField
+                              fullWidth
+                              name="userStoryDescription"
+                              multiline
+                              required
+                              style={{
+                                marginTop: 10,
+                                backgroundColor: "#fff",
+                                paddingLeft: 10,
+                                border: "1px solid #fff"
+                              }}
+                              value={manuallyUpdatedTestCases.length > 0 && manuallyUpdatedTestCases[i].test_case}
+                              id="standard-basic"
+                              variant="standard"
+                              InputProps={{
+                                disableUnderline: true // <== added this
+                              }}
+                              onChange={async event => {
+                                if (isSelected) {
+                                  onDeselectOne?.(updatedTestCases[i].test_case);
+                                }
+                                updatedTestCases[i]["test_case"] = event.target.value;
+                                setManuallyUpdatedTestCases(updatedTestCases);
+                              }}
+                            />
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                              {customer.createdAt}
-                          </TableCell>
+                          {/* {!isForCreating ? <TableCell>
+                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
+                            <LoadingButton
+                              startIcon={
+                                <SvgIcon
+                                  fontSize="small"
+                                  style={{borderRadius: "10px", fontWeight: "bold"}}
+                                >
+                                  <AddIcon />
+                                </SvgIcon>
+                              }
+                              onClick={async () => {
+                                setShouldShowLoader(true);
+                                setMoreLikeThisButtonIndex(i);
+                                setSelectedTestCase(customer.test_case);
+                                await getSimilarTestCases();
+                                setShouldShowLoader(false)
+                                setShowSimilarTestCasesModal(true);
+                              }}
+                              variant="outlined"
+                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
+                            >
+                              More like this
+                            </LoadingButton>
+                          </Container>
+                        </TableCell> : null} */}
                         </TableRow>
                         )
                     }
@@ -161,18 +306,63 @@ export const TestScenarios = (props) => {
                           />
                           </TableCell>
                           <TableCell>
-                            <Typography>
-                              {customer.test_case}
-                            </Typography>
+                            <TextField
+                              fullWidth
+                              name="userStoryDescription"
+                              multiline
+                              required
+                              style={{
+                                marginTop: 10,
+                                backgroundColor: "#fff",
+                                paddingLeft: 10,
+                                border: "1px solid #fff"
+                              }}
+                              value={manuallyUpdatedTestCases.length > 0 && manuallyUpdatedTestCases[i].test_case}
+                              id="standard-basic"
+                              variant="standard"
+                              InputProps={{
+                                disableUnderline: true // <== added this
+                              }}
+                              onChange={async event => {
+                                if (isSelected) {
+                                  onDeselectOne?.(updatedTestCases[i].test_case);
+                                }
+                                updatedTestCases[i]["test_case"] = event.target.value;
+                                setManuallyUpdatedTestCases(updatedTestCases);
+                              }}
+                            />
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          <TableCell>
-                              {customer.createdAt}
-                          </TableCell>
+                          {/* {!isForCreating ? <TableCell>
+                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
+                            <LoadingButton
+                              startIcon={
+                                <SvgIcon
+                                  fontSize="small"
+                                  style={{borderRadius: "10px", fontWeight: "bold"}}
+                                >
+                                  <AddIcon />
+                                </SvgIcon>
+                              }
+                              onClick={async () => {
+                                setShouldShowLoader(true);
+                                setMoreLikeThisButtonIndex(i);
+                                setSelectedTestCase(customer.test_case);
+                                await getSimilarTestCases();
+                                setShouldShowLoader(false)
+                                setShowSimilarTestCasesModal(true);
+                              }}
+                              variant="outlined"
+                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
+                            >
+                              More like this
+                            </LoadingButton>
+                          </Container>
+                        </TableCell> : null} */}
                         </TableRow>
                         )
                     }
@@ -195,18 +385,63 @@ export const TestScenarios = (props) => {
                       />
                       </TableCell>
                       <TableCell>
-                        <Typography style={{width: "450px"}}>
-                          {customer.test_case}
-                        </Typography>
+                        <TextField
+                          fullWidth
+                          name="userStoryDescription"
+                          multiline
+                          required
+                          style={{
+                            marginTop: 10,
+                            backgroundColor: "#fff",
+                            paddingLeft: 10,
+                            border: "1px solid #fff"
+                          }}
+                          value={manuallyUpdatedTestCases.length > 0 && manuallyUpdatedTestCases[i].test_case}
+                          id="standard-basic"
+                          variant="standard"
+                          InputProps={{
+                            disableUnderline: true // <== added this
+                          }}
+                          onChange={async event => {
+                            if (isSelected) {
+                              onDeselectOne?.(updatedTestCases[i].test_case);
+                            }
+                            updatedTestCases[i]["test_case"] = event.target.value;
+                            setManuallyUpdatedTestCases(updatedTestCases);
+                          }}
+                        />
                       </TableCell>
                       <TableCell sx={{ background: scenioCellColor }}>
                         <Typography>
                           {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                         </Typography>
                       </TableCell>
-                      <TableCell>
-                          {customer.createdAt}
-                      </TableCell>
+                      {/* {!isForCreating ? <TableCell>
+                        <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
+                          <LoadingButton
+                            startIcon={
+                              <SvgIcon
+                                fontSize="small"
+                                style={{borderRadius: "10px", fontWeight: "bold"}}
+                              >
+                                <AddIcon />
+                              </SvgIcon>
+                            }
+                            onClick={async () => {
+                              setShouldShowLoader(true);
+                              setMoreLikeThisButtonIndex(i);
+                              setSelectedTestCase(customer.test_case);
+                              await getSimilarTestCases();
+                              setShouldShowLoader(false)
+                              setShowSimilarTestCasesModal(true);
+                            }}
+                            variant="outlined"
+                            loading={shouldShowLoader && moreLikeThisButtonIndex === i}
+                          >
+                            More like this
+                          </LoadingButton>
+                        </Container>
+                      </TableCell> : null} */}
                     </TableRow>
                     )
                     })}
@@ -216,6 +451,20 @@ export const TestScenarios = (props) => {
         </Scrollbar>
         </Grid>
       </Grid>
+      {showSimilarTestCasesModal ? <SimilarTestCases
+        showSimilarTestCasesModal={showSimilarTestCasesModal}
+        setShowSimilarTestCasesModal={setShowSimilarTestCasesModal}
+        customerSelections={customerSelections}
+        onDeselectAll={customerSelections.handleDeselectAll}
+        onDeselectOne={customerSelections.handleDeselectOne}
+        onSelectAll={customerSelections.handleSelectAll}
+        onSelectOne={customerSelections.handleSelectOne}
+        selected={customerSelections.selected}
+        manuallyUpdatedTestCases={similarTestCases}
+        isForCreatingTestCases={true}
+        selectedSimilarTestCases={selectedSimilarTestCases}
+        setSelectedSimilarTestCases={setSelectedSimilarTestCases}
+      ></SimilarTestCases> : null}
     </Card>
   );
 };

@@ -249,6 +249,8 @@ export const ViewTestScenarios = props => {
   );
   const [snackBar, setSnackBar] = useState(null);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
+  const [manuallyUpdatedTestCases, setManuallyUpdatedTestCases] = useState([]);
+
   const {
     count = 0,
     displayedScenarios,
@@ -275,13 +277,18 @@ export const ViewTestScenarios = props => {
     setSimilarTestCases
   } = props;
 
-  useEffect(() => {}, []);
-
   const response = JSON.parse(similarTestCases || {});
   let newTestCases = [];
   if (Object.keys(response).length > 0) {
     newTestCases = parseTestCases(response.result.content).Test_Case_Scenarios;
   }
+
+  useEffect(() => {
+    const response = JSON.parse(similarTestCases || {});
+    if (Object.keys(response).length > 0) {
+      setManuallyUpdatedTestCases(parseTestCases(response.result.content).Test_Case_Scenarios);
+    }
+  }, [similarTestCases]);
 
   function parseTestCases(string) {
     const jsonObject = JSON.parse(string);
@@ -469,6 +476,8 @@ export const ViewTestScenarios = props => {
         existingTestCases={[]}
         userStoryId={getUserStoryId()}
         addTestCases={addTestCases}
+        manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+        setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
       /> : null}
     </Card>
   );

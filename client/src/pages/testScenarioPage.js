@@ -80,6 +80,16 @@ const getProjectName = () => {
   return searchTerms.get("projectName");
 };
 
+const getUserStoryDetails = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("userStory");
+};
+
+const getAcceptanceCriteria = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("acceptanceCriteria");
+};
+
 const Page = () => {
   const [showAlert, setShowAlert] = useState(false);
   const [snackBar, setSnackBar] = useState(null);
@@ -97,6 +107,8 @@ const Page = () => {
   const {testCreationData, addTestCases} = useContext(TestCreationData);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
   const [existingTestCases, setExistingTestCases] = useState([]);
+  const [manuallyUpdatedTestCases, setManuallyUpdatedTestCases] = useState([]);
+  const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
 
   const getExistingTestCases = async () => {
     try {
@@ -112,17 +124,30 @@ const Page = () => {
     getExistingTestCases();
   }, []);
 
+  useEffect(() => {
+    let eTestCases = [];
+    if (existingTestCases && existingTestCases.length > 0) {
+      eTestCases = existingTestCases.map((testCase) => {
+        return {
+          scenario_type: testCase.test_categories.name,
+          test_case: testCase.test_case,
+        }
+      });
+      setManuallyUpdatedTestCases([...eTestCases, ...scenarios]);
+    } else {
+      setManuallyUpdatedTestCases([...scenarios]);
+    }
+  }, [existingTestCases]);
+
+  useEffect(() => {
+    if (selectedSimilarTestCases.length > 0) {
+      setManuallyUpdatedTestCases([...manuallyUpdatedTestCases, ...selectedSimilarTestCases]);
+      console.log("🚀 ~ file: testScenarios.js:91 ~ useEffect ~ selectedSimilarTestCases:", selectedSimilarTestCases)
+      console.log("🚀 ~ file: testScenarioPage.js:144 ~ useEffect ~ manuallyUpdatedTestCases:", manuallyUpdatedTestCases) 
+    }
+  }, [selectedSimilarTestCases]);
+
   const scenarios = testCaseObject.Test_Case_Scenarios;
-
-  // const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
-  // console.log("test case object: " + JSON.stringify(testCaseObject));
-  //
-  // const breakupJson = response.result.content.split("\n");
-  // const removeSpaces = breakupJson.filter((item) => item !== '');
-  // const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
-  // var scenarios = removeTestScenarioTest;
-
-  // console.log("scenarios: " + scenarios);
 
   function parseTestCases(string) {
     const jsonObject = JSON.parse(string);
@@ -149,7 +174,12 @@ const Page = () => {
     event.preventDefault();
     setShouldShowLoader(true);
     let userStoryId = getUserStoryId();
-    if (window.location.search.includes("userStoryName") === false) {
+    if (window.location.search.includes("userStoryName") === false &&
+      (testCreationData.userStoryName !== "" &&
+        testCreationData.userStoryDescription !== "" &&
+        testCreationData.acceptanceCriteria !== ""
+      )
+    ) {
       if (userStoryId && userStoryId !== "") {
         const response = await updateUserStory(userStoryId, {
           name: testCreationData.userStoryName,
@@ -186,7 +216,7 @@ const Page = () => {
     const newTestCases = customersSelection.selected.filter(item => !oldTestCases.includes(item));
     const promises = newTestCases.map(async selection => {
       // Find the corresponding scenario object using the selection value
-      const selectedScenario = scenarios.find(
+      const selectedScenario = manuallyUpdatedTestCases.find(
         scenario => scenario.test_case === selection
       );
 
@@ -214,8 +244,10 @@ const Page = () => {
     });
 
     const selectedItems = await Promise.all(promises);
-    if (selectedItems.length === 0) {
+    if (!existingTestCases.length > 0 && selectedItems.length === 0) {
       setShowAlert(true);
+      setShouldShowLoader(false);
+      setSnackBar({ message: "Please select at least one tes case!", severity: "error"});
       return;
     }
     addTestCases(selectedItems);
@@ -329,6 +361,12 @@ const Page = () => {
                   scenario_type: testCase.test_categories.name
                 }
               })}
+              manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+              setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
+              userStoryDetails={getUserStoryDetails()}
+              acceptanceCriteria={getAcceptanceCriteria()}
+              selectedSimilarTestCases={selectedSimilarTestCases}
+              setSelectedSimilarTestCases={setSelectedSimilarTestCases}
             />
             <Box style = {{display: 'flex', marginLeft: 15, alignItems: 'center', fontWeight: '900'}}>
               <Typography fontWeight = '500'>Didn&apos;t Like The Test Cases?</Typography>

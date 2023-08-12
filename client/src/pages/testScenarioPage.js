@@ -32,38 +32,7 @@ import {addTestCategory, getTestCategories} from "src/services/testCategory";
 import SnackBar from "src/components/snackBar";
 import {createNewUserStory, updateUserStory} from "src/services/userStory";
 import {LoadingButton} from "@mui/lab";
-const now = new Date();
-
-const data = [
-  {
-    scenario:
-      "User enters a valid name and email address and submits the form successfully.",
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage: ""}]
-  },
-  {
-    scenario:
-      "User enters a valid name and a valid email address with special characters and submits the form successfully.",
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage: ""}]
-  },
-  {
-    scenario:
-      "User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.",
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage: ""}]
-  },
-  {
-    scenario:
-      "User enters a valid name and an invalid email address (e.g. missing '@' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.",
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage: ""}]
-  }
-];
+import { useAuth } from "src/hooks/use-auth";
 
 const getUserStoryId = () => {
   const searhcTerm = new URLSearchParams(window.location.search);
@@ -139,13 +108,6 @@ const Page = () => {
     }
   }, [existingTestCases]);
 
-  useEffect(() => {
-    if (selectedSimilarTestCases.length > 0) {
-      setManuallyUpdatedTestCases([...manuallyUpdatedTestCases, ...selectedSimilarTestCases]);
-      console.log("🚀 ~ file: testScenarios.js:91 ~ useEffect ~ selectedSimilarTestCases:", selectedSimilarTestCases)
-      console.log("🚀 ~ file: testScenarioPage.js:144 ~ useEffect ~ manuallyUpdatedTestCases:", manuallyUpdatedTestCases) 
-    }
-  }, [selectedSimilarTestCases]);
 
   const scenarios = testCaseObject.Test_Case_Scenarios;
 
@@ -365,7 +327,6 @@ const Page = () => {
               setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
               userStoryDetails={getUserStoryDetails()}
               acceptanceCriteria={getAcceptanceCriteria()}
-              selectedSimilarTestCases={selectedSimilarTestCases}
               setSelectedSimilarTestCases={setSelectedSimilarTestCases}
             />
             <Box style = {{display: 'flex', marginLeft: 15, alignItems: 'center', fontWeight: '900'}}>

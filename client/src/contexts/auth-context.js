@@ -5,18 +5,20 @@ import { supabase } from "../pages/api/SupabaseClient";
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
   SIGN_IN: 'SIGN_IN',
-  SIGN_OUT: 'SIGN_OUT'
+  SIGN_OUT: 'SIGN_OUT',
+  SIMILAR_TEST_CASES_TO_CREATE: 'SIMILAR_TEST_CASES_TO_CREATE'
 };
 
 const initialState = {
   isAuthenticated: false,
   isLoading: true,
-  user: null
+  user: null,
+  similarTestCases: []
 };
 
 const handlers = {
   [HANDLERS.INITIALIZE]: (state, action) => {
-    const user = action.payload;
+    const {user, similarTestCases } = action.payload;
 
     return {
       ...state,
@@ -26,12 +28,13 @@ const handlers = {
           ? ({
             isAuthenticated: true,
             isLoading: false,
-            user
+            user,
+            similarTestCases
           })
           : ({
             isLoading: false
           })
-      )
+      ),
     };
   },
   [HANDLERS.SIGN_IN]: (state, action) => {
@@ -48,6 +51,15 @@ const handlers = {
       ...state,
       isAuthenticated: false,
       user: null
+    };
+  },
+  [HANDLERS.SIMILAR_TEST_CASES_TO_CREATE]: (state, action) => {
+    const similarTestCases = action.payload;
+
+    return {
+      ...state,
+      isAuthenticated: true,
+      similarTestCases
     };
   }
 };
@@ -86,29 +98,25 @@ export const AuthProvider = (props) => {
       let refresh_token = window.sessionStorage.getItem('user_refresh_token');
       if(refresh_token){
         const { data, error } = await supabase.auth.refreshSession({ refresh_token })
-        console.log("🚀 ~ file: auth-context.js:89 ~ initialize ~ data:", data)
         user_data = data;
         if(user_data.session){
           window.sessionStorage.setItem('user_refresh_token', user_data.session.refresh_token);
         }
       }
-      // const { session, user } = data;
-      // const user = {
-      //   id: '5e86809283e28b96d2d38537',
-      //   avatar: '/assets/avatars/avatar-anika-visser.png',
-      //   name: 'Anika Visser',
-      //   email: 'anika.visser@devias.io'
-      // };
       const user = {
         id: user_data?.user?.id || '',
         avatar: '/assets/avatars/avatar-anika-visser.png',
         name: user_data?.user?.email || '',
         email: user_data?.user?.email || ''
       };
+      const similarTestCases = [];
+      const payload = {
+        user, similarTestCases
+      }
 
       dispatch({
         type: HANDLERS.INITIALIZE,
-        payload: user
+        payload: payload
       });
     } else {
       dispatch({
@@ -147,7 +155,6 @@ export const AuthProvider = (props) => {
 
   const signIn = async (email, password) => {
     const {data,error} = await supabase.auth.signInWithPassword({ email, password });
-    console.log("🚀 ~ file: auth-context.js:150 ~ signIn ~ data:", data)
     if (error) {
       throw new Error('Please check your email and password');
     }
@@ -189,6 +196,14 @@ export const AuthProvider = (props) => {
     });
   };
 
+  const setSimilarTestCases = async (testCases) => {
+
+    dispatch({
+      type: HANDLERS.SIMILAR_TEST_CASES_TO_CREATE,
+      payload: testCases
+    });
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -196,7 +211,8 @@ export const AuthProvider = (props) => {
         skip,
         signIn,
         signUp,
-        signOut
+        signOut,
+        setSimilarTestCases
       }}
     >
       {children}

@@ -30,9 +30,8 @@ import {LoadingButton} from "@mui/lab";
 import {generateSimilarTestCases} from 'src/services/testCase';
 import {SimilarTestCases} from '../similarTestCases/similarTestCases';
 
-export const TestScenarios = (props) => {
+export const SimilarTestScenarios = (props) => {
   const [selectedTestCase, setSelectedTestCase] = useState(null);
-  const [similarTestCases, setSimilarTestCases] = useState(JSON.stringify({}));
   const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
   const [showSimilarTestCasesModal, setShowSimilarTestCasesModal] = useState(false);
@@ -53,43 +52,13 @@ export const TestScenarios = (props) => {
     selected = [],
     scenarios,
     existingTestCases,
-    setManuallyUpdatedTestCases,
-    manuallyUpdatedTestCases,
+    setSimilarTestCases,
+    similarTestCases,
     userStoryDetails,
     acceptanceCriteria,
-    isForCreating
+    isForCreating,
   } = props;
-  let updatedTestCases = [...manuallyUpdatedTestCases];
-
-  const getSimilarTestCases = async (selectedTestCase) => {
-    try {
-      const response = await generateSimilarTestCases({
-        user_story: userStoryDetails,
-        acceptance_criteria: acceptanceCriteria,
-        test_case: selectedTestCase
-      });
-      if (response.ok) {
-        const responseData = await response.json();
-        let newTestCases = [];
-        if (Object.keys(responseData).length > 0) {
-          newTestCases = parseTestCases(responseData.result.content).Test_Case_Scenarios;
-        }
-        setSimilarTestCases(newTestCases);
-      }
-    } catch (error) {
-      console.log("Error while getting similar test cases:-", error);
-    }
-  }
-
-  function parseTestCases(string) {
-    const jsonObject = JSON.parse(string);
-    return jsonObject;
-  }
-
-  const customerSelections = useSelection(manuallyUpdatedTestCases);
-
-  const selectedSome = (selected.length > 0) && (selected.length < items.length);
-  const selectedAll = (items.length > 0) && (selected.length === items.length);
+  let updatedTestCases = [...similarTestCases];
 
   return (
     <Card>
@@ -159,7 +128,7 @@ export const TestScenarios = (props) => {
                                   onDeselectOne?.(updatedTestCases[i].test_case);
                                 }
                                 updatedTestCases[i]["test_case"] = event.target.value;
-                                setManuallyUpdatedTestCases(updatedTestCases);
+                                setSimilarTestCases(updatedTestCases);
                               }}
                             />
                           </TableCell>
@@ -168,32 +137,6 @@ export const TestScenarios = (props) => {
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          {!isForCreating ? <TableCell>
-                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
-                            <LoadingButton
-                              startIcon={
-                                <SvgIcon
-                                  fontSize="small"
-                                  style={{borderRadius: "10px", fontWeight: "bold"}}
-                                >
-                                  <AddIcon />
-                                </SvgIcon>
-                              }
-                              onClick={async () => {
-                                setShouldShowLoader(true);
-                                setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
-                                setShouldShowLoader(false)
-                                setShowSimilarTestCasesModal(true);
-                              }}
-                              variant="outlined"
-                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
-                            >
-                              More like this
-                            </LoadingButton>
-                          </Container>
-                        </TableCell> : null}
                         </TableRow>
                         )
                     }
@@ -241,7 +184,7 @@ export const TestScenarios = (props) => {
                                   onDeselectOne?.(updatedTestCases[i].test_case);
                                 }
                                 updatedTestCases[i]["test_case"] = event.target.value;
-                                setManuallyUpdatedTestCases(updatedTestCases);
+                                // setSimilarTestCases(updatedTestCases);
                               }}
                             />
                           </TableCell>
@@ -250,32 +193,6 @@ export const TestScenarios = (props) => {
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          {!isForCreating ? <TableCell>
-                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
-                            <LoadingButton
-                              startIcon={
-                                <SvgIcon
-                                  fontSize="small"
-                                  style={{borderRadius: "10px", fontWeight: "bold"}}
-                                >
-                                  <AddIcon />
-                                </SvgIcon>
-                              }
-                              onClick={async () => {
-                                setShouldShowLoader(true);
-                                setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
-                                setShouldShowLoader(false)
-                                setShowSimilarTestCasesModal(true);
-                              }}
-                              variant="outlined"
-                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
-                            >
-                              More like this
-                            </LoadingButton>
-                          </Container>
-                        </TableCell> : null}
                         </TableRow>
                         )
                     }
@@ -322,7 +239,7 @@ export const TestScenarios = (props) => {
                                   onDeselectOne?.(updatedTestCases[i].test_case);
                                 }
                                 updatedTestCases[i]["test_case"] = event.target.value;
-                                setManuallyUpdatedTestCases(updatedTestCases);
+                                setSimilarTestCases(updatedTestCases);
                               }}
                             />
                           </TableCell>
@@ -331,32 +248,6 @@ export const TestScenarios = (props) => {
                               {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
-                          {!isForCreating ? <TableCell>
-                          <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
-                            <LoadingButton
-                              startIcon={
-                                <SvgIcon
-                                  fontSize="small"
-                                  style={{borderRadius: "10px", fontWeight: "bold"}}
-                                >
-                                  <AddIcon />
-                                </SvgIcon>
-                              }
-                              onClick={async () => {
-                                setShouldShowLoader(true);
-                                setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
-                                setShouldShowLoader(false)
-                                setShowSimilarTestCasesModal(true);
-                              }}
-                              variant="outlined"
-                              loading={shouldShowLoader && moreLikeThisButtonIndex === i}
-                            >
-                              More like this
-                            </LoadingButton>
-                          </Container>
-                        </TableCell> : null}
                         </TableRow>
                         )
                     }
@@ -401,7 +292,7 @@ export const TestScenarios = (props) => {
                               onDeselectOne?.(updatedTestCases[i].test_case);
                             }
                             updatedTestCases[i]["test_case"] = event.target.value;
-                            setManuallyUpdatedTestCases(updatedTestCases);
+                            setSimilarTestCases(updatedTestCases);
                           }}
                         />
                       </TableCell>
@@ -410,32 +301,6 @@ export const TestScenarios = (props) => {
                           {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
                         </Typography>
                       </TableCell>
-                      {!isForCreating ? <TableCell>
-                        <Container style={{display: "flex", padding: 0, justifyContent: "center"}}>
-                          <LoadingButton
-                            startIcon={
-                              <SvgIcon
-                                fontSize="small"
-                                style={{borderRadius: "10px", fontWeight: "bold"}}
-                              >
-                                <AddIcon />
-                              </SvgIcon>
-                            }
-                            onClick={async () => {
-                              setShouldShowLoader(true);
-                              setMoreLikeThisButtonIndex(i);
-                              setSelectedTestCase(customer.test_case);
-                              await getSimilarTestCases(customer.test_case);
-                              setShouldShowLoader(false)
-                              setShowSimilarTestCasesModal(true);
-                            }}
-                            variant="outlined"
-                            loading={shouldShowLoader && moreLikeThisButtonIndex === i}
-                          >
-                            More like this
-                          </LoadingButton>
-                        </Container>
-                      </TableCell> : null}
                     </TableRow>
                     )
                     })}
@@ -445,28 +310,11 @@ export const TestScenarios = (props) => {
         </Scrollbar>
         </Grid>
       </Grid>
-      {showSimilarTestCasesModal ? <SimilarTestCases
-        showSimilarTestCasesModal={showSimilarTestCasesModal}
-        setShowSimilarTestCasesModal={setShowSimilarTestCasesModal}
-        customerSelections={customerSelections}
-        onDeselectAll={customerSelections.handleDeselectAll}
-        onDeselectOne={customerSelections.handleDeselectOne}
-        onSelectAll={customerSelections.handleSelectAll}
-        onSelectOne={customerSelections.handleSelectOne}
-        selected={customerSelections.selected}
-        similarTestCases={similarTestCases}
-        setSimilarTestCases={setSimilarTestCases}
-        isForCreatingTestCases={true}
-        selectedSimilarTestCases={selectedSimilarTestCases}
-        setSelectedSimilarTestCases={setSelectedSimilarTestCases}
-        setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
-        manuallyUpdatedTestCases={manuallyUpdatedTestCases}
-      ></SimilarTestCases> : null}
     </Card>
   );
 };
 
-TestScenarios.propTypes = {
+SimilarTestScenarios.propTypes = {
   count: PropTypes.number,
   displayedScenarios: PropTypes.string,
   items: PropTypes.array,

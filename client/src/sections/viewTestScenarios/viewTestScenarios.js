@@ -115,6 +115,11 @@ const testCasesTable = (
     return date.toLocaleDateString("en-US");
   };
 
+  function parseTestCases(string) {
+    const jsonObject = JSON.parse(string);
+    return jsonObject;
+  }
+
   const getSimilarTestCases = async (selectedTestCaseId) => {
     try {
       const testCaseResponse = await getTestCaseById(selectedTestCaseId);
@@ -126,7 +131,7 @@ const testCasesTable = (
         });
         if (response.ok) {
           const responseData = await response.json();
-          setSimilarTestCases(JSON.stringify(responseData));
+          setSimilarTestCases(parseTestCases(responseData.result.content).Test_Case_Scenarios);
         }
       }
     } catch (error) {
@@ -276,19 +281,6 @@ export const ViewTestScenarios = props => {
     similarTestCases,
     setSimilarTestCases
   } = props;
-
-  const response = JSON.parse(similarTestCases || {});
-  let newTestCases = [];
-  if (Object.keys(response).length > 0) {
-    newTestCases = parseTestCases(response.result.content).Test_Case_Scenarios;
-  }
-
-  useEffect(() => {
-    const response = JSON.parse(similarTestCases || {});
-    if (Object.keys(response).length > 0) {
-      setManuallyUpdatedTestCases(parseTestCases(response.result.content).Test_Case_Scenarios);
-    }
-  }, [similarTestCases]);
 
   function parseTestCases(string) {
     const jsonObject = JSON.parse(string);
@@ -466,7 +458,6 @@ export const ViewTestScenarios = props => {
       {showSimilarTestCasesModal ? <SimilarTestCases
         showSimilarTestCasesModal={showSimilarTestCasesModal}
         setShowSimilarTestCasesModal={setShowSimilarTestCasesModal}
-        testCases={newTestCases}
         customerSelections={customerSelections}
         onDeselectAll={customerSelections.handleDeselectAll}
         onDeselectOne={customerSelections.handleDeselectOne}
@@ -476,7 +467,9 @@ export const ViewTestScenarios = props => {
         existingTestCases={[]}
         userStoryId={getUserStoryId()}
         addTestCases={addTestCases}
-        manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+        similarTestCases={similarTestCases}
+        setSimilarTestCases={setSimilarTestCases}
+        manuallyUpdatedTestCases={testCases}
         setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
       /> : null}
     </Card>

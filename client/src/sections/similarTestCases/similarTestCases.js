@@ -34,22 +34,25 @@ import SimpleBar from "simplebar-react";
 import {LoadingButton} from "@mui/lab";
 import {useSelection} from "src/hooks/use-selection";
 import {addTestCategory, getTestCategories} from "src/services/testCategory";
+import {SimilarTestScenarios} from "../createTests/similarTestScenarios";
 
 export const SimilarTestCases = props => {
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const [showAlert, setShowAlert] = useState(false);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
+  const auth = useAuth();
 
   const {
     customerSelections,
-    manuallyUpdatedTestCases,
+    similarTestCases,
+    setSimilarTestCases,
     setManuallyUpdatedTestCases,
     addTestCases,
     showSimilarTestCasesModal,
     setShowSimilarTestCasesModal,
     testCases,
     isForCreatingTestCases,
-    setSelectedSimilarTestCases
+    manuallyUpdatedTestCases
   } = props;
 
   const style = {
@@ -72,17 +75,16 @@ export const SimilarTestCases = props => {
 
     if (isForCreatingTestCases) {
       const testCases = customerSelections.selected.map(selection => {
-        const selectedScenario = manuallyUpdatedTestCases.find(
+        const selectedScenario = similarTestCases.find(
           scenario => scenario.test_case === selection
         );
-        console.log("🚀 ~ file: similarTestCases.js:78 ~ testCases ~ selectedScenario:", selectedScenario)
         return {
           test_case: selectedScenario.test_case,
           scenario_type: selectedScenario.scenario_type
         }
       });
-      console.log("🚀 ~ file: similarTestCases.js:82 ~ testCases ~ testCases:", testCases)
-      setSelectedSimilarTestCases(testCases);
+      auth.setSimilarTestCases(testCases);
+      setManuallyUpdatedTestCases([...manuallyUpdatedTestCases, ...testCases]);
       setShouldShowLoader(false);
       setShowSimilarTestCasesModal(false);
     } else {
@@ -90,7 +92,7 @@ export const SimilarTestCases = props => {
 
       const promises = customerSelections.selected.map(async selection => {
         // Find the corresponding scenario object using the selection value
-        const selectedScenario = manuallyUpdatedTestCases.find(
+        const selectedScenario = similarTestCases.find(
           scenario => scenario.test_case === selection
         );
   
@@ -158,8 +160,7 @@ export const SimilarTestCases = props => {
             />
           </Grid>
         <SimpleBar style={{maxHeight: 300}}>
-          <TestScenarios
-            items={testCases}
+          <SimilarTestScenarios
             onDeselectAll={customerSelections.handleDeselectAll}
             onDeselectOne={customerSelections.handleDeselectOne}
             onSelectAll={customerSelections.handleSelectAll}
@@ -167,8 +168,10 @@ export const SimilarTestCases = props => {
             selected={customerSelections.selected}
             displayedScenarios={displayedScenarios}
             existingTestCases={[]}
-            manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+            similarTestCases={similarTestCases}
+            setSimilarTestCases={setSimilarTestCases}
             setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
+            manuallyUpdatedTestCases={manuallyUpdatedTestCases}
             isForCreating={true}
           />
         </SimpleBar>

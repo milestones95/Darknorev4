@@ -18,23 +18,24 @@ const initialState = {
 
 const handlers = {
   [HANDLERS.INITIALIZE]: (state, action) => {
-    const {user, similarTestCases } = action.payload;
+    let obj = {};
+    if (action && action.payload) {
+      const {user, similarTestCases} = action.payload;
+      obj = {
+        isAuthenticated: true,
+        isLoading: false,
+        user,
+        similarTestCases
+      }
+    } else {
+      obj = {
+        isLoading: false
+      }
+    }
 
     return {
       ...state,
-      ...(
-        // if payload (user) is provided, then is authenticated
-        user
-          ? ({
-            isAuthenticated: true,
-            isLoading: false,
-            user,
-            similarTestCases
-          })
-          : ({
-            isLoading: false
-          })
-      ),
+      ...obj,
     };
   },
   [HANDLERS.SIGN_IN]: (state, action) => {
@@ -92,6 +93,7 @@ export const AuthProvider = (props) => {
     } catch (err) {
       console.error(err);
     }
+    console.log("🚀 ~ file: auth-context.js:92 ~ initialize ~ isAuthenticated:", isAuthenticated)
 
     if (isAuthenticated) {
       let user_data = null;
@@ -116,7 +118,7 @@ export const AuthProvider = (props) => {
 
       dispatch({
         type: HANDLERS.INITIALIZE,
-        payload: payload
+        payload: user
       });
     } else {
       dispatch({

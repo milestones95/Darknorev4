@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 import {TestCreationData} from "src/contexts/test-creation-context";
-import {createNewUserStory, getAllUserStories} from "src/services/userStory";
+import {createNewUserStory, getAllUserStories, getAllUserStoriesByProjectId} from "src/services/userStory";
 import {UpdateUserStoryAndTestCases} from "../updateUserStoryAndTestCases/updateUserStoryAndTestCases";
 import {SelectProjectAndUserStory} from "../selectProjectAndUserStory/selectProjectAndUserStory";
 import {generateTestCases} from "src/services/testCase";
@@ -54,6 +54,7 @@ export const TestInformation = props => {
   const [selectedAcceptanceCriteria, setSelectedAcceptanceCriteria] = useState(
     ""
   );
+  const [isNewUserStoryName, setIsNewUserStoryName] = useState(false);
   const auth = useAuth();
   const router = useRouter();
 
@@ -105,7 +106,6 @@ export const TestInformation = props => {
       setIsGeneratingScenarios(false);
       return;
     }
-
     addUserStory(getProjectName(), name, userStoryDetails, ac);
 
     // Create the request body
@@ -121,10 +121,29 @@ export const TestInformation = props => {
         userStoryName: name
       };
     } else {
+      const projectId = getProjectId();
       queryParams = {
-        projectId: getProjectId(),
+        projectId,
         projectName: getProjectName()
       };
+      try {
+        const { data } = await getAllUserStoriesByProjectId(projectId);
+        console.log("==============>", data);
+        if (data) {
+          const object = data.find((item) => item.name === name);
+          console.log("=========>object", object)
+          if(object) {
+            setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
+            setIsGeneratingScenarios(false);
+            return ;
+          }
+        }
+      } catch (err) {
+        console.log("🚀 ~ file: testInformation.js:132 ~ handleSubmit ~ err:", err);
+        setSnackBar({ message: "An Error Occured!", severity: "error" })
+        setIsGeneratingScenarios(false);
+        return ;
+      }
     }
     const response = await generateTestCases(requestBody);
     if (response.ok) {
@@ -137,6 +156,7 @@ export const TestInformation = props => {
       });
     } else {
       // Handle the error case
+      setSnackBar({ message: "Error While Generating The Test Cases!", severity: "error" })
       console.log("API request failed");
     }
     setIsGeneratingScenarios(false);
@@ -188,6 +208,7 @@ export const TestInformation = props => {
                           required
                           onChange={async event => {
                             setSelectedUserStoryName(event.target.value);
+                            setIsNewUserStoryName(event.target.value.length>0)
                           }}
                           defaultValue={
                             (selectedUserStory && selectedUserStory.name) ||
@@ -203,6 +224,7 @@ export const TestInformation = props => {
                         <TextField
                           label="Select Existing User Story"
                           onChange={async event => {
+                            if(!isNewUserStoryName)
                             setSelectedUserStoryName(event.target.value.name);
                             setSelectedUserStoryDetails(
                               event.target.value.user_story_details

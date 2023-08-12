@@ -6,9 +6,9 @@ import StepLabel from '@mui/material/StepLabel';
 import { useState, useEffect } from 'react';
 
 const steps = [
-  '',
-  '',
-  '',
+  'Create user story',
+  'Generate Scenarios',
+  'Finished',
 ];
 
 export default function NewTestWizard() {
@@ -32,11 +32,11 @@ export default function NewTestWizard() {
 
 
   return (
-    <Box sx={{ width: '25%'}}>
+    <Box sx={{ width: '70%',}}>
       <Stepper activeStep={currentSteps} alternativeLabel>
         {steps.map((label) => (
           <Step key={label}>
-            <StepLabel />
+            <StepLabel sx={{ gap: '0px'}}>{label}</StepLabel>
           </Step>
         ))}
       </Stepper>

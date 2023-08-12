@@ -10,11 +10,11 @@ const createNewUserStory = async (req, res) => {
         
         if (error) {
             console.log("createNewUserStory, Error: ", JSON.stringify(error));
-            return res.json({ err: error});
+            return res.json({ err: error, status: 400});
         } 
         if (data) {
             console.log("createNewUserStory, Data: ", JSON.stringify(data));
-            res.json({ data: data[0]});
+            res.json({ data: data[0], status: 200});
         }
 
     } catch (err) {

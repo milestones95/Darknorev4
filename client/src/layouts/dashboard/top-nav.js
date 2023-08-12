@@ -70,7 +70,7 @@ export const TopNav = (props) => {
     if (window.location.pathname === "/" && window.location.search === "") {
       return (
         <Typography color="#555" variant='h5'>
-          My Dashboard
+          My Projects
         </Typography>
       )
     } else if (window.location.pathname === "/" && window.location.search.includes("projectName")) {
@@ -166,7 +166,7 @@ export const TopNav = (props) => {
           width: {
             lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`
           },
-          zIndex: (theme) => theme.zIndex.appBar
+          zIndex: (theme) => theme.zIndex.appBar,
         }}
       >
         <Stack
@@ -180,14 +180,16 @@ export const TopNav = (props) => {
           }}
         >
           {showBreadCrumb && (
-            <Grid container>
-              <Grid md={showTestWizard ? 3.5 : 6}>
+            <Grid container alignItems = "center" padding = "8px 0">
+              <Grid  md={showTestWizard ? 3 : 6}>
                 <Breadcrumbs
+                width = "fit-content"
+                // backgroundColor = 'blue'
                  aria-label="breadcrumb">
                   {getBreadCrumb()}
                 </Breadcrumbs>
               </Grid>
-              {showTestWizard && <Grid md={showTestWizard ? 7.5 : 6}>
+              {showTestWizard && <Grid md={showTestWizard ? 9 : 6}>
                 <NewTestWizard />
               </Grid>}
             </Grid>

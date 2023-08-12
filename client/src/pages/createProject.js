@@ -17,7 +17,7 @@ import {createNewProject, getAllProjects} from "src/services/project";
 import {LoadingButton} from "@mui/lab";
 import CrossIcon from "@heroicons/react/24/solid/XMarkIcon";
 import {TestCreationData} from "src/contexts/test-creation-context";
-import {createNewUserStory} from "src/services/userStory";
+import {createNewUserStory, getAllUserStoriesByProjectId} from "src/services/userStory";
 import {saveTestCases} from "src/services/testCase";
 import {useRouter} from "next/router";
 import {useAuth} from "src/hooks/use-auth";
@@ -28,11 +28,14 @@ const Page = (props) => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [shouldShowTextField, setShouldShowTextField] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
+  const [showAlert, setShowAlert] = useState(null);
+  const [userStoryName, setUserStoryName] = useState(testCreationData.userStoryName);
+  const [shouldShowUserStoryTextField, setShouldShowUserStoryTextField] = useState(false);
+  console.log("userStoryName ========================>>>>>>>>>>>>", userStoryName);
   const router = useRouter();
   const auth = useAuth();
   const userId = auth.user.id;
-
+ console.log("========>>> selected Project", selectedProject);
   const getAllExistingProjects = async () => {
     try {
       const response = await getAllProjects(userId);
@@ -53,7 +56,7 @@ const Page = (props) => {
     setShowLoading(true);
 
     if ( event.target.elements.project.value === "" ) {
-      setShowAlert(true);
+      setShowAlert("Please Select The Option!");
       setShowLoading(false);
       return;
     }
@@ -73,8 +76,21 @@ const Page = (props) => {
         projectName = selectedProject.name;
       }
       try {
+        const { data } = await getAllUserStoriesByProjectId(projectId);
+        console.log("==============>", data);
+        if (data) {
+          const object = data.find((item) => item.name === userStoryName);
+          console.log("=========>object", object)
+          if(object) {
+            // setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
+            setShowAlert("This User Story Name Alerady Exist In This Project! Please Use Different Name.");
+            setShouldShowUserStoryTextField(true)
+            setIsGeneratingScenarios(false);
+            return ;
+          }
+        }
         const savesUserStoryResponse = await createNewUserStory({
-          name: testCreationData.userStoryName,
+          name: userStoryName,
           user_story_details: testCreationData.userStoryDescription,
           acceptance_criteria: testCreationData.acceptanceCriteria,
           project_id: projectId,
@@ -111,7 +127,7 @@ const Page = (props) => {
   };
 
   const handleAlertClose = () => {
-    setShowAlert(false);
+    setShowAlert(null);
   }
 
   return (
@@ -125,8 +141,17 @@ const Page = (props) => {
         <CardContent sx={{pt: 0}}>
           {showAlert &&
             <Alert severity="error" onClose={handleAlertClose}>
-              Please Select the Option.
+              {showAlert}
             </Alert>}
+          {shouldShowUserStoryTextField && <TextField
+                style={{width: 500, margin: 4}}
+                label={"User Story Name"}
+                onChange={(event) => {
+                  setUserStoryName(event.target.value);
+                }}
+                name="User Story Name"
+                value={userStoryName}
+            />}
           <Box sx={{m: -1.5}}>
             <Grid container sx={{margin: 2, display: "flex", alignItems: "center"}}>
               <TextField
@@ -138,6 +163,8 @@ const Page = (props) => {
                     setShouldShowTextField(true);
                   }
                   setSelectedProject(event.target.value);
+                  setShouldShowUserStoryTextField(false);
+                  setShowAlert(null)
                 }}
                 name="project"
               >

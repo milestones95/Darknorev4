@@ -165,7 +165,7 @@ const Page = () => {
           View Tests | Darknore
         </title>
       </Head>
-      { snackBar && <SnackBar message = { snackBar.message} severiety = {snackBar.severity} setSnackBar = {setSnackBar} />}
+      { snackBar && <SnackBar message = { snackBar.message} severity = {snackBar.severity} setSnackBar = {setSnackBar} />}
       <Box
         component="main"
         sx={{

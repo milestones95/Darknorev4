@@ -11,7 +11,13 @@ import {
   Divider,
   TextField,
   MenuItem,
-  Unstable_Grid2 as Grid
+  Unstable_Grid2 as Grid,
+  List,
+  ListSubheader,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  ListItemButton
 } from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 import {TestCreationData} from "src/contexts/test-creation-context";
@@ -22,6 +28,11 @@ import {generateTestCases} from "src/services/testCase";
 import {createTestScenarios} from "src/services/toDoServices";
 import SnackBar from "src/components/snackBar";
 import { useAuth } from "src/hooks/use-auth";
+import {TestSteps} from "./testSteps";
+import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
+import LabelIcon from "@mui/icons-material/LabelImportant"
+import {DataContext} from "src/contexts/data-context";
+import {makeStyles} from "@mui/styles";
 
 const states = [
   {
@@ -43,9 +54,11 @@ const states = [
 ];
 
 export const TestInformation = props => {
+  const dataContext = useContext(DataContext);
   const {testCreationData, addUserStory} = useContext(TestCreationData);
   const [showAlert, setShowAlert] = useState(false);
   const [isGeneratingScenarios, setIsGeneratingScenarios] = useState(false);
+  const [isAddingTestCases, setIsAddingTestCases] = useState(false);
   const [selectedUserStory, setSelectedUserStory] = useState(null);
   const [userStories, setUserStories] = useState([]);
   const [snackBar, setSnackBar] = useState(null);
@@ -54,6 +67,7 @@ export const TestInformation = props => {
   const [selectedAcceptanceCriteria, setSelectedAcceptanceCriteria] = useState(
     ""
   );
+  const [selectedTestSteps, setSelectedTestSteps] = useState({});
   const [isNewUserStoryName, setIsNewUserStoryName] = useState(false);
   const auth = useAuth();
   const router = useRouter();
@@ -77,6 +91,10 @@ export const TestInformation = props => {
     }
   };
 
+  const handleAddTestSteps = () => {
+    setIsAddingTestCases(true);
+  }
+
   useEffect(() => {
     if (testCreationData) {
       setSelectedUserStoryName(testCreationData.userStoryName);
@@ -98,20 +116,28 @@ export const TestInformation = props => {
     const ac = selectedAcceptanceCriteria;
 
     if (
-      name.trim() === "" &&
-      userStoryDetails.trim() === "" &&
-      ac.trim() === ""
+      name.trim() === "" ||
+      userStoryDetails.trim() === "" ||
+      ac.trim() === "" || Object.keys(selectedTestSteps).length === 0
     ) {
       setShowAlert(true);
       setIsGeneratingScenarios(false);
       return;
     }
     addUserStory(getProjectName(), name, userStoryDetails, ac);
+    dataContext.setUserStoryDetails({
+      name: name,
+      storyDetails: userStoryDetails,
+      acceptanceCriteria: ac
+    });
+    dataContext.setTestSteps(selectedTestSteps);
 
     // Create the request body
+    const test_steps = Object.keys(selectedTestSteps).map((key) => selectedTestSteps[key]);
     const requestBody = {
-      userStory: userStoryDetails,
-      acceptanceCriteria: ac
+      user_story_details: userStoryDetails,
+      acceptance_criteria: ac,
+      test_steps
     };
 
     // Send the API request
@@ -171,6 +197,23 @@ export const TestInformation = props => {
     return searchTerm.get("userStoryId");
   };
 
+  const getAllTestSteps = async (test_steps) => {
+    let obj = {};
+    for (let i = 0; i < test_steps.length; i++) {
+      obj[i] = test_steps[i];
+    }
+    setSelectedTestSteps({...obj});
+  }
+
+  const useStyles = makeStyles((theme) => ({
+    placeholder: {
+      '&::placeholder': {
+        color: 'grey', // Your desired placeholder text color
+      },
+    },
+  }));
+  const classes = useStyles();
+
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
       {snackBar && <SnackBar message = {snackBar.message} severity = {snackBar.severity} setSnackBar = {setSnackBar}/>}
@@ -214,7 +257,7 @@ export const TestInformation = props => {
                             (selectedUserStory && selectedUserStory.name) ||
                             (testCreationData && testCreationData.userStoryName)
                           }
-                          value={selectedUserStoryName}
+                          // value={selectedUserStoryName}
                           InputLabelProps={{shrink: true}}
                         />
                       </Grid>
@@ -224,15 +267,15 @@ export const TestInformation = props => {
                         <TextField
                           label="Select Existing User Story"
                           onChange={async event => {
-                            if(!isNewUserStoryName)
-                            setSelectedUserStoryName(event.target.value.name);
-                            setSelectedUserStoryDetails(
-                              event.target.value.user_story_details
-                            );
-                            setSelectedAcceptanceCriteria(
-                              event.target.value.acceptance_criteria
-                            );
-                            setSelectedUserStory(event.target.value);
+                            if(!isNewUserStoryName) {
+                              setSelectedUserStoryDetails(
+                                event.target.value.user_story_details
+                              );
+                              setSelectedAcceptanceCriteria(
+                                event.target.value.acceptance_criteria
+                              );
+                              getAllTestSteps(event.target.value.test_steps);
+                            }
                           }}
                           select
                           fullWidth
@@ -292,9 +335,14 @@ export const TestInformation = props => {
                         onChange={event => {
                           setSelectedUserStoryDetails(event.target.value);
                         }}
+                        className={classes.placeholder}
+                        placeholder="As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again."
+                        InputProps={{
+                          classes: { input: classes.placeholder}
+                        }}
                       />
                     </Grid>
-                    <Grid xs={12} sx={{margin: "10px", marginBottom: "20px"}}>
+                    <Grid xs={12} sx={{margin: "10px"}}>
                       <TextField
                         fullWidth
                         fullHeight
@@ -314,13 +362,51 @@ export const TestInformation = props => {
                         onChange={event => {
                           setSelectedAcceptanceCriteria(event.target.value);
                         }}
+                        InputProps={{
+                          classes: { input: classes.placeholder}
+                        }}
+                        placeholder={`Verify that when a user clicks pause, netflix will save the scene where they stopped watching the show.
+If there is a network error when they try to pause, netflix will use the last saved index of my show and will continue from that point when they return to watch netflix.
+When they press play, netflix will resume the show from the same place where they paused it.`}
                       />
                     </Grid>
                   </Grid>
+                  <List
+                    subheader={
+                      <ListSubheader style={{color: "#6C737F", fontSize: "12px"}}>
+                        Test Steps*
+                      </ListSubheader>
+                    }
+                    style={{border: "1px solid #E5E7EB", margin: 10, borderRadius: "8px", width: "100%", paddingBottom: "20px"}}
+                    disablePadding={true}
+                  >
+                    {Object.values(selectedTestSteps).map((value, index) => {
+                      return <ListItem key={index} style={{marginBottom: "-10px", marginTop: "-10px"}}>
+                        <ListItemIcon>
+                          <LabelIcon fontSize="10px"/>
+                        </ListItemIcon>
+                        <ListItemText
+                          primary={value}
+                          style={{marginLeft: "-30px"}}
+                        >
+                        </ListItemText>
+                      </ListItem>
+                    })}
+                    <ListItem style={{width: "250px", marginLeft: "-15px"}}>
+                      <ListItemButton
+                        onClick={() => {handleAddTestSteps()}}
+                      >
+                        <ListItemIcon>
+                          <AddIcon style={{color: "#6366F1"}}/>
+                        </ListItemIcon>
+                        <ListItemText primary={Object.values(selectedTestSteps).length > 0 ? "Update Test Steps" : "Add Test Steps"} style={{marginLeft: "-25px", color: "#6366F1"}} />
+                      </ListItemButton>
+                    </ListItem>
+                  </List>
                 </Grid>
               </Box>
             </CardContent>
-            <Divider />
+            <Divider style={{margin: "10px"}}/>
             <CardActions sx={{justifyContent: "center", marginBottom: "20px"}}>
               <LoadingButton
                 variant="contained"
@@ -332,6 +418,13 @@ export const TestInformation = props => {
             </CardActions>
           </Card>
         : <UpdateUserStoryAndTestCases />}
+        {isAddingTestCases ? <TestSteps
+          isAddingTestCases={isAddingTestCases}
+          setIsAddingTestCases={setIsAddingTestCases}
+          testStepsObj={selectedTestSteps}
+          setSelectedTestSteps={setSelectedTestSteps}
+          isForUpdating={Object.values(selectedTestSteps).length > 0}
+        /> : null}
     </form>
   );
 };

@@ -2,10 +2,10 @@ const supabase = require("../../SupabaseServer.js");
 
 const createNewUserStory = async (req, res) => {
     try {
-        const { name, project_id, user_story_details, acceptance_criteria } = req.body;
+        const { name, project_id, user_story_details, acceptance_criteria, test_steps } = req.body;
         const { data, error } = await supabase
         .from('user_stories')
-        .insert({ name, project_id, user_story_details, acceptance_criteria })
+        .insert({ name, project_id, user_story_details, acceptance_criteria, test_steps })
         .select()
         
         if (error) {

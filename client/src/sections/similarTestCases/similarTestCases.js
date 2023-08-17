@@ -28,7 +28,7 @@ import {Label} from "@mui/icons-material";
 import {useAuth} from "src/hooks/use-auth";
 import {TestCreationData} from "src/contexts/test-creation-context";
 import {TestScenarios} from "src/sections/createTests/testScenarios";
-import {generateSimilarTestCases, saveTestCases} from "src/services/testCase";
+import {saveTestCases} from "src/services/testCase";
 import {SelectScenario} from "../createTests/scenario-select";
 import SimpleBar from "simplebar-react";
 import {LoadingButton} from "@mui/lab";

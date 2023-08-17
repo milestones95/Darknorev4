@@ -108,6 +108,7 @@ const testCasesTable = (
     rowsPerPage = 0,
     selected = [],
     scenarios,
+    userStory
   } = props;
 
   const formatDate = dateAndTime => {
@@ -125,9 +126,11 @@ const testCasesTable = (
       const testCaseResponse = await getTestCaseById(selectedTestCaseId);
       if (testCaseResponse.status === 200) {
         const response = await generateSimilarTestCases({
-          user_story: props.updatedUserStoryDetails,
-          acceptance_criteria: props.updatedAcceptanceCriteria,
-          test_case: testCaseResponse.data.test_case
+          user_story: userStory.user_story_details,
+          acceptance_criteria: userStory.acceptance_criteria,
+          test_steps: userStory.test_steps,
+          test_case: testCaseResponse.data.test_case,
+          scenario_type: testCaseResponse.data.test_categories.name
         });
         if (response.ok) {
           const responseData = await response.json();
@@ -136,6 +139,7 @@ const testCasesTable = (
       }
     } catch (error) {
       console.log("Error while getting similar test cases:-", error);
+      throw error;
     }
   };
 
@@ -228,12 +232,17 @@ const testCasesTable = (
               </SvgIcon>
             }
             onClick={async () => {
-              setShouldShowLoader(true);
-              setSelectedTestCase(customer.id);
-              setMoreLikeThisButtonIndex(i);
-              await getSimilarTestCases(customer.id);
-              setShouldShowLoader(false);
-              setShowSimilarTestCasesModal(true);
+              try {
+                setShouldShowLoader(true);
+                setSelectedTestCase(customer.id);
+                setMoreLikeThisButtonIndex(i);
+                await getSimilarTestCases(customer.id);
+                setShouldShowLoader(false);
+                setShowSimilarTestCasesModal(true);
+              } catch (err) {
+                console.log("🚀 ~ file: viewTestScenarios.js:239 ~ onClick={ ~ err:", err)
+                setShouldShowLoader(false);
+              }
             }}
             variant="outlined"
             loading={shouldShowLoader && moreLikeThisButtonIndex === i}
@@ -279,7 +288,8 @@ export const ViewTestScenarios = props => {
     selectedTestCase,
     setSelectedTestCase,
     similarTestCases,
-    setSimilarTestCases
+    setSimilarTestCases,
+    userStory
   } = props;
 
   function parseTestCases(string) {

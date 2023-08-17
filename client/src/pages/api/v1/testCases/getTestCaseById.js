@@ -5,7 +5,7 @@ const getTestCaseById = async (req, res) => {
       const { testCaseId } = req.query;
       const { data, error } = await supabase
       .from("test_cases")
-      .select('*')
+      .select('*, test_categories(name)')
       .eq("id", testCaseId)
       .single();
       if (error) {

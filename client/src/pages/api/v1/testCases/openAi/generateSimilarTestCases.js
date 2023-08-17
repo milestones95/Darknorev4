@@ -7,41 +7,42 @@ const configuration = new Configuration({
 const openai = new OpenAIApi(configuration);
 
 const generateSimilarTestCases = async (req, res) => {
-  console.log("🚀 ~ file: generateSimilarTestCases.js:10 ~ generateSimilarTestCases ~ req:", req)
   try {
-    const {user_story, acceptance_criteria, test_case} = req.body;
-    const testCase = {
-        Test_Case: test_case
-      };
+    const { test_case, scenario_type } = req.body;
+
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
         {
-          role: "system",
-          content:
-            "You are an assistant that is a quality assurance tester. Your task is to create test case scenarios for based on a product’s user story and the acceptance criteria. The test case scenarios should include happy paths and nonhappy paths, and even edge cases. Declare each test case should be prepended by its scenario type separated by a colon. "
+          "role": "system", 
+          "content": "You are an assistant that is a quality assurance tester. Your task is to create detailed (includes numbers, timeframe, exact user actions, etc.) test case scenarios that test the similar things as the one given to you by a user. These test cases scenarios should tests similar things and test case scenarios should be the same type as the one given to you by the user these types are happy paths, non-happy paths, and even edge cases. Declare each test case should be prepended by its scenario type separated by a colon. "
         },
         {
-          role: "user",
-          content: `User story: ${user_story}. Acceptance criteria: ${acceptance_criteria}`
+          "role": "assistant", 
+          "content": `
+              {
+                  "Test_Case_Scenarios": [
+                    {
+                      "scenario_type": "scenerio_type",
+                      "test_case": "test_case"
+                    }
+                  ]
+              }`
         },
         {
-          role: "assistant",
-          content: `
+          "role": "user", 
+          "content": `
+            Can you make at least 5 detailed (includes numbers, timeframe, exact user actions, etc.) test case scenarios that test similar functionalities as the test case scenario below?
+            {
+              "Test_Case_Scenarios":
+              [
                 {
-                    "Test_Case_Scenarios": [
-                      {
-                        "scenario_type": "",
-                        "test_case": ""
-                      }
-                    ]
-                  }`
-        },
-        {
-          role: "user",
-          content: `Generate more test cases similar to the ${JSON.stringify(
-            testCase
-          )}`
+                  "scenario_type": ${scenario_type},
+                  "test_case": ${test_case}
+                }
+              ]
+            }
+          `
         }
       ],
       temperature: 0.2

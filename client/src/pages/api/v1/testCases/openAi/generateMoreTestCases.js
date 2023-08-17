@@ -7,7 +7,26 @@ const openai = new OpenAIApi(configuration);
 
 const generateMoreTestCases = async (req, res) => {
   try {
-    const {user_story, acceptance_criteria, existing_test_cases} = req.body;
+    const {
+      user_story_details,
+      acceptance_criteria,
+      existing_test_cases,
+      test_steps
+    } = req.body;
+    var formatted_steps = "";
+    // Creating the formatted string
+    for (var i = 0; i < test_steps.length; i++) {
+      formatted_steps += "- " + test_steps[i] + "\n";
+    }
+    const requestBody = `
+    User Story: ${user_story_details}
+
+    Test Steps:
+    ${formatted_steps}
+    
+    Acceptance criteria:
+    ${acceptance_criteria}
+    `;
     const testCases = {
       Test_Cases: existing_test_cases
     };
@@ -21,25 +40,37 @@ const generateMoreTestCases = async (req, res) => {
         },
         {
           role: "user",
-          content: `User story: ${user_story}. Acceptance criteria: ${acceptance_criteria}`
+          content: `User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
+
+                Test Steps:
+                - A user logs into Netflix
+                - Look through several potenital shows
+                - Click into the show that interests me
+                - Then I click on the video player
+                - The user clicks the play arrow to pause the show
+                - When i press the play arrow again my show will resume where it left off
+
+                Acceptance criteria:
+                Verify that when a user clicks pause, netflix will save the scene where they stopped watching the show.\nIf there is a network error when they try to pause, netflix will use the last saved index of my show and will continue from that point when they return to watch netflix.\nWhen they press play, netflix will resume the show from the same place where they paused it.
+                `
         },
         {
           role: "assistant",
           content: `
-              {
-                  "Test_Case_Scenarios": [
-                    {
-                      "scenario_type": "",
-                      "test_case": ""
-                    }
-                  ]
+                {
+                  "Test_Case_Scenarios": 
+                  ${existing_test_cases}
                 }`
         },
         {
           role: "user",
-          content: `Generate more test cases excluding these ${JSON.stringify(
-            testCases
-          )}`
+          content: requestBody
+        },
+        {
+          role: "user",
+            content: `Generate more test cases excluding these ${JSON.stringify(
+              testCases
+            )}`
         }
       ],
       temperature: 0.2

@@ -1,5 +1,10 @@
 import {Label} from "@mui/icons-material";
-import { Typography, Box, Grid, TextField } from "@mui/material";
+import { Typography, Box, Grid, TextField, 
+  List,
+  ListItem,
+  ListItemText,
+  ListItemIcon,
+  ListItemButton } from "@mui/material";
 import {useContext, useEffect, useState} from "react";
 import {getUserStoryById, updateUserStory} from "src/services/userStory";
 import {TestScenarios} from "../createTests/testScenarios";
@@ -7,10 +12,12 @@ import {SelectScenario} from "../createTests/scenario-select";
 import {ViewTestScenarios} from "../viewTestScenarios/viewTestScenarios";
 import {LoadingButton} from "@mui/lab";
 import {TestCreationData} from "src/contexts/test-creation-context";
+import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
+import LabelIcon from "@mui/icons-material/LabelImportant"
+import {TestSteps} from "../createTests/testSteps";
 
 export const UpdateUserStoryAndTestCases = (props) => {
   const {testCases, userStory} = props;
-  const {addUserStory} = useContext(TestCreationData)
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const [savingUserStoryDetails, setSavingUserStoryDetails] = useState(false);
   const [savingAcceptanceCriteria, setSavingAcceptanceCriteria] = useState(false);
@@ -19,6 +26,18 @@ export const UpdateUserStoryAndTestCases = (props) => {
   const [showSimilarTestCasesModal, setShowSimilarTestCasesModal] = useState(false);
   const [selectedTestCase, setSelectedTestCase] = useState(null);
   const [similarTestCases, setSimilarTestCases] = useState(JSON.stringify({}));
+  const [isAddingTestCases, setIsAddingTestCases] = useState(false);
+
+  const getAllTestSteps = () => {
+    if (userStory) {
+    let obj = {};
+    for (let i = 0; i < userStory.test_steps.length; i++) {
+        obj[i] = userStory.test_steps[i];
+      }
+      return obj;
+    }
+  }
+  const [testStepsObj, setTestStepsObj] = useState(getAllTestSteps());
 
   const getUserStoryId = () => {
     const searchTerm = new URLSearchParams(window.location.search);
@@ -82,7 +101,6 @@ export const UpdateUserStoryAndTestCases = (props) => {
                   Saving...
                 </LoadingButton> : null}
               </Grid>
-              {/* <Typography typeof="label">Acceptance Criteria</Typography> */}
               <TextField
                 fullWidth
                 fullHeight
@@ -109,6 +127,38 @@ export const UpdateUserStoryAndTestCases = (props) => {
                 }}
               />
             </Grid>
+            {userStory && userStory.test_steps.length > 0 ? <Grid xs={8} sx={{margin: "10px", marginTop: 2}}>
+              <Grid style={{display: "flex", flexDirection: "row"}}>
+                <Typography typeof="label" marginLeft={1}>Test Steps</Typography>
+              </Grid>
+              <List
+                style={{backgroundColor: "#fff", border: "1px solid #E5E7EB", marginTop: 10, paddingTop: 20, borderRadius: "8px", width: "100%"}}
+                disablePadding={true}
+              >
+                {testStepsObj && Object.values(testStepsObj).map((value, index) => {
+                  return <ListItem key={index} style={{marginBottom: "-10px", marginTop: "-10px"}}>
+                    <ListItemIcon>
+                      <LabelIcon fontSize="10px"/>
+                    </ListItemIcon>
+                    <ListItemText
+                      primary={value}
+                      style={{marginLeft: "-30px"}}
+                    >
+                    </ListItemText>
+                  </ListItem>
+                })}
+                <ListItem style={{width: "250px", marginLeft: "-15px"}}>
+                  <ListItemButton
+                    onClick={() => {setIsAddingTestCases(true)}}
+                  >
+                    <ListItemIcon>
+                      <AddIcon style={{color: "#6366F1"}}/>
+                    </ListItemIcon>
+                    <ListItemText primary={testStepsObj && Object.values(testStepsObj).length > 0 ? "Update Test Steps" : "Add Test Steps"} style={{marginLeft: "-25px", color: "#6366F1"}} />
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Grid> : null}
             <Grid xs={12} sx={{margin: "10px", marginTop: 2}}>
               <SelectScenario
                 setDisplayedScenarios={setDisplayedScenarios}
@@ -128,12 +178,23 @@ export const UpdateUserStoryAndTestCases = (props) => {
                 setSelectedTestCase={setSelectedTestCase}
                 similarTestCases={similarTestCases}
                 setSimilarTestCases={setSimilarTestCases}
+                userStory={userStory}
               >
               </ViewTestScenarios>
             </Grid>
           </Grid>
         </Grid>
       </Box>
+      {isAddingTestCases ? <TestSteps
+        isAddingTestCases={isAddingTestCases}
+        setIsAddingTestCases={setIsAddingTestCases}
+        testStepsObj={testStepsObj}
+        setTestStepsObj={setTestStepsObj}
+        isForUpdating={Object.values(testStepsObj).length > 0}
+        isForDisplay={true}
+        userStoryId={userStory && userStory.id}
+      >
+      </TestSteps> : null}
     </form>
   )
 }

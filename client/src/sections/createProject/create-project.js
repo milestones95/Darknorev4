@@ -44,7 +44,10 @@ export const CreateProject = props => {
           user_id: auth.user.id
         });
         setShowCreateProjectModal(false);
+        if (response.status === 200)
         setSnackBar({ message: "Project Created SuccessFully!", severity: "success"});
+        else 
+        setSnackBar({ message: "Something Went Wrong!", severity: "error"});
       }
     } catch (error) {
       console.log("Error while creating new project: " + error);

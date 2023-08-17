@@ -2,10 +2,10 @@ const supabase = require("../../SupabaseServer.js");
 
 const addTestCategory = async (req, res) => {
     try {
-        const { category } = req.body;
+        const { name } = req.body;
         const { data, error } = await supabase
         .from("test_categories")
-        .insert({ name: category })
+        .insert({ name: name })
         .select();
         if (error) {
             console.log("🚀 ~ file: addTestCategory.js:11 ~ addTestCategory ~ error:", error)

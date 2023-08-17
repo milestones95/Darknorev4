@@ -12,6 +12,7 @@ import 'simplebar-react/dist/simplebar.min.css';
 import React, { createContext, useState } from 'react';
 import { TestCreationDataProvider } from 'src/contexts/test-creation-context';
 import { BrowserRouter as Router } from 'react-router-dom';
+import {DataProvider} from 'src/contexts/data-context';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -40,18 +41,20 @@ const App = (props) => {
       </Head>
       <LocalizationProvider dateAdapter={AdapterDateFns}>
       <TestCreationDataProvider>
-        <AuthProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <AuthConsumer>
-              {
-                (auth) => auth.isLoading
-                  ? <SplashScreen />
-                  : getLayout(<Component {...pageProps} />)
-              }
-            </AuthConsumer>
-          </ThemeProvider>
-        </AuthProvider>
+        <DataProvider>
+          <AuthProvider>
+            <ThemeProvider theme={theme}>
+              <CssBaseline />
+              <AuthConsumer>
+                {
+                  (auth) => auth.isLoading
+                    ? <SplashScreen />
+                    : getLayout(<Component {...pageProps} />)
+                }
+              </AuthConsumer>
+            </ThemeProvider>
+          </AuthProvider>
+        </DataProvider>
         </TestCreationDataProvider>
       </LocalizationProvider>
     </CacheProvider>

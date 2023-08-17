@@ -21,8 +21,10 @@ import {createNewUserStory, getAllUserStoriesByProjectId} from "src/services/use
 import {saveTestCases} from "src/services/testCase";
 import {useRouter} from "next/router";
 import {useAuth} from "src/hooks/use-auth";
+import {DataContext} from "src/contexts/data-context";
 
 const Page = (props) => {
+  const dataContext = useContext(DataContext)
   const {testCreationData} = useContext(TestCreationData);
   const [projects, selectProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
@@ -31,11 +33,9 @@ const Page = (props) => {
   const [showAlert, setShowAlert] = useState(null);
   const [userStoryName, setUserStoryName] = useState(testCreationData.userStoryName);
   const [shouldShowUserStoryTextField, setShouldShowUserStoryTextField] = useState(false);
-  console.log("userStoryName ========================>>>>>>>>>>>>", userStoryName);
   const router = useRouter();
   const auth = useAuth();
   const userId = auth.user.id;
- console.log("========>>> selected Project", selectedProject);
   const getAllExistingProjects = async () => {
     try {
       const response = await getAllProjects(userId);
@@ -77,10 +77,8 @@ const Page = (props) => {
       }
       try {
         const { data } = await getAllUserStoriesByProjectId(projectId);
-        console.log("==============>", data);
         if (data) {
           const object = data.find((item) => item.name === userStoryName);
-          console.log("=========>object", object)
           if(object) {
             // setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
             setShowAlert("This User Story Name Alerady Exist In This Project! Please Use Different Name.");
@@ -89,15 +87,16 @@ const Page = (props) => {
             return ;
           }
         }
-        const savesUserStoryResponse = await createNewUserStory({
+        const savedUserStoryResponse = await createNewUserStory({
           name: userStoryName,
           user_story_details: testCreationData.userStoryDescription,
           acceptance_criteria: testCreationData.acceptanceCriteria,
+          test_steps: Object.values(dataContext.testSteps),
           project_id: projectId,
         });
-        if (savesUserStoryResponse && savesUserStoryResponse.data) {
+        if (savedUserStoryResponse && savedUserStoryResponse.data) {
           const testCases = [...testCreationData.scenarios];
-          const userStoryId = savesUserStoryResponse.data.id;
+          const userStoryId = savedUserStoryResponse.data.id;
           testCases.forEach((testCase) => {
             return testCase["user_story_id"] = userStoryId;
           });
@@ -112,7 +111,11 @@ const Page = (props) => {
                   projectName: projectName,
                 }
               });
-            } 
+              if (response.data) {
+                dataContext.setTestSteps({});
+                dataContext.setUserStoryDetails({});
+              }
+            }
           } catch (error) {
             console.log("Error while saving test cases:-", error);
           }

@@ -1,162 +1,262 @@
-import PropTypes from 'prop-types';
-import { format } from 'date-fns';
 import {
-  Avatar,
-  Box,
-  Card,
-  Checkbox,
+  Modal,
+  Button,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Typography,
-} from '@mui/material';
-import { Scrollbar } from 'src/components/scrollbar';
-import { getInitials } from 'src/utils/get-initials';
-import TextField from '@mui/material/TextField';
-import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import MenuItem from '@mui/material/MenuItem';
-import CloseIcon from '@mui/icons-material/Close';
-import React, { useRef, useEffect, Component } from 'react'
-import { v4 as uuidv4 } from 'uuid';
+  SvgIcon,
+  TextField,
+  Card,
+  Typography
+} from "@mui/material";
+import Alert from "@mui/material/Alert";
 
-function Row(props) {
+import Grid from "@mui/material/Grid";
+import {useContext, useState} from "react";
+import SimpleBar from "simplebar-react";
+import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import RemoveIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import {DataContext} from "src/contexts/data-context";
+import {updateUserStory} from "src/services/userStory";
 
-  const { urls, customer, index, indexOfScenarioArray, handleTypingInTextField, handleSelectingWebPage, handleRemove } = props;
+export const TestSteps = props => {
+  const dataContext = useContext(DataContext);
+  let existingTestSteps = {...props.testStepsObj};
+  delete existingTestSteps["0"];
+  const firstExistingStep = {
+    "0":
+      Object.values(props.testStepsObj).length > 0
+        ? Object.values(props.testStepsObj)["0"]
+        : ""
+  };
+  const [testSteps, setTestSteps] = useState(existingTestSteps);
+  const [firstStep, setFirstStep] = useState(firstExistingStep);
+  const [showAlert, setShowAlert] = useState(false);
+  const [updatedTestSteps, setUpdatedTestSteps] = useState({});
 
-
-  const handleRowRemove = () => {
-    handleRemove(indexOfScenarioArray, customer.id);
+  const getMaxHeight = () => {
+    const testStepsCount = Object.keys(testSteps).length;
+    let maxHeight = 210;
+    if (testStepsCount < 1) {
+      maxHeight = 210;
+    } else if (testStepsCount === 1) {
+      maxHeight = 270;
+    } else if (testStepsCount === 2) {
+      maxHeight = 340;
+    } else if (testStepsCount === 3) {
+      maxHeight = 400;
+    } else {
+      maxHeight = 440;
+    }
+    if (showAlert) {
+      maxHeight += 55;
+    }
+    return maxHeight;
   };
 
-  console.log("prop list: ", JSON.stringify(urls));
+  const getTopPosition = () => {
+    const testStepsCount = Object.keys(testSteps).length;
+    let topPosition = 30;
+    if (testStepsCount < 1) {
+      topPosition = 30;
+    } else if (testStepsCount === 1) {
+      topPosition = 25;
+    } else if (testStepsCount === 2) {
+      topPosition = 20;
+    } else if (testStepsCount === 3) {
+      topPosition = 15;
+    } else {
+      topPosition = 10;
+    }
+    if (showAlert) {
+      topPosition -= 5;
+    }
+    return topPosition;
+  };
 
-  return (
-    <React.Fragment key={customer.id}>
-        <TableRow id={uuidv4()}>
-          <TableCell padding="checkbox">
-            {props.index + 1}
-          </TableCell>
-          <TableCell>
-            <TextField
-              required
-              onChange={(e) => {props.handleTypingInTextField(props.indexOfScenarioArray, props.index, e.target.value)}}
-              label="Test Step"
-              placeholder="Enter Test Step"
-              multiline
-              fullWidth
-              defaultValue={props.customer.text}
-            />
-          </TableCell>
-          <TableCell sx={{mr: 2}}>
+  function getOrdinal(n) {
+    let ord = "th";
+    if (n % 10 == 1 && n % 100 != 11) {
+      ord = "st";
+    } else if (n % 10 == 2 && n % 100 != 12) {
+      ord = "nd";
+    } else if (n % 10 == 3 && n % 100 != 13) {
+      ord = "rd";
+    }
+    return ord;
+  }
+
+  const style = {
+    position: "absolute",
+    top: `${getTopPosition()}%`,
+    left: "45%",
+    bottom: "0%",
+    transform: "translate(-40%, 10%)",
+    width: 600,
+    bgcolor: "background.paper",
+    boxShadow: 24,
+    borderRadius: 10,
+    p: 0,
+    padding: 30,
+    maxHeight: getMaxHeight()
+  };
+
+  const handleAlertClose = () => {
+    setShowAlert(false);
+  };
+
+  const showAlertsMessage = () => {
+    return (
+      <Alert severity="error" onClose={handleAlertClose}>
+        Please fill in all of the steps or remove empty steps.
+      </Alert>
+    );
+  };
+
+  const handleUpdateTestSteps = async (updatedTestSteps) => {
+    try {
+      const testSteps = Object.values(updatedTestSteps);
+      const response = await updateUserStory(props.userStoryId, {test_steps: testSteps});
+      if (response.data) {
+        props.setTestStepsObj(response.data[0].test_steps);
+        dataContext.setTestSteps({});
+      }
+    } catch (error) {
+      console.log("Error while updating test steps:", error);
+    }
+  }
+
+  const showTestStepsInputBoxes = () => {
+    return Object.keys(testSteps).map((value, index) => {
+      return (
+        <Grid
+          key={index}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between"
+          }}
+        >
           <TextField
+            name={`testStep${index}`}
             required
-            select
-            id={uuidv4()}
-            label="Choose Page"
-            placeholder="Choose Page"
-            fullWidth
-            defaultValue={props.customer.webpage}
-            onChange={(e)=> {props.handleSelectingWebPage(props.indexOfScenarioArray, props.index, e.target.value)}}
-          >
-        {urls.map((url) => (
-            <MenuItem key={url.key} value={url.value}>
-              {url.label}
-            </MenuItem>
-          ))}
-          </TextField>
-          </TableCell>
-          <TableCell padding="checkbox">
-             <Button id={uuidv4()} onClick={() => {handleRowRemove()}}>
-              <CloseIcon />
-             </Button>
-          </TableCell>
-        </TableRow>
-    </React.Fragment>
-  )
-}
-
-Row.propTypes = {
-   urlList: PropTypes.array
-};
-
-
-export const TestSteps = (props) => {
-
-  const {
-    count = 0,
-    handleRemove,
-    indexOfScenarioArray,
-    handleAddNewTestStep,
-    handleTypingInTextField,
-    handleSelectingWebPage,
-    onDeselectAll,
-    onDeselectOne,
-    onPageChange = () => {},
-    onRowsPerPageChange,
-    onSelectAll,
-    onSelectOne,
-    page = 0,
-    rowsPerPage = 0,
-    scenario,
-    selected = [],
-    urlList = [],
-  } = props;
+            label={`Enter ${index + 2}${getOrdinal(index + 2)} step`}
+            style={{margin: 5, width: "90%"}}
+            onChange={event => {
+              if (props.isForUpdating) {
+                testSteps[value] = event.target.value;
+                setTestSteps({...testSteps});
+              } else {
+                testSteps[value] = event.target.value;
+                setTestSteps({...testSteps});
+              }
+            }}
+            disabled={firstStep === ""}
+            value={Object.values(testSteps).length > 0 && testSteps[value]}
+          />
+          <Button
+            startIcon={
+              <SvgIcon fontSize="large">
+                <RemoveIcon />
+              </SvgIcon>
+            }
+            onClick={() => {
+              delete testSteps[value];
+              setTestSteps({...testSteps});
+            }}
+            style={{paddingRight: 0, paddingLeft: 14, width: "10px"}}
+          />
+        </Grid>
+      );
+    });
+  };
 
   return (
-    <Grid xs={12}>
-      <Grid xs={12}>
-        <Scrollbar>
-          <Box sx={{ minWidth: 800 }}>
-            <Table id={uuidv4()}>
-              <TableHead>
-                <TableRow>
-                  <TableCell padding="checkbox">
-                    Step
-                  </TableCell>
-                  <TableCell>
-                    Test Step
-                  </TableCell>
-                  <TableCell sx={{mr: 2}}>
-                    Page
-                  </TableCell>
-                  <TableCell padding="checkbox" />
-                </TableRow>
-              </TableHead>
-              <TableBody>
-              {scenario.testSteps.map((customer, i) => {
-                return (
-                  <Row key={i}
-                    customer={customer}
-                    index={i}
-                    handleRemove={handleRemove}
-                    indexOfScenarioArray={indexOfScenarioArray}
-                    handleTypingInTextField={handleTypingInTextField}
-                    handleSelectingWebPage={handleSelectingWebPage}
-                    urls={urlList}
-                  />
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </Box>
-        </Scrollbar>
-        </Grid>
+    <Modal
+      open={props.isAddingTestCases}
+      onClose={() => props.setIsAddingTestCases(false)}
+      aria-labelledby="modal-modal-title"
+      aria-describedby="modal-modal-description"
+    >
+      <Card style={style}>
         <Grid xs={12}>
-            <Grid xs={12}>
-              <Button variant="text" onClick={() => props.handleAddNewTestStep(indexOfScenarioArray)}>
-              <Typography>
-                Add New Test Step
-              </Typography>
-              <AddCircleIcon sx={{ ml: 1 }}/>
+          <Stack spacing={1} style={{marginBottom: 10}}>
+            <Typography variant="h4">Test Steps</Typography>
+          </Stack>
+          {showAlert ? showAlertsMessage() : null}
+          <SimpleBar style={{maxHeight: 300}}>
+            <TextField
+              label={`Enter 1st step`}
+              style={{margin: 5, width: "96%"}}
+              onChange={event => {
+                setFirstStep({0: event.target.value});
+              }}
+              defaultValue={firstStep["0"]}
+            />
+            {showTestStepsInputBoxes()}
+          </SimpleBar>
+          <Grid
+            xs={12}
+            container
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              backgroundColor: "#fff"
+            }}
+          >
+            <Grid xs={8} style={{backgroundColor: "#fff"}}>
+              <Button
+                endIcon={
+                  <SvgIcon>
+                    <AddIcon />
+                  </SvgIcon>
+                }
+                onClick={() => {
+                  const keys = Object.keys(testSteps);
+                  const count =
+                    keys.length === 0 ? 1 : Number(keys[keys.length - 1]) + 1;
+                  const obj = {};
+                  obj[count] = "";
+                  setTestSteps({...testSteps, ...obj});
+                }}
+              >
+                Add
               </Button>
             </Grid>
+            <Grid
+              xs={4}
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                backgroundColor: "#fff"
+              }}
+            >
+              <Button
+                variant="contained"
+                onClick={async () => {
+                  if (
+                    Object.values({...firstStep, ...testSteps}).filter(
+                      obj => obj === ""
+                    ).length > 0
+                  ) {
+                    setShowAlert(true);
+                  } else {
+                    if (props.isForDisplay) {
+                      setUpdatedTestSteps({...firstStep, ...testSteps});
+                      await handleUpdateTestSteps({...firstStep, ...testSteps});
+                    } else {
+                      props.setSelectedTestSteps({...firstStep, ...testSteps});
+                    }
+                    dataContext.setTestSteps({...firstStep, ...testSteps});
+                    props.setIsAddingTestCases(false);
+                  }
+                }}
+                style={{marginRight: 10}}
+              >
+                Done
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
-      </Grid>
+      </Card>
+    </Modal>
   );
 };

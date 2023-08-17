@@ -18,6 +18,7 @@ const Page = () => {
   const [userStory, setUserStory] = useState(null);
   const [showLoading, setShowLoading] = useState(false);
   const [testCases, setTestCases] = useState([]);
+  const [testStepsObj, setTestStepsObj] = useState({});
   
   const getUserStoryId = () => {
     const searchTerms = new URLSearchParams(window.location.search);
@@ -35,6 +36,14 @@ const Page = () => {
     try {
       const userStoryId = getUserStoryId();
       const response = await getUserStoryById(userStoryId);
+      const userStory = response.data;
+      if (userStory) {
+        let obj = {};
+        for (let i = 0; i < userStory.test_steps.length; i++) {
+          obj[i] = userStory.test_steps[i];
+        }
+        setTestStepsObj({...obj});
+      }
       setUserStory(response.data);
     } catch (error) {
       console.log("Error while getting user story details:", error);
@@ -57,10 +66,19 @@ const Page = () => {
     setShowLoading(true);
     addUserStory(getProjectName(), name, userStoryDetails, ac, testCases);
     try {
+      let existingTestCases = [];
+      for (let i = 0; i < testCases.length; i++) {
+        const obj = {
+          test_case: testCases[i].test_case,
+          scenario_type: testCases[i].test_categories.name
+        }
+        existingTestCases.push(obj);
+      }
       const response = await generateMoreTestCases({
-        user_story: userStoryDetails,
+        user_story_details: userStoryDetails,
         acceptance_criteria: ac,
-        existing_test_cases: testCases
+        existing_test_cases: existingTestCases,
+        test_steps: []
       });
       if (response.ok) {
         const responseData = await response.json();
@@ -85,7 +103,7 @@ const Page = () => {
   useEffect(() => {
     getUserStoryDetails();
     getAllTestCases();
-  }, [])
+  }, []);
   return (
     <>
       <Head>
@@ -112,18 +130,19 @@ const Page = () => {
                   md={12}
                   lg={12}
                 >
-                  <UpdateUserStoryAndTestCases
+                  {userStory && <UpdateUserStoryAndTestCases
                     testCases={testCases}
                     setTestCases = {setTestCases}
                     userStory={userStory}
-                  ></UpdateUserStoryAndTestCases>
+                    testStepsObj={testStepsObj}
+                  ></UpdateUserStoryAndTestCases>}
                 </Grid>
               </Grid>
             </div>
           </Stack>
           <Divider style={{margin: 40}}/>
           <Grid container sx={{display: "flex", justifyContent: "center"}}>
-          <LoadingButton
+          {userStory && <LoadingButton
             variant="contained"
             type="submit"
             loading={showLoading}
@@ -132,7 +151,7 @@ const Page = () => {
             }}
           >
             Generate More Scenarios
-          </LoadingButton>
+          </LoadingButton>}
           </Grid>
         </Container>
       </Box>

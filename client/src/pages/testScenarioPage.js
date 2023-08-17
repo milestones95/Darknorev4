@@ -33,6 +33,7 @@ import SnackBar from "src/components/snackBar";
 import {createNewUserStory, updateUserStory} from "src/services/userStory";
 import {LoadingButton} from "@mui/lab";
 import { useAuth } from "src/hooks/use-auth";
+import {DataContext} from "src/contexts/data-context";
 
 const getUserStoryId = () => {
   const searhcTerm = new URLSearchParams(window.location.search);
@@ -60,6 +61,8 @@ const getAcceptanceCriteria = () => {
 };
 
 const Page = () => {
+  const dataContext = useContext(DataContext);
+  const userStory = dataContext.userStoryDetails;
   const [showAlert, setShowAlert] = useState(false);
   const [snackBar, setSnackBar] = useState(null);
   const router = useRouter();
@@ -71,7 +74,6 @@ const Page = () => {
     setShowAlert(false);
   };
 
-  const {user} = useAuthContext();
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
   const {testCreationData, addTestCases} = useContext(TestCreationData);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
@@ -121,7 +123,6 @@ const Page = () => {
       () => {
         return applyPagination(
           scenarios.map(testCase => {
-            console.log("fixing checkboxes: ", testCase.test_case);
             return testCase.test_case;
           }),
           page,
@@ -153,13 +154,18 @@ const Page = () => {
       } else {
         try {
           const response = await createNewUserStory({
-            name: testCreationData.userStoryName,
-            user_story_details: testCreationData.userStoryDescription,
-            acceptance_criteria: testCreationData.acceptanceCriteria,
+            name: userStory.name,
+            user_story_details: userStory.storyDetails,
+            acceptance_criteria: userStory.acceptanceCriteria,
+            test_steps: Object.values(dataContext.testSteps), 
             project_id: getProjectId(),
           });
           setSnackBar({ message: "SuccessFully Saved User Story!", severity: "success"});
           userStoryId = response.data.id;
+          if (response.data) {
+            dataContext.setTestSteps({});
+            dataContext.setUserStoryDetails({});
+          }
         } catch (error) {
           setShouldShowLoader(false);
           console.log("Error while create new user story: " + error);
@@ -193,10 +199,8 @@ const Page = () => {
         const response = await addTestCategory({
           name: selectedScenario.scenario_type
         });
-        scenario_type_id = response.data.id;
+        scenario_type_id = response.data[0].id;
       }
-      // Extract the id and scenario_type properties
-      // const { id, scenario_type } = selectedScenario;
 
       return {
         test_case: selection,

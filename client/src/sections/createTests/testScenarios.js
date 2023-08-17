@@ -29,8 +29,11 @@ import {TestCreationData} from 'src/contexts/test-creation-context';
 import {LoadingButton} from "@mui/lab";
 import {generateSimilarTestCases} from 'src/services/testCase';
 import {SimilarTestCases} from '../similarTestCases/similarTestCases';
+import {DataContext} from 'src/contexts/data-context';
 
 export const TestScenarios = (props) => {
+  const dataContext = useContext(DataContext);
+  const userStory = dataContext.userStoryDetails;
   const [selectedTestCase, setSelectedTestCase] = useState(null);
   const [similarTestCases, setSimilarTestCases] = useState(JSON.stringify({}));
   const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
@@ -61,12 +64,14 @@ export const TestScenarios = (props) => {
   } = props;
   let updatedTestCases = [...manuallyUpdatedTestCases];
 
-  const getSimilarTestCases = async (selectedTestCase) => {
+  const getSimilarTestCases = async (selectedTestCase, selectedScenarioType) => {
     try {
       const response = await generateSimilarTestCases({
-        user_story: userStoryDetails,
-        acceptance_criteria: acceptanceCriteria,
-        test_case: selectedTestCase
+        user_story: userStory.storyDetails,
+        acceptance_criteria: userStory.acceptanceCriteria,
+        test_steps: Object.values(dataContext.testSteps),
+        test_case: selectedTestCase,
+        scenario_type: selectedScenarioType
       });
       if (response.ok) {
         const responseData = await response.json();
@@ -74,6 +79,7 @@ export const TestScenarios = (props) => {
         if (Object.keys(responseData).length > 0) {
           newTestCases = parseTestCases(responseData.result.content).Test_Case_Scenarios;
         }
+        
         setSimilarTestCases(newTestCases);
       }
     } catch (error) {
@@ -183,7 +189,7 @@ export const TestScenarios = (props) => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
                                 setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
+                                await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
                               }}
@@ -265,7 +271,7 @@ export const TestScenarios = (props) => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
                                 setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
+                                await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
                               }}
@@ -346,7 +352,7 @@ export const TestScenarios = (props) => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
                                 setSelectedTestCase(customer.test_case);
-                                await getSimilarTestCases(customer.test_case);
+                                await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
                               }}
@@ -425,7 +431,7 @@ export const TestScenarios = (props) => {
                               setShouldShowLoader(true);
                               setMoreLikeThisButtonIndex(i);
                               setSelectedTestCase(customer.test_case);
-                              await getSimilarTestCases(customer.test_case);
+                              await getSimilarTestCases(customer.test_case, customer.scenario_type);
                               setShouldShowLoader(false)
                               setShowSimilarTestCasesModal(true);
                             }}

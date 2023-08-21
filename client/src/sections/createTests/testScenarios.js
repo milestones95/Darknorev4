@@ -1,31 +1,23 @@
 import PropTypes from 'prop-types';
-import { format } from 'date-fns';
 import {
-  Avatar,
   Box,
   Card,
   Checkbox,
   Container,
-  Stack,
   Table,
   TableBody,
   TableCell,
   TableHead,
-  TablePagination,
   TableRow,
   Typography,
   SvgIcon
 } from '@mui/material';
 import { Scrollbar } from 'src/components/scrollbar';
-import { getInitials } from 'src/utils/get-initials';
 import TextField from '@mui/material/TextField';
 import Grid from '@mui/material/Grid';
-import Button from '@mui/material/Button';
-import RemoveIcon from '@mui/icons-material/RemoveCircleOutlineOutlined';
 import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useState} from 'react';
 import {useSelection} from 'src/hooks/use-selection';
-import {TestCreationData} from 'src/contexts/test-creation-context';
 import {LoadingButton} from "@mui/lab";
 import {generateSimilarTestCases} from 'src/services/testCase';
 import {SimilarTestCases} from '../similarTestCases/similarTestCases';
@@ -34,7 +26,6 @@ import {DataContext} from 'src/contexts/data-context';
 export const TestScenarios = (props) => {
   const dataContext = useContext(DataContext);
   const userStory = dataContext.userStoryDetails;
-  const [selectedTestCase, setSelectedTestCase] = useState(null);
   const [similarTestCases, setSimilarTestCases] = useState(JSON.stringify({}));
   const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
@@ -42,25 +33,14 @@ export const TestScenarios = (props) => {
   const [moreLikeThisButtonIndex, setMoreLikeThisButtonIndex] = useState(null);
 
   const {
-    count = 0,
     displayedScenarios,
-    items = [],
-    onDeselectAll,
     onDeselectOne,
-    onPageChange = () => {},
-    onRowsPerPageChange,
-    onSelectAll,
     onSelectOne,
-    page = 0,
-    rowsPerPage = 0,
     selected = [],
-    scenarios,
-    existingTestCases,
     setManuallyUpdatedTestCases,
     manuallyUpdatedTestCases,
-    userStoryDetails,
-    acceptanceCriteria,
-    isForCreating
+    isForCreating,
+    isForDisplay
   } = props;
   let updatedTestCases = [...manuallyUpdatedTestCases];
 
@@ -93,9 +73,6 @@ export const TestScenarios = (props) => {
   }
 
   const customerSelections = useSelection(manuallyUpdatedTestCases);
-
-  const selectedSome = (selected.length > 0) && (selected.length < items.length);
-  const selectedAll = (items.length > 0) && (selected.length === items.length);
 
   return (
     <Card>
@@ -171,7 +148,7 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
+                              {isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
                           {!isForCreating ? <TableCell>
@@ -188,7 +165,6 @@ export const TestScenarios = (props) => {
                               onClick={async () => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
                                 await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
@@ -253,7 +229,7 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
+                              {isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
                           {!isForCreating ? <TableCell>
@@ -270,7 +246,6 @@ export const TestScenarios = (props) => {
                               onClick={async () => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
                                 await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
@@ -334,7 +309,7 @@ export const TestScenarios = (props) => {
                           </TableCell>
                           <TableCell sx={{ background: scenioCellColor }}>
                             <Typography>
-                              {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
+                              {isForDisplay ? customer.test_categories.name : customer.scenario_type}
                             </Typography>
                           </TableCell>
                           {!isForCreating ? <TableCell>
@@ -351,7 +326,6 @@ export const TestScenarios = (props) => {
                               onClick={async () => {
                                 setShouldShowLoader(true);
                                 setMoreLikeThisButtonIndex(i);
-                                setSelectedTestCase(customer.test_case);
                                 await getSimilarTestCases(customer.test_case, customer.scenario_type);
                                 setShouldShowLoader(false)
                                 setShowSimilarTestCasesModal(true);
@@ -413,7 +387,7 @@ export const TestScenarios = (props) => {
                       </TableCell>
                       <TableCell sx={{ background: scenioCellColor }}>
                         <Typography>
-                          {props.isForDisplay ? customer.test_categories.name : customer.scenario_type}
+                          {isForDisplay ? customer.test_categories.name : customer.scenario_type}
                         </Typography>
                       </TableCell>
                       {!isForCreating ? <TableCell>
@@ -430,7 +404,6 @@ export const TestScenarios = (props) => {
                             onClick={async () => {
                               setShouldShowLoader(true);
                               setMoreLikeThisButtonIndex(i);
-                              setSelectedTestCase(customer.test_case);
                               await getSimilarTestCases(customer.test_case, customer.scenario_type);
                               setShouldShowLoader(false)
                               setShowSimilarTestCasesModal(true);

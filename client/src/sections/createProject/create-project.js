@@ -10,15 +10,20 @@ import {
 import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
 import {createNewProject} from "src/services/project";
 import {useState, useContext} from "react";
-import {Label} from "@mui/icons-material";
 import {useAuth} from "src/hooks/use-auth";
 import {TestCreationData} from "src/contexts/test-creation-context";
 
 export const CreateProject = props => {
-  const {testCreationData, addProjectName} = useContext(TestCreationData)
+  const {testCreationData, addProjectName} = useContext(TestCreationData);
   const auth = useAuth();
-  const {showCreateProjectModal, setShowCreateProjectModal, setSnackBar} = props;
-  const [projectName, setProjectName] = useState(testCreationData && testCreationData.projectName);
+  const {
+    showCreateProjectModal,
+    setShowCreateProjectModal,
+    setSnackBar
+  } = props;
+  const [projectName, setProjectName] = useState(
+    testCreationData && testCreationData.projectName
+  );
   const [showAlert, setShowAlert] = useState(false);
 
   const style = {
@@ -45,14 +50,16 @@ export const CreateProject = props => {
         });
         setShowCreateProjectModal(false);
         if (response.status === 200)
-        setSnackBar({ message: "Project Created SuccessFully!", severity: "success"});
-        else 
-        setSnackBar({ message: "Something Went Wrong!", severity: "error"});
+          setSnackBar({
+            message: "Project Created SuccessFully!",
+            severity: "success"
+          });
+        else setSnackBar({message: "Something Went Wrong!", severity: "error"});
       }
     } catch (error) {
       console.log("Error while creating new project: " + error);
     }
-  }
+  };
 
   return (
     <Modal
@@ -73,9 +80,13 @@ export const CreateProject = props => {
             borderTopRightRadius: 14
           }}
         >
-          <Stack direction="row" justifyContent="space-between" spacing={4} marginTop={1}>
-            <Stack spacing={1}>
-            </Stack>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            spacing={4}
+            marginTop={1}
+          >
+            <Stack spacing={1} />
             <div>
               <Button
                 endIcon={
@@ -119,14 +130,27 @@ export const CreateProject = props => {
             border: "1px solid #000",
             borderRadius: 8
           }}
-          onChange={(event) => {
+          onChange={event => {
             setProjectName(event.target.value);
             addProjectName(event.target.value);
           }}
           defaultValue={testCreationData.projectName}
         />
-        <Typography label style={{marginLeft: 15, color: "#F04438"}} hidden={!showAlert}>* Please enter the name</Typography>
-        <Box sx={{display: "flex", margin: 1, marginBottom: 3, justifyContent: "center"}}>
+        <Typography
+          label
+          style={{marginLeft: 15, color: "#F04438"}}
+          hidden={!showAlert}
+        >
+          * Please enter the name
+        </Typography>
+        <Box
+          sx={{
+            display: "flex",
+            margin: 1,
+            marginBottom: 3,
+            justifyContent: "center"
+          }}
+        >
           <Button
             style={{backgroundColor: "#6366F1", color: "#fff", marginRight: 15}}
             onClick={async () => {

@@ -1,38 +1,12 @@
-import {
-  Modal,
-  Box,
-  Button,
-  Stack,
-  SvgIcon,
-  TextField,
-  Avatar,
-  Card,
-  Checkbox,
-  Container,
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TablePagination,
-  TableRow,
-  Typography
-} from "@mui/material";
+import {Modal, Stack, Card, Typography} from "@mui/material";
 import Alert from "@mui/material/Alert";
-
 import Grid from "@mui/material/Grid";
-import {Scrollbar} from "src/components/scrollbar";
-import XMarkIcon from "@heroicons/react/24/solid/XMarkIcon";
-import {createNewProject} from "src/services/project";
-import {useState, useContext} from "react";
-import {Label} from "@mui/icons-material";
+import {useState} from "react";
 import {useAuth} from "src/hooks/use-auth";
-import {TestCreationData} from "src/contexts/test-creation-context";
-import {TestScenarios} from "src/sections/createTests/testScenarios";
 import {saveTestCases} from "src/services/testCase";
 import {SelectScenario} from "../createTests/scenario-select";
 import SimpleBar from "simplebar-react";
 import {LoadingButton} from "@mui/lab";
-import {useSelection} from "src/hooks/use-selection";
 import {addTestCategory, getTestCategories} from "src/services/testCategory";
 import {SimilarTestScenarios} from "../createTests/similarTestScenarios";
 
@@ -50,7 +24,6 @@ export const SimilarTestCases = props => {
     addTestCases,
     showSimilarTestCasesModal,
     setShowSimilarTestCasesModal,
-    testCases,
     isForCreatingTestCases,
     manuallyUpdatedTestCases
   } = props;
@@ -69,7 +42,7 @@ export const SimilarTestCases = props => {
     padding: 30
   };
 
-  const handleSubmitTestCases = async (event) => {
+  const handleSubmitTestCases = async event => {
     event.preventDefault();
     setShouldShowLoader(true);
 
@@ -81,7 +54,7 @@ export const SimilarTestCases = props => {
         return {
           test_case: selectedScenario.test_case,
           scenario_type: selectedScenario.scenario_type
-        }
+        };
       });
       auth.setSimilarTestCases(testCases);
       setManuallyUpdatedTestCases([...manuallyUpdatedTestCases, ...testCases]);
@@ -95,7 +68,7 @@ export const SimilarTestCases = props => {
         const selectedScenario = similarTestCases.find(
           scenario => scenario.test_case === selection
         );
-  
+
         let scenario_type_id;
         const testCategoriesResponse = await getTestCategories(
           selectedScenario.scenario_type
@@ -114,7 +87,7 @@ export const SimilarTestCases = props => {
           user_story_id: userStoryId
         };
       });
-  
+
       const selectedItems = await Promise.all(promises);
       if (selectedItems.length === 0) {
         setShowAlert(true);
@@ -137,7 +110,7 @@ export const SimilarTestCases = props => {
 
   const handleAlertClose = () => {
     setShowAlert(false);
-  }
+  };
   return (
     <Modal
       open={showSimilarTestCasesModal}
@@ -146,50 +119,55 @@ export const SimilarTestCases = props => {
       aria-describedby="modal-modal-description"
     >
       <Card style={style}>
-      <Grid xs={12}>
-        <Stack spacing={1} style={{marginBottom: 20}}>
-          <Typography variant="h4">Test Scenarios</Typography>
-        </Stack>
-        {showAlert &&
-          <Alert severity="error" onClose={handleAlertClose}>
-            Please select at least one of the scenario below
-          </Alert>}
+        <Grid xs={12}>
+          <Stack spacing={1} style={{marginBottom: 20}}>
+            <Typography variant="h4">Test Scenarios</Typography>
+          </Stack>
+          {showAlert &&
+            <Alert severity="error" onClose={handleAlertClose}>
+              Please select at least one of the scenario below
+            </Alert>}
           <Grid xs={12} style={{marginBottom: 20}}>
-            <SelectScenario
-              setDisplayedScenarios={setDisplayedScenarios}
-            />
+            <SelectScenario setDisplayedScenarios={setDisplayedScenarios} />
           </Grid>
-        <SimpleBar style={{maxHeight: 300}}>
-          <SimilarTestScenarios
-            onDeselectAll={customerSelections.handleDeselectAll}
-            onDeselectOne={customerSelections.handleDeselectOne}
-            onSelectAll={customerSelections.handleSelectAll}
-            onSelectOne={customerSelections.handleSelectOne}
-            selected={customerSelections.selected}
-            displayedScenarios={displayedScenarios}
-            existingTestCases={[]}
-            similarTestCases={similarTestCases}
-            setSimilarTestCases={setSimilarTestCases}
-            setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
-            manuallyUpdatedTestCases={manuallyUpdatedTestCases}
-            isForCreating={true}
-          />
-        </SimpleBar>
-        <Grid style={{ display: "flex", justifyContent: "center", marginTop: "10px", marginBottom: "150px" }}>
-          <LoadingButton
-            type="submit"
-            loading={shouldShowLoader}
-            variant="contained"
-            size="small"
-            align="center"
-            sx={{mt: 2}}
-            onClick={handleSubmitTestCases}
+          <SimpleBar style={{maxHeight: 300}}>
+            <SimilarTestScenarios
+              onDeselectAll={customerSelections.handleDeselectAll}
+              onDeselectOne={customerSelections.handleDeselectOne}
+              onSelectAll={customerSelections.handleSelectAll}
+              onSelectOne={customerSelections.handleSelectOne}
+              selected={customerSelections.selected}
+              displayedScenarios={displayedScenarios}
+              existingTestCases={[]}
+              similarTestCases={similarTestCases}
+              setSimilarTestCases={setSimilarTestCases}
+              setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
+              manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+              isForCreating={true}
+            />
+          </SimpleBar>
+          <Grid
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+              marginBottom: "150px"
+            }}
           >
-            {!isForCreatingTestCases ? "Save Test Cases" : "Done"}
-          </LoadingButton>
+            <LoadingButton
+              type="submit"
+              loading={shouldShowLoader}
+              variant="contained"
+              size="small"
+              align="center"
+              sx={{mt: 2}}
+              onClick={handleSubmitTestCases}
+            >
+              {!isForCreatingTestCases ? "Save Test Cases" : "Done"}
+            </LoadingButton>
+          </Grid>
         </Grid>
-      </Grid>
       </Card>
     </Modal>
-  )
+  );
 };

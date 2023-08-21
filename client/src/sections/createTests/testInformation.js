@@ -1,9 +1,8 @@
-import {useCallback, useState, useContext, useEffect} from "react";
+import {useState, useContext, useEffect} from "react";
 import {useRouter} from "next/navigation";
 import {
   Alert,
   Box,
-  Button,
   Card,
   CardActions,
   CardContent,
@@ -21,37 +20,19 @@ import {
 } from "@mui/material";
 import {LoadingButton} from "@mui/lab";
 import {TestCreationData} from "src/contexts/test-creation-context";
-import {createNewUserStory, getAllUserStories, getAllUserStoriesByProjectId} from "src/services/userStory";
+import {
+  getAllUserStories,
+  getAllUserStoriesByProjectId
+} from "src/services/userStory";
 import {UpdateUserStoryAndTestCases} from "../updateUserStoryAndTestCases/updateUserStoryAndTestCases";
-import {SelectProjectAndUserStory} from "../selectProjectAndUserStory/selectProjectAndUserStory";
 import {generateTestCases} from "src/services/testCase";
-import {createTestScenarios} from "src/services/toDoServices";
 import SnackBar from "src/components/snackBar";
-import { useAuth } from "src/hooks/use-auth";
+import {useAuth} from "src/hooks/use-auth";
 import {TestSteps} from "./testSteps";
-import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined"
-import LabelIcon from "@mui/icons-material/LabelImportant"
+import AddIcon from "@mui/icons-material/AddCircleOutlineOutlined";
+import LabelIcon from "@mui/icons-material/LabelImportant";
 import {DataContext} from "src/contexts/data-context";
 import {makeStyles} from "@mui/styles";
-
-const states = [
-  {
-    value: "alabama",
-    label: "Alabama"
-  },
-  {
-    value: "new-york",
-    label: "New York"
-  },
-  {
-    value: "san-francisco",
-    label: "San Francisco"
-  },
-  {
-    value: "los-angeles",
-    label: "Los Angeles"
-  }
-];
 
 export const TestInformation = props => {
   const dataContext = useContext(DataContext);
@@ -93,7 +74,7 @@ export const TestInformation = props => {
 
   const handleAddTestSteps = () => {
     setIsAddingTestCases(true);
-  }
+  };
 
   useEffect(() => {
     if (testCreationData) {
@@ -108,8 +89,6 @@ export const TestInformation = props => {
     event.preventDefault();
     setIsGeneratingScenarios(true);
 
-    console.log("generate clicked", selectedUserStory);
-
     // Get the form field values
     const name = selectedUserStoryName;
     const userStoryDetails = selectedUserStoryDetails;
@@ -118,7 +97,8 @@ export const TestInformation = props => {
     if (
       name.trim() === "" ||
       userStoryDetails.trim() === "" ||
-      ac.trim() === "" || Object.keys(selectedTestSteps).length === 0
+      ac.trim() === "" ||
+      Object.keys(selectedTestSteps).length === 0
     ) {
       setShowAlert(true);
       setIsGeneratingScenarios(false);
@@ -133,7 +113,9 @@ export const TestInformation = props => {
     dataContext.setTestSteps(selectedTestSteps);
 
     // Create the request body
-    const test_steps = Object.keys(selectedTestSteps).map((key) => selectedTestSteps[key]);
+    const test_steps = Object.keys(selectedTestSteps).map(
+      key => selectedTestSteps[key]
+    );
     const requestBody = {
       user_story_details: userStoryDetails,
       acceptance_criteria: ac,
@@ -155,25 +137,32 @@ export const TestInformation = props => {
         ...requestBody
       };
       try {
-        const { data } = await getAllUserStoriesByProjectId(projectId);
+        const {data} = await getAllUserStoriesByProjectId(projectId);
         if (data) {
-          const object = data.find((item) => item.name === name);
-          if(object) {
-            setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
+          const object = data.find(item => item.name === name);
+          if (object) {
+            setSnackBar({
+              message:
+                "User Story Name Alraedy Exist! Please Create different One!",
+              severity: "error"
+            });
             setIsGeneratingScenarios(false);
-            return ;
+            return;
           }
         }
       } catch (err) {
-        console.log("🚀 ~ file: testInformation.js:132 ~ handleSubmit ~ err:", err);
-        setSnackBar({ message: "An Error Occured!", severity: "error" })
+        console.log("Error while getting user stories by project id:-", err);
+        setSnackBar({message: "An Error Occured!", severity: "error"});
         setIsGeneratingScenarios(false);
-        return ;
+        return;
       }
     }
     const response = await generateTestCases(requestBody);
     if (response.ok) {
-      setSnackBar({ message: "SuccessFully Generated The Test Cases!", severity: "success" })
+      setSnackBar({
+        message: "SuccessFully Generated The Test Cases!",
+        severity: "success"
+      });
       const responseData = await response.json();
       queryParams["response"] = JSON.stringify(responseData);
       router.push({
@@ -182,7 +171,10 @@ export const TestInformation = props => {
       });
     } else {
       // Handle the error case
-      setSnackBar({ message: "Error While Generating The Test Cases!", severity: "error" })
+      setSnackBar({
+        message: "Fail To Generating The Test Cases!",
+        severity: "error"
+      });
       console.log("API request failed");
     }
     setIsGeneratingScenarios(false);
@@ -197,26 +189,31 @@ export const TestInformation = props => {
     return searchTerm.get("userStoryId");
   };
 
-  const getAllTestSteps = async (test_steps) => {
+  const getAllTestSteps = async test_steps => {
     let obj = {};
     for (let i = 0; i < test_steps.length; i++) {
       obj[i] = test_steps[i];
     }
     setSelectedTestSteps({...obj});
-  }
+  };
 
-  const useStyles = makeStyles((theme) => ({
+  const useStyles = makeStyles(theme => ({
     placeholder: {
-      '&::placeholder': {
-        color: 'grey', // Your desired placeholder text color
-      },
-    },
+      "&::placeholder": {
+        color: "grey"
+      }
+    }
   }));
   const classes = useStyles();
 
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
-      {snackBar && <SnackBar message = {snackBar.message} severity = {snackBar.severity} setSnackBar = {setSnackBar}/>}
+      {snackBar &&
+        <SnackBar
+          message={snackBar.message}
+          severity={snackBar.severity}
+          setSnackBar={setSnackBar}
+        />}
       {!getUserStoryId()
         ? <Card>
             <CardHeader
@@ -234,87 +231,59 @@ export const TestInformation = props => {
                 </Alert>}
               <Box sx={{m: -1.5}}>
                 <Grid container>
-                  {window.location.search === ""
-                    ? <Grid
-                        xs={5.5}
-                        style={{
-                          marginRight: "50px",
-                          marginLeft: "10px",
-                          marginBottom: "10px"
-                        }}
-                      >
-                        <TextField
-                          fullWidth
-                          fullHeight
-                          label={"User Story Name"}
-                          name="userStoryName"
-                          required
-                          onChange={async event => {
-                            setSelectedUserStoryName(event.target.value);
-                            setIsNewUserStoryName(event.target.value.length>0)
-                          }}
-                          defaultValue={
-                            (selectedUserStory && selectedUserStory.name) ||
-                            (testCreationData && testCreationData.userStoryName)
-                          }
-                          // value={selectedUserStoryName}
-                          InputLabelProps={{shrink: true}}
-                        />
-                      </Grid>
-                    : null}
-                  {window.location.search === ""
-                    ? <Grid xs={5.7} style={{marginTop: "-2px"}}>
-                        <TextField
-                          label="Select Existing User Story"
-                          onChange={async event => {
-                            if(!isNewUserStoryName) {
-                              setSelectedUserStoryDetails(
-                                event.target.value.user_story_details
-                              );
-                              setSelectedAcceptanceCriteria(
-                                event.target.value.acceptance_criteria
-                              );
-                              getAllTestSteps(event.target.value.test_steps);
-                            }
-                          }}
-                          select
-                          fullWidth
-                        >
-                          {userStories &&
-                            userStories.map(userStory => {
-                              return (
-                                <MenuItem key={userStory} value={userStory}>
-                                  {userStory.name}
-                                </MenuItem>
-                              );
-                            })}
-                        </TextField>
-                      </Grid>
-                    : null}
+                  <Grid
+                    xs={5.5}
+                    style={{
+                      marginRight: "50px",
+                      marginLeft: "10px",
+                      marginBottom: "10px"
+                    }}
+                  >
+                    <TextField
+                      fullWidth
+                      fullHeight
+                      label={"User Story Name"}
+                      name="userStoryName"
+                      required
+                      onChange={async event => {
+                        setSelectedUserStoryName(event.target.value);
+                        setIsNewUserStoryName(event.target.value.length > 0);
+                      }}
+                      defaultValue={
+                        (selectedUserStory && selectedUserStory.name) ||
+                        (testCreationData && testCreationData.userStoryName)
+                      }
+                      InputLabelProps={{shrink: true}}
+                    />
+                  </Grid>
+                  <Grid xs={5.7} style={{marginTop: "-2px"}}>
+                    <TextField
+                      label="Select Existing User Story"
+                      onChange={async event => {
+                        if (!isNewUserStoryName) {
+                          setSelectedUserStoryDetails(
+                            event.target.value.user_story_details
+                          );
+                          setSelectedAcceptanceCriteria(
+                            event.target.value.acceptance_criteria
+                          );
+                          getAllTestSteps(event.target.value.test_steps);
+                        }
+                      }}
+                      select
+                      fullWidth
+                    >
+                      {userStories &&
+                        userStories.map(userStory => {
+                          return (
+                            <MenuItem key={userStory} value={userStory}>
+                              {userStory.name}
+                            </MenuItem>
+                          );
+                        })}
+                    </TextField>
+                  </Grid>
                   <Grid xs={12}>
-                    {window.location.search !== ""
-                      ? <Grid
-                          xs={12}
-                          sx={{margin: "10px", marginBottom: "20px"}}
-                        >
-                          <TextField
-                            fullWidth
-                            fullHeight
-                            label={"User Story Name"}
-                            name="userStoryName"
-                            required
-                            defaultValue={
-                              (selectedUserStory && selectedUserStory.name) ||
-                              (testCreationData &&
-                                testCreationData.userStoryName)
-                            }
-                            InputLabelProps={{shrink: true}}
-                            onChange={event => {
-                              setSelectedUserStoryName(event.target.value);
-                            }}
-                          />
-                        </Grid>
-                      : null}
                     <Grid xs={12} sx={{margin: "10px", marginBottom: "20px"}}>
                       <TextField
                         fullWidth
@@ -338,7 +307,7 @@ export const TestInformation = props => {
                         className={classes.placeholder}
                         placeholder="As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again."
                         InputProps={{
-                          classes: { input: classes.placeholder}
+                          classes: {input: classes.placeholder}
                         }}
                       />
                     </Grid>
@@ -363,7 +332,7 @@ export const TestInformation = props => {
                           setSelectedAcceptanceCriteria(event.target.value);
                         }}
                         InputProps={{
-                          classes: { input: classes.placeholder}
+                          classes: {input: classes.placeholder}
                         }}
                         placeholder={`Verify that when a user clicks pause, netflix will save the scene where they stopped watching the show.
 If there is a network error when they try to pause, netflix will use the last saved index of my show and will continue from that point when they return to watch netflix.
@@ -373,40 +342,61 @@ When they press play, netflix will resume the show from the same place where the
                   </Grid>
                   <List
                     subheader={
-                      <ListSubheader style={{color: "#6C737F", fontSize: "12px"}}>
+                      <ListSubheader
+                        style={{color: "#6C737F", fontSize: "12px"}}
+                      >
                         Test Steps*
                       </ListSubheader>
                     }
-                    style={{border: "1px solid #E5E7EB", margin: 10, borderRadius: "8px", width: "100%", paddingBottom: "20px"}}
+                    style={{
+                      border: "1px solid #E5E7EB",
+                      margin: 10,
+                      borderRadius: "8px",
+                      width: "100%",
+                      paddingBottom: "20px"
+                    }}
                     disablePadding={true}
                   >
                     {Object.values(selectedTestSteps).map((value, index) => {
-                      return <ListItem key={index} style={{marginBottom: "-10px", marginTop: "-10px"}}>
-                        <ListItemIcon>
-                          <LabelIcon fontSize="10px"/>
-                        </ListItemIcon>
-                        <ListItemText
-                          primary={value}
-                          style={{marginLeft: "-30px"}}
+                      return (
+                        <ListItem
+                          key={index}
+                          style={{marginBottom: "-10px", marginTop: "-10px"}}
                         >
-                        </ListItemText>
-                      </ListItem>
+                          <ListItemIcon>
+                            <LabelIcon fontSize="10px" />
+                          </ListItemIcon>
+                          <ListItemText
+                            primary={value}
+                            style={{marginLeft: "-30px"}}
+                          />
+                        </ListItem>
+                      );
                     })}
                     <ListItem style={{width: "250px", marginLeft: "-15px"}}>
                       <ListItemButton
-                        onClick={() => {handleAddTestSteps()}}
+                        onClick={() => {
+                          handleAddTestSteps();
+                        }}
                       >
                         <ListItemIcon>
-                          <AddIcon style={{color: "#6366F1"}}/>
+                          <AddIcon style={{color: "#6366F1"}} />
                         </ListItemIcon>
-                        <ListItemText primary={Object.values(selectedTestSteps).length > 0 ? "Update Test Steps" : "Add Test Steps"} style={{marginLeft: "-25px", color: "#6366F1"}} />
+                        <ListItemText
+                          primary={
+                            Object.values(selectedTestSteps).length > 0
+                              ? "Update Test Steps"
+                              : "Add Test Steps"
+                          }
+                          style={{marginLeft: "-25px", color: "#6366F1"}}
+                        />
                       </ListItemButton>
                     </ListItem>
                   </List>
                 </Grid>
               </Box>
             </CardContent>
-            <Divider style={{margin: "10px"}}/>
+            <Divider style={{margin: "10px"}} />
             <CardActions sx={{justifyContent: "center", marginBottom: "20px"}}>
               <LoadingButton
                 variant="contained"
@@ -418,13 +408,15 @@ When they press play, netflix will resume the show from the same place where the
             </CardActions>
           </Card>
         : <UpdateUserStoryAndTestCases />}
-        {isAddingTestCases ? <TestSteps
-          isAddingTestCases={isAddingTestCases}
-          setIsAddingTestCases={setIsAddingTestCases}
-          testStepsObj={selectedTestSteps}
-          setSelectedTestSteps={setSelectedTestSteps}
-          isForUpdating={Object.values(selectedTestSteps).length > 0}
-        /> : null}
+      {isAddingTestCases
+        ? <TestSteps
+            isAddingTestCases={isAddingTestCases}
+            setIsAddingTestCases={setIsAddingTestCases}
+            testStepsObj={selectedTestSteps}
+            setSelectedTestSteps={setSelectedTestSteps}
+            isForUpdating={Object.values(selectedTestSteps).length > 0}
+          />
+        : null}
     </form>
   );
 };

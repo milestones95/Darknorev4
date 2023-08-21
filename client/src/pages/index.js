@@ -1,18 +1,9 @@
-import { useCallback, useMemo, useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Head from 'next/head';
-import { subDays, subHours } from 'date-fns';
-import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
-import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
 import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
-import FolderIcon from "@heroicons/react/24/outline/FolderIcon";
 import { Box, Button, Container, Stack, SvgIcon, Typography } from '@mui/material';
-import { useSelection } from 'src/hooks/use-selection';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { ViewTestTable } from 'src/sections/viewTests/view-test-table';
 import { ViewProjects } from 'src/sections/viewProjects/view-projects';
-import { applyPagination } from 'src/utils/apply-pagination';
-import { TestCreationData } from 'src/contexts/test-creation-context';
-import { SelectScenario } from 'src/sections/createTests/scenario-select';
 import {CreateProject} from 'src/sections/createProject/create-project';
 import {ViewUserStories} from 'src/sections/viewUserStories/view-user-stories';
 import { getAllProjects } from 'src/services/project';
@@ -20,82 +11,22 @@ import {getAllUserStoriesByProjectId} from 'src/services/userStory';
 import {useAuth} from 'src/hooks/use-auth';
 import SnackBar from 'src/components/snackBar';
 
-const now = new Date();
-
-const data = [
-  {
-    id: '5e887ac47eed253091be10cb',
-    address: {
-      city: 'Cleveland',
-      country: 'USA',
-      state: 'Ohio',
-      street: '2849 Fulton Street'
-    },
-    avatar: '/assets/avatars/avatar-carson-darrin.png',
-    createdAt: subDays(subHours(now, 7), 1).getTime(),
-    email: 'carson.darrin@devias.io',
-    name: 'Plain English Test Case',
-    phone: '304-428-3097'
-  },
-  {
-    id: '5e887b209c28ac3dd97f6db5',
-    address: {
-      city: 'Atlanta',
-      country: 'USA',
-      state: 'Georgia',
-      street: '1865  Pleasant Hill Road'
-    },
-    avatar: '/assets/avatars/avatar-fran-perez.png',
-    createdAt: subDays(subHours(now, 1), 2).getTime(),
-    email: 'fran.perez@devias.io',
-    name: 'Automated Test Case',
-    phone: '712-351-5711'
-  }
-];
-
-const useCustomers = (page, rowsPerPage) => {
-  return useMemo(
-    () => {
-      return applyPagination(data, page, rowsPerPage);
-    },
-    [page, rowsPerPage]
-  );
-};
-
-const useCustomerIds = (customers) => {
-  return useMemo(
-    () => {
-      return customers.map((customer) => customer.id);
-    },
-    [customers]
-  );
-};
-
 const Page = () => {
   const auth = useAuth();
-  const { testCreationData } = useContext(TestCreationData);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
-  const customers = useCustomers(page, rowsPerPage);
-  const customersIds = useCustomerIds(customers);
-  const customersSelection = useSelection(customersIds);
   const [showCreateProjectModal, setShowCreateProjectModal] = useState(false);
   const [showListOfProjects, setShowListOfProjects] = useState(true);
   const [showListOfUserStories, setShowListOfUserStories] = useState(false);
-  const [selectedProject, setSelectedProject] = useState(null);
   const [projects, setProjects] = useState([]);
   const [userStories, setUserStories] = useState([]);
   const [isProjectsLoading, setIsProjectsLoading] = useState(true);
   const [isUserStoriesLoading, setIsUserStoriesLoading] = useState(true);
   const [snackBar, setSnackBar] = useState(null);
-  console.log("auth will be: ", auth.user)
 
   const getProjectsByUserId = async () => {
     try {
       const response = await getAllProjects(auth.user.id);
-      console.log("====> projects", JSON.stringify(response));
       if(response.data)
-      setProjects(response.data?.sort(function(project1, project2) {
+      setProjects(response.data.sort(function(project1, project2) {
         return new Date(project2.created_at) - new Date(project1.created_at);
       }));
       setIsProjectsLoading(false);
@@ -142,21 +73,6 @@ const Page = () => {
       setShowListOfUserStories(true);
     }
   }, [showCreateProjectModal, window.location.search]);
-  // getProjectsByUserId();
-
-  const handlePageChange = useCallback(
-    (event, value) => {
-      setPage(value);
-    },
-    []
-  );
-
-  const handleRowsPerPageChange = useCallback(
-    (event) => {
-      setRowsPerPage(event.target.value);
-    },
-    []
-  );
   
   return (
     <>
@@ -214,7 +130,6 @@ const Page = () => {
               <ViewProjects
                 setShowListOfProjects={setShowListOfProjects}
                 setShowListOfUserStories={setShowListOfUserStories}
-                // setSelectedProject={setSelectedProject}
                 projects={projects}
               ></ViewProjects>}
             {showListOfUserStories &&
@@ -236,20 +151,6 @@ const Page = () => {
               setSnackBar = {setSnackBar}
             >
             </CreateProject>}
-            {/* <ViewTestTable
-              count={data.length}
-              items={customers}
-              onDeselectAll={customersSelection.handleDeselectAll}
-              onDeselectOne={customersSelection.handleDeselectOne}
-              onPageChange={handlePageChange}
-              onRowsPerPageChange={handleRowsPerPageChange}
-              onSelectAll={customersSelection.handleSelectAll}
-              onSelectOne={customersSelection.handleSelectOne}
-              page={page}
-              rowsPerPage={rowsPerPage}
-              selected={customersSelection.selected}
-              displayedScenarios={displayedScenarios}
-            /> */}
           </Stack>
         </Container>
       </Box>

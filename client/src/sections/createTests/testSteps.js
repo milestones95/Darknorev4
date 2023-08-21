@@ -30,7 +30,6 @@ export const TestSteps = props => {
   const [testSteps, setTestSteps] = useState(existingTestSteps);
   const [firstStep, setFirstStep] = useState(firstExistingStep);
   const [showAlert, setShowAlert] = useState(false);
-  const [updatedTestSteps, setUpdatedTestSteps] = useState({});
 
   const getMaxHeight = () => {
     const testStepsCount = Object.keys(testSteps).length;
@@ -111,10 +110,12 @@ export const TestSteps = props => {
     );
   };
 
-  const handleUpdateTestSteps = async (updatedTestSteps) => {
+  const handleUpdateTestSteps = async updatedTestSteps => {
     try {
       const testSteps = Object.values(updatedTestSteps);
-      const response = await updateUserStory(props.userStoryId, {test_steps: testSteps});
+      const response = await updateUserStory(props.userStoryId, {
+        test_steps: testSteps
+      });
       if (response.data) {
         props.setTestStepsObj(response.data[0].test_steps);
         dataContext.setTestSteps({});
@@ -122,7 +123,7 @@ export const TestSteps = props => {
     } catch (error) {
       console.log("Error while updating test steps:", error);
     }
-  }
+  };
 
   const showTestStepsInputBoxes = () => {
     return Object.keys(testSteps).map((value, index) => {
@@ -240,7 +241,6 @@ export const TestSteps = props => {
                     setShowAlert(true);
                   } else {
                     if (props.isForDisplay) {
-                      setUpdatedTestSteps({...firstStep, ...testSteps});
                       await handleUpdateTestSteps({...firstStep, ...testSteps});
                     } else {
                       props.setSelectedTestSteps({...firstStep, ...testSteps});

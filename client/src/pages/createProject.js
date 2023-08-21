@@ -1,4 +1,5 @@
-import { Alert,
+import {
+  Alert,
   Box,
   Button,
   Card,
@@ -17,22 +18,30 @@ import {createNewProject, getAllProjects} from "src/services/project";
 import {LoadingButton} from "@mui/lab";
 import CrossIcon from "@heroicons/react/24/solid/XMarkIcon";
 import {TestCreationData} from "src/contexts/test-creation-context";
-import {createNewUserStory, getAllUserStoriesByProjectId} from "src/services/userStory";
+import {
+  createNewUserStory,
+  getAllUserStoriesByProjectId
+} from "src/services/userStory";
 import {saveTestCases} from "src/services/testCase";
 import {useRouter} from "next/router";
 import {useAuth} from "src/hooks/use-auth";
 import {DataContext} from "src/contexts/data-context";
 
-const Page = (props) => {
-  const dataContext = useContext(DataContext)
+const Page = props => {
+  const dataContext = useContext(DataContext);
   const {testCreationData} = useContext(TestCreationData);
   const [projects, selectProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [shouldShowTextField, setShouldShowTextField] = useState(false);
   const [showLoading, setShowLoading] = useState(false);
   const [showAlert, setShowAlert] = useState(null);
-  const [userStoryName, setUserStoryName] = useState(testCreationData.userStoryName);
-  const [shouldShowUserStoryTextField, setShouldShowUserStoryTextField] = useState(false);
+  const [userStoryName, setUserStoryName] = useState(
+    testCreationData.userStoryName
+  );
+  const [
+    shouldShowUserStoryTextField,
+    setShouldShowUserStoryTextField
+  ] = useState(false);
   const router = useRouter();
   const auth = useAuth();
   const userId = auth.user.id;
@@ -45,24 +54,24 @@ const Page = (props) => {
     } catch (error) {
       console.log("Error while getting all projects:-", error);
     }
-  }
+  };
 
   useEffect(() => {
     getAllExistingProjects();
-  }, [])
+  }, []);
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async event => {
     event.preventDefault();
     setShowLoading(true);
 
-    if ( event.target.elements.project.value === "" ) {
+    if (event.target.elements.project.value === "") {
       setShowAlert("Please Select The Option!");
       setShowLoading(false);
       return;
     }
     let projectId, projectName;
     try {
-      if (typeof selectedProject === 'string') {
+      if (typeof selectedProject === "string") {
         const savedProjectResponse = await createNewProject({
           name: selectedProject,
           user_id: userId
@@ -70,21 +79,22 @@ const Page = (props) => {
         if (savedProjectResponse && savedProjectResponse.status === 200) {
           projectId = savedProjectResponse.data.id;
           projectName = savedProjectResponse.data.name;
-        } 
+        }
       } else {
         projectId = selectedProject.id;
         projectName = selectedProject.name;
       }
       try {
-        const { data } = await getAllUserStoriesByProjectId(projectId);
+        const {data} = await getAllUserStoriesByProjectId(projectId);
         if (data) {
-          const object = data.find((item) => item.name === userStoryName);
-          if(object) {
-            // setSnackBar({ message: "User Story Name Alraedy Exist! Please Create different One!", severity: "error" })
-            setShowAlert("This User Story Name Alerady Exist In This Project! Please Use Different Name.");
-            setShouldShowUserStoryTextField(true)
+          const object = data.find(item => item.name === userStoryName);
+          if (object) {
+            setShowAlert(
+              "This User Story Name Alerady Exist In This Project! Please Use Different Name."
+            );
+            setShouldShowUserStoryTextField(true);
             setIsGeneratingScenarios(false);
-            return ;
+            return;
           }
         }
         const savedUserStoryResponse = await createNewUserStory({
@@ -92,13 +102,13 @@ const Page = (props) => {
           user_story_details: testCreationData.userStoryDescription,
           acceptance_criteria: testCreationData.acceptanceCriteria,
           test_steps: Object.values(dataContext.testSteps),
-          project_id: projectId,
+          project_id: projectId
         });
         if (savedUserStoryResponse && savedUserStoryResponse.data) {
           const testCases = [...testCreationData.scenarios];
           const userStoryId = savedUserStoryResponse.data.id;
-          testCases.forEach((testCase) => {
-            return testCase["user_story_id"] = userStoryId;
+          testCases.forEach(testCase => {
+            return (testCase["user_story_id"] = userStoryId);
           });
           try {
             const saveTestCasesResponse = await saveTestCases(testCases);
@@ -108,7 +118,7 @@ const Page = (props) => {
                 query: {
                   userStoryId: userStoryId,
                   projectId: projectId,
-                  projectName: projectName,
+                  projectName: projectName
                 }
               });
               if (response.data) {
@@ -131,7 +141,7 @@ const Page = (props) => {
 
   const handleAlertClose = () => {
     setShowAlert(null);
-  }
+  };
 
   return (
     <form autoComplete="off" noValidate onSubmit={handleSubmit}>
@@ -146,62 +156,78 @@ const Page = (props) => {
             <Alert severity="error" onClose={handleAlertClose}>
               {showAlert}
             </Alert>}
-          {shouldShowUserStoryTextField && <TextField
-                style={{width: 500, margin: 4}}
-                label={"User Story Name"}
-                onChange={(event) => {
-                  setUserStoryName(event.target.value);
-                }}
-                name="User Story Name"
-                value={userStoryName}
+          {shouldShowUserStoryTextField &&
+            <TextField
+              style={{width: 500, margin: 4}}
+              label={"User Story Name"}
+              onChange={event => {
+                setUserStoryName(event.target.value);
+              }}
+              name="User Story Name"
+              value={userStoryName}
             />}
           <Box sx={{m: -1.5}}>
-            <Grid container sx={{margin: 2, display: "flex", alignItems: "center"}}>
+            <Grid
+              container
+              sx={{margin: 2, display: "flex", alignItems: "center"}}
+            >
               <TextField
                 select={!shouldShowTextField}
                 style={{width: 500}}
-                label={shouldShowTextField ? "Enter New Project Name": "Select Existing Project"}
-                onChange={(event) => {
+                label={
+                  shouldShowTextField
+                    ? "Enter New Project Name"
+                    : "Select Existing Project"
+                }
+                onChange={event => {
                   if (event.target.value === "createNewProject") {
                     setShouldShowTextField(true);
                   }
                   setSelectedProject(event.target.value);
                   setShouldShowUserStoryTextField(false);
-                  setShowAlert(null)
+                  setShowAlert(null);
                 }}
                 name="project"
               >
-                {projects && projects.map((project) => {
-                  return (
-                    <MenuItem
-                      key={project}
-                      value={project}
-                    >
-                      {project.name}
-                    </MenuItem>
-                  )
-                })}
-                  <MenuItem
-                    key={"createNewProject"}
-                    value={"createNewProject"}
-                  >
-                    Create New Project
-                  </MenuItem>
+                {projects &&
+                  projects.map(project => {
+                    return (
+                      <MenuItem key={project} value={project}>
+                        {project.name}
+                      </MenuItem>
+                    );
+                  })}
+                <MenuItem key={"createNewProject"} value={"createNewProject"}>
+                  Create New Project
+                </MenuItem>
               </TextField>
-              {shouldShowTextField ?
-                <Button style={{display: "flex", justifyContent: "center", alignItems: "center"}} onClick={() => {
-                  setShouldShowTextField(false);
-                }}>
-                  <SvgIcon fontSize="medium" style={{color: "#000"}}>
-                    <CrossIcon />
-                  </SvgIcon>
-                </Button> : null
-              }
+              {shouldShowTextField
+                ? <Button
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center"
+                    }}
+                    onClick={() => {
+                      setShouldShowTextField(false);
+                    }}
+                  >
+                    <SvgIcon fontSize="medium" style={{color: "#000"}}>
+                      <CrossIcon />
+                    </SvgIcon>
+                  </Button>
+                : null}
             </Grid>
           </Box>
         </CardContent>
         <Divider />
-        <CardActions sx={{justifyContent: "center", marginBottom: "20px", marginTop: "10px"}}>
+        <CardActions
+          sx={{
+            justifyContent: "center",
+            marginBottom: "20px",
+            marginTop: "10px"
+          }}
+        >
           <LoadingButton
             variant="contained"
             type="submit"
@@ -212,13 +238,12 @@ const Page = (props) => {
         </CardActions>
       </Card>
     </form>
-  )
-}
+  );
+};
 
-Page.getLayout = (page) => (
+Page.getLayout = page =>
   <DashboardLayout>
     {page}
-  </DashboardLayout>
-);
+  </DashboardLayout>;
 
 export default Page;

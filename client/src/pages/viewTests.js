@@ -1,14 +1,11 @@
 import Head from 'next/head';
-import { Box, Container, Stack, Typography, Unstable_Grid2 as Grid, Divider } from '@mui/material';
+import { Box, Container, Stack, Unstable_Grid2 as Grid, Divider } from '@mui/material';
 import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { AccountProfile } from 'src/sections/account/account-profile';
-import { TestInformation } from 'src/sections/createTests/testInformation';
 import { UpdateUserStoryAndTestCases } from 'src/sections/updateUserStoryAndTestCases/updateUserStoryAndTestCases';
 import {LoadingButton} from "@mui/lab";
 import {useEffect, useState, useContext} from 'react';
 import {getUserStoryById} from 'src/services/userStory';
 import {useRouter} from 'next/router';
-import {createTestScenarios} from 'src/services/toDoServices';
 import {generateMoreTestCases, getTestCases} from 'src/services/testCase';
 import {TestCreationData} from 'src/contexts/test-creation-context';
 

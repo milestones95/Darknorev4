@@ -68,19 +68,16 @@ const generateMoreTestCases = async (req, res) => {
         },
         {
           role: "user",
-            content: `Generate more test cases excluding these ${JSON.stringify(
-              testCases
-            )}`
+          content: `Generate more test cases excluding these ${JSON.stringify(
+            testCases
+          )}`
         }
       ],
       temperature: 0.2
     });
     res.json({result: completion.data.choices[0].message});
   } catch (err) {
-    console.log(
-      "🚀 ~ file: generateTestCases.js:7 ~ generateTestCases ~ err:",
-      JSON.stringify(err)
-    );
+    console.log("Error while generating more test cases:", JSON.stringify(err));
     res.json({err: err, status: 500});
   }
 };

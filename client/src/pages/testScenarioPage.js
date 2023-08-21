@@ -1,16 +1,11 @@
 import {useCallback, useMemo, useState, useContext, useEffect} from "react";
 import Head from "next/head";
 import {useRouter} from "next/router";
-import {subDays, subHours} from "date-fns";
-import ArrowDownOnSquareIcon from "@heroicons/react/24/solid/ArrowDownOnSquareIcon";
-import ArrowUpOnSquareIcon from "@heroicons/react/24/solid/ArrowUpOnSquareIcon";
-import PlusIcon from "@heroicons/react/24/solid/PlusIcon";
 import {
   Box,
   Button,
   Container,
   Stack,
-  SvgIcon,
   Typography
 } from "@mui/material";
 import {useSelection} from "src/hooks/use-selection";
@@ -18,21 +13,13 @@ import {Layout as DashboardLayout} from "src/layouts/dashboard/layout";
 import {TestScenarios} from "src/sections/createTests/testScenarios";
 import {SelectScenario} from "src/sections/createTests/scenario-select";
 import {applyPagination} from "src/utils/apply-pagination";
-import TextField from "@mui/material/TextField";
 import Alert from "@mui/material/Alert";
 import {TestCreationData} from "src/contexts/test-creation-context";
-import {useAuthContext} from "../contexts/auth-context";
-import {saveTestScenarios} from "../services/toDoServices";
 import {deleteTestCase, getTestCases, saveTestCases} from "src/services/testCase";
-import {
-  createNewScenarioType,
-  getScenarioType
-} from "src/services/scenarioTypes";
 import {addTestCategory, getTestCategories} from "src/services/testCategory";
 import SnackBar from "src/components/snackBar";
 import {createNewUserStory, updateUserStory} from "src/services/userStory";
 import {LoadingButton} from "@mui/lab";
-import { useAuth } from "src/hooks/use-auth";
 import {DataContext} from "src/contexts/data-context";
 
 const getUserStoryId = () => {
@@ -79,7 +66,6 @@ const Page = () => {
   const [shouldShowLoader, setShouldShowLoader] = useState(false);
   const [existingTestCases, setExistingTestCases] = useState([]);
   const [manuallyUpdatedTestCases, setManuallyUpdatedTestCases] = useState([]);
-  const [selectedSimilarTestCases, setSelectedSimilarTestCases] = useState([]);
 
   const getExistingTestCases = async () => {
     try {
@@ -183,12 +169,10 @@ const Page = () => {
     const oldTestCases = existingTestCases.map((testCase) => testCase.test_case);
     const newTestCases = customersSelection.selected.filter(item => !oldTestCases.includes(item));
     const promises = newTestCases.map(async selection => {
-      // Find the corresponding scenario object using the selection value
       const selectedScenario = manuallyUpdatedTestCases.find(
         scenario => scenario.test_case === selection
       );
 
-      // console.log("selectedScenario", selectedScenario);
       let scenario_type_id;
       const testCategoriesResponse = await getTestCategories(
         selectedScenario.scenario_type
@@ -244,9 +228,7 @@ const Page = () => {
             pathname: "/viewTests",
             query: queryParams
           });
-          console.log("response was ok");
         } else {
-          // Handle the error case
           setShouldShowLoader(false);
           console.log("API request failed");
         } 
@@ -263,7 +245,6 @@ const Page = () => {
   const [rowsPerPage, setRowsPerPage] = useState(15);
   const scenarioList = useScenarios(page, rowsPerPage);
 
-  console.log("scnenario list: " + scenarioList);
   const customersSelection = useSelection(scenarioList);
 
   const handlePageChange = useCallback((event, value) => {
@@ -280,7 +261,6 @@ const Page = () => {
     setRowsPerPage(event.target.value);
   }, []);
   const handleGoBack = () => {
-    console.log("back pressed")
     router.back();
   }
   return (
@@ -331,7 +311,6 @@ const Page = () => {
               setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
               userStoryDetails={getUserStoryDetails()}
               acceptanceCriteria={getAcceptanceCriteria()}
-              setSelectedSimilarTestCases={setSelectedSimilarTestCases}
             />
             <Box style = {{display: 'flex', marginLeft: 15, alignItems: 'center', fontWeight: '900'}}>
               <Typography fontWeight = '500'>Didn&apos;t Like The Test Cases?</Typography>

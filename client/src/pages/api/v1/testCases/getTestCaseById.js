@@ -1,25 +1,23 @@
-const supabase = require('../../SupabaseServer.js');
+const supabase = require("../../SupabaseServer.js");
 
 const getTestCaseById = async (req, res) => {
   try {
-      const { testCaseId } = req.query;
-      const { data, error } = await supabase
+    const {testCaseId} = req.query;
+    const {data, error} = await supabase
       .from("test_cases")
-      .select('*, test_categories(name)')
+      .select("*, test_categories(name)")
       .eq("id", testCaseId)
       .single();
-      if (error) {
-          console.log("🚀 ~ file: getTestCases.js:35 ~ getTestCaseById ~ error:", error)
-      }
-      if (data) {
-          console.log("🚀 ~ file: getTestCases.js:37 ~ getTestCaseById ~ data:", data)
-          res.json({ data, status: 200, statusText: "OK" });
-      }
+    if (error) {
+      console.log("getTestCaseById ~ error:", error);
+    }
+    if (data) {
+      res.json({data, status: 200, statusText: "OK"});
+    }
   } catch (error) {
-      console.log("🚀 ~ file: getTestCases.js:42 ~ getTestCaseById ~ error:", error)
-      res.json({ error, status: 500 });
-      
+    console.log("Error while getting test case by id:", error);
+    res.json({error, status: 500});
   }
-}
+};
 
 export default getTestCaseById;

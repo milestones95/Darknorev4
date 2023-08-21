@@ -125,7 +125,6 @@ export const AuthProvider = (props) => {
     () => {
       initialize();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -161,12 +160,6 @@ export const AuthProvider = (props) => {
       console.error(err);
     }
 
-    // const user = {
-    //   id: '5e86809283e28b96d2d38537',
-    //   avatar: '/assets/avatars/avatar-anika-visser.png',
-    //   name: 'Anika Visser',
-    //   email: 'anika.visser@devias.io'
-    // };
     const user = {
       id: data.user.id || '5e86809283e28b96d2d38537',
       avatar: '/assets/avatars/avatar-anika-visser.png',

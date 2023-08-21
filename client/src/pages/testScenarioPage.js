@@ -1,194 +1,274 @@
-import { useCallback, useMemo, useState, useContext } from 'react';
-import Head from 'next/head';
-import { useRouter } from 'next/router';
-import { subDays, subHours } from 'date-fns';
-import ArrowDownOnSquareIcon from '@heroicons/react/24/solid/ArrowDownOnSquareIcon';
-import ArrowUpOnSquareIcon from '@heroicons/react/24/solid/ArrowUpOnSquareIcon';
-import PlusIcon from '@heroicons/react/24/solid/PlusIcon';
-import { Box, Button, Container, Stack, SvgIcon, Typography } from '@mui/material';
-import { useSelection } from 'src/hooks/use-selection';
-import { Layout as DashboardLayout } from 'src/layouts/dashboard/layout';
-import { TestScenarios } from 'src/sections/createTests/testScenarios';
-import { SelectScenario } from 'src/sections/createTests/scenario-select';
-import { applyPagination } from 'src/utils/apply-pagination';
-import TextField from '@mui/material/TextField';
-import Alert from '@mui/material/Alert';
-import { TestCreationData } from 'src/contexts/test-creation-context';
-import {useAuthContext} from '../contexts/auth-context';
-import {saveTestScenarios} from '../services/toDoServices';
-const now = new Date();
+import {useCallback, useMemo, useState, useContext, useEffect} from "react";
+import Head from "next/head";
+import {useRouter} from "next/router";
+import {
+  Box,
+  Button,
+  Container,
+  Stack,
+  Typography
+} from "@mui/material";
+import {useSelection} from "src/hooks/use-selection";
+import {Layout as DashboardLayout} from "src/layouts/dashboard/layout";
+import {TestScenarios} from "src/sections/createTests/testScenarios";
+import {SelectScenario} from "src/sections/createTests/scenario-select";
+import {applyPagination} from "src/utils/apply-pagination";
+import Alert from "@mui/material/Alert";
+import {TestCreationData} from "src/contexts/test-creation-context";
+import {deleteTestCase, getTestCases, saveTestCases} from "src/services/testCase";
+import {addTestCategory, getTestCategories} from "src/services/testCategory";
+import SnackBar from "src/components/snackBar";
+import {createNewUserStory, updateUserStory} from "src/services/userStory";
+import {LoadingButton} from "@mui/lab";
+import {DataContext} from "src/contexts/data-context";
 
-const data = [
-  {
-    scenario: 'User enters a valid name and email address and submits the form successfully.',
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters a valid name and a valid email address with special characters and submits the form successfully.',
-    scenarioType: "Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters an invalid name (e.g. numbers, special characters) and a valid email address and submits the form. The form should not be submitted and an error message should be displayed.',
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-  {
-    scenario: 'User enters a valid name and an invalid email address (e.g. missing \'@\' symbol, incorrect domain) and submits the form. The form should not be submitted and an error message should be displayed.',
-    scenarioType: "Non-Happy Path",
-    createdAt: "06/19/2023",
-    testSteps: [{id: "", testStep: "", webpage:""}]
-  },
-];
+const getUserStoryId = () => {
+  const searhcTerm = new URLSearchParams(window.location.search);
+  return searhcTerm.get("userStoryId");
+};
 
+const getProjectId = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("projectId");
+};
 
+const getProjectName = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("projectName");
+};
 
-const useCustomerIds = (customers) => {
-  return useMemo(
-    () => {
-      return customers.map((customer) => customer.testScenario);
-    },
-    [customers]
-  );
+const getUserStoryDetails = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("userStory");
+};
+
+const getAcceptanceCriteria = () => {
+  const searchTerms = new URLSearchParams(window.location.search);
+  return searchTerms.get("acceptanceCriteria");
 };
 
 const Page = () => {
+  const dataContext = useContext(DataContext);
+  const userStory = dataContext.userStoryDetails;
   const [showAlert, setShowAlert] = useState(false);
+  const [snackBar, setSnackBar] = useState(null);
+  const router = useRouter();
+
+  const response = JSON.parse(router.query.response || "{}");
+  const testCaseObject = parseTestCases(response.result.content);
+  
   const handleAlertClose = () => {
     setShowAlert(false);
   };
 
-  const { user } = useAuthContext();
   const [displayedScenarios, setDisplayedScenarios] = useState("All");
-  const { testCreationData, updateScenarios } = useContext(TestCreationData);
+  const {testCreationData, addTestCases} = useContext(TestCreationData);
+  const [shouldShowLoader, setShouldShowLoader] = useState(false);
+  const [existingTestCases, setExistingTestCases] = useState([]);
+  const [manuallyUpdatedTestCases, setManuallyUpdatedTestCases] = useState([]);
 
-  console.log(testCreationData)
-  const router = useRouter();
+  const getExistingTestCases = async () => {
+    try {
+      const response = await getTestCases(getUserStoryId());
+      if (response.status === 200) {
+        setExistingTestCases(response.data);
+      }
+    } catch (error) {
+      console.log("Error while getting existing test cases:-", error);
+    }
+  }
+  useEffect(() => {
+    getExistingTestCases();
+  }, []);
 
-  console.log(router.query.response)
-  const response = JSON.parse(router.query.response || '{}');
-  console.log(response)
+  useEffect(() => {
+    let eTestCases = [];
+    if (existingTestCases && existingTestCases.length > 0) {
+      eTestCases = existingTestCases.map((testCase) => {
+        return {
+          scenario_type: testCase.test_categories.name,
+          test_case: testCase.test_case,
+        }
+      });
+      setManuallyUpdatedTestCases([...eTestCases, ...scenarios]);
+    } else {
+      setManuallyUpdatedTestCases([...scenarios]);
+    }
+  }, [existingTestCases]);
 
 
-
-  const testCaseObject = parseTestCases(response.result.content);
   const scenarios = testCaseObject.Test_Case_Scenarios;
-  // const stringifiedTestCaseObject =  JSON.stringify(testCaseObject);
-  // console.log("test case object: " + JSON.stringify(testCaseObject));
-  //
-  // const breakupJson = response.result.content.split("\n");
-  // const removeSpaces = breakupJson.filter((item) => item !== '');
-  // const removeTestScenarioTest = removeSpaces.filter((item) => item !== 'Test Case Scenarios:');
-  // var scenarios = removeTestScenarioTest;
-
-  // console.log("scenarios: " + scenarios);
 
   function parseTestCases(string) {
-    // const testCaseRegex = /'scenario_type': '(.+?)', 'test_case': '(.+?)'/g;
-    // const testCases = [];
-    // let match;
-    //
-    // while ((match = testCaseRegex.exec(string)) !== null) {
-    //   const scenarioType = match[1];
-    //   const testCase = match[2];
-    //   testCases.push({ scenario_type: scenarioType, test_case: testCase });
-    // }
-    //
-    // return testCases;
-    // Enclose the objects within an array
-    console.log("no quotes shawty: ", string)
-    // const validJsonString = `[${string}]`;
-    const escapedJsonString = string.replace(/'/g, '"');
-    // Parse the JSON string
     const jsonObject = JSON.parse(string);
-
-    console.log("i am JSON!!!", jsonObject);
-    return jsonObject
+    return jsonObject;
   }
 
   const useScenarios = (page, rowsPerPage) => {
-    return useMemo(() => {
-      return applyPagination(scenarios.map((testCase) => {console.log("fixing checkboxes: ", testCase.test_case); return testCase.test_case}
-    ), page, rowsPerPage);
-    }, [page, rowsPerPage]);
+    return useMemo(
+      () => {
+        return applyPagination(
+          scenarios.map(testCase => {
+            return testCase.test_case;
+          }),
+          page,
+          rowsPerPage
+        );
+      },
+      [page, rowsPerPage]
+    );
   };
 
-
-  const handleSaveTests = async (event) => {
+  const handleSaveTests = async event => {
     event.preventDefault();
-    updateScenarios(data)
-    //
-    // const selectedItems = customersSelection.selected.map((selection) => {
-    //   return { content: selection, scenarioType: selection.scenario_type };
-    // });
-
-    const selectedItems = customersSelection.selected.map((selection) => {
-      // Find the corresponding scenario object using the selection value
-      const selectedScenario = scenarios.find((scenario) => scenario.test_case === selection);
-
-      console.log("selectedScenario", selectedScenario);
-      // Extract the id and scenario_type properties
-      const { id, scenario_type } = selectedScenario;
-
-      return {
-        content: selection,
-        scenarioType: scenario_type,
-        user_id: user.id
-        }
-      });
-
-    console.log('i am selected items: ', selectedItems);
-    console.log((selectedItems.length === 0) ? true : false);
-    if (selectedItems.length === 0) {
-      setShowAlert(true)
-      return
-    }
-      console.log("About to call the api!!!")
-      // Send the API request
-      const response = await saveTestScenarios(selectedItems)
-      console.log("YOU CALLED ME!!!!!!!")
-
-      if (response.ok) {
-        router.push('/');
-        console.log("response was ok")
+    setShouldShowLoader(true);
+    let userStoryId = getUserStoryId();
+    if (window.location.search.includes("userStoryName") === false &&
+      (testCreationData.userStoryName !== "" &&
+        testCreationData.userStoryDescription !== "" &&
+        testCreationData.acceptanceCriteria !== ""
+      )
+    ) {
+      if (userStoryId && userStoryId !== "") {
+        const response = await updateUserStory(userStoryId, {
+          name: testCreationData.userStoryName,
+          user_story_details: testCreationData.userStoryDescription,
+          acceptance_criteria: testCreationData.acceptanceCriteria,
+          project_id: getProjectId(),
+        });
+        userStoryId = response.data[0].id;
       } else {
-        // Handle the error case
-        console.log('API request failed');
+        try {
+          const response = await createNewUserStory({
+            name: userStory.name,
+            user_story_details: userStory.storyDetails,
+            acceptance_criteria: userStory.acceptanceCriteria,
+            test_steps: Object.values(dataContext.testSteps), 
+            project_id: getProjectId(),
+          });
+          setSnackBar({ message: "SuccessFully Saved User Story!", severity: "success"});
+          userStoryId = response.data.id;
+          if (response.data) {
+            dataContext.setTestSteps({});
+            dataContext.setUserStoryDetails({});
+          }
+        } catch (error) {
+          setShouldShowLoader(false);
+          console.log("Error while create new user story: " + error);
+        } 
+      }
+    }
+    const itemsToBeDeleted = testCreationData.scenarios.filter(selection => customersSelection.deselected.includes(selection.test_case));
+    itemsToBeDeleted.forEach(async (item) => {
+      try {
+        await deleteTestCase(item.id);
+      } catch (error) {
+        console.log("Error while deleting test case:-", error);
+      }
+    });
+    const oldTestCases = existingTestCases.map((testCase) => testCase.test_case);
+    const newTestCases = customersSelection.selected.filter(item => !oldTestCases.includes(item));
+    const promises = newTestCases.map(async selection => {
+      const selectedScenario = manuallyUpdatedTestCases.find(
+        scenario => scenario.test_case === selection
+      );
+
+      let scenario_type_id;
+      const testCategoriesResponse = await getTestCategories(
+        selectedScenario.scenario_type
+      );
+      if (testCategoriesResponse && testCategoriesResponse.data) {
+        scenario_type_id = testCategoriesResponse.data.id;
+      } else {
+        const response = await addTestCategory({
+          name: selectedScenario.scenario_type
+        });
+        scenario_type_id = response.data[0].id;
       }
 
-  }
+      return {
+        test_case: selection,
+        test_category_id: scenario_type_id,
+        user_story_id: userStoryId
+      };
+    });
+
+    const selectedItems = await Promise.all(promises);
+    if (!existingTestCases.length > 0 && selectedItems.length === 0) {
+      setShowAlert(true);
+      setShouldShowLoader(false);
+      setSnackBar({ message: "Please select at least one tes case!", severity: "error"});
+      return;
+    }
+    addTestCases(selectedItems);
+    let queryParams = {};
+    if (window.location.search.includes("userStoryName")) {
+      const searchTerm = new URLSearchParams(window.location.search);
+      queryParams = {
+        userStoryName: searchTerm.get("userStoryName"),
+      }
+      router.push({
+        pathname: "/createProject",
+        query: queryParams
+      });
+    } else {
+      queryParams = {
+        userStoryId: userStoryId,
+        projectId: getProjectId(),
+        projectName: getProjectName()
+      }
+    }
+    // Send the API request
+    if (window.location.search.includes("userStoryName") === false) { 
+      try {
+        const response = await saveTestCases(selectedItems);
+        if (response.status === 200) {
+          setSnackBar({ message: "SuccessFully Saved Selected Test Cases!", severity: "success"});
+          router.push({
+            pathname: "/viewTests",
+            query: queryParams
+          });
+        } else {
+          setShouldShowLoader(false);
+          console.log("API request failed");
+        } 
+      } catch (error) {
+        setShouldShowLoader(false);
+        console.log("Error while saving test cases:-", error);
+        setSnackBar({ message: "Error while saving test cases!", severity: "error"});
+      }
+    }
+    setShouldShowLoader(false);
+  };
 
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(15);
   const scenarioList = useScenarios(page, rowsPerPage);
 
-  console.log("scnenario list: " + scenarioList);
   const customersSelection = useSelection(scenarioList);
-  const handlePageChange = useCallback(
-    (event, value) => {
-      setPage(value);
-    },
-    []
-  );
 
-  const handleRowsPerPageChange = useCallback(
-    (event) => {
-      setRowsPerPage(event.target.value);
-    },
-    []
-  );
+  const handlePageChange = useCallback((event, value) => {
+    setPage(value);
+  }, []);
 
+  useEffect(() => {
+    existingTestCases.forEach(element => {
+      customersSelection.handleSelectOne(element.test_case);
+    });
+  }, [existingTestCases]);
+
+  const handleRowsPerPageChange = useCallback(event => {
+    setRowsPerPage(event.target.value);
+  }, []);
+  const handleGoBack = () => {
+    router.back();
+  }
   return (
     <>
       <Head>
-        <title>
-          Test Scenarios | Darknore
-        </title>
+        <title>Test Scenarios | Darknore</title>
       </Head>
+      {snackBar && <SnackBar message = {snackBar.message} severity = {snackBar.severity} setSnackBar = {setSnackBar}/>}
       <Box
         component="main"
         sx={{
@@ -198,25 +278,16 @@ const Page = () => {
       >
         <Container maxWidth="xl">
           <Stack spacing={3}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              spacing={4}
-            >
+            <Stack direction="row" justifyContent="space-between" spacing={4}>
               <Stack spacing={1}>
-                <Typography variant="h4">
-                  Tests Scenario
-                </Typography>
+                <Typography variant="h4">Test Scenarios</Typography>
               </Stack>
-              {showAlert && (
-               <Alert severity="error" onClose={handleAlertClose}>
-                 Please select one of the scenarios below
-               </Alert>
-             )}
+              {showAlert &&
+                <Alert severity="error" onClose={handleAlertClose}>
+                  Please select at least one of the scenario below
+                </Alert>}
             </Stack>
-            <SelectScenario
-              setDisplayedScenarios={setDisplayedScenarios}
-            />
+            <SelectScenario setDisplayedScenarios={setDisplayedScenarios} />
             <TestScenarios
               count={scenarios.length}
               items={scenarios}
@@ -230,13 +301,35 @@ const Page = () => {
               rowsPerPage={rowsPerPage}
               selected={customersSelection.selected}
               displayedScenarios={displayedScenarios}
+              existingTestCases={existingTestCases.map((testCase) => {
+                return {
+                  test_case: testCase.test_case,
+                  scenario_type: testCase.test_categories.name
+                }
+              })}
+              manuallyUpdatedTestCases={manuallyUpdatedTestCases}
+              setManuallyUpdatedTestCases={setManuallyUpdatedTestCases}
+              userStoryDetails={getUserStoryDetails()}
+              acceptanceCriteria={getAcceptanceCriteria()}
             />
+            <Box style = {{display: 'flex', marginLeft: 15, alignItems: 'center', fontWeight: '900'}}>
+              <Typography fontWeight = '500'>Didn&apos;t Like The Test Cases?</Typography>
+              <Button onClick={handleGoBack} style={{padding: 5, color: 'gray', backgroundColor: '#dfe5f0', margin: "0px 5px"}}>Go Back</Button>
+              <Typography fontWeight = '500'>And Update The User Story. </Typography>
+            </Box>
           </Stack>
           <div align="center">
-            <Button variant="contained" size="small" align="center" sx={{ mt: 2}} onClick={handleSaveTests}
+            <LoadingButton
+              type="submit"
+              loading={shouldShowLoader}
+              variant="contained"
+              size="small"
+              align="center"
+              sx={{mt: 2}}
+              onClick={handleSaveTests}
             >
               Save Tests
-            </Button>
+            </LoadingButton>
           </div>
         </Container>
       </Box>
@@ -244,10 +337,9 @@ const Page = () => {
   );
 };
 
-Page.getLayout = (page) => (
+Page.getLayout = page =>
   <DashboardLayout>
     {page}
-  </DashboardLayout>
-);
+  </DashboardLayout>;
 
 export default Page;

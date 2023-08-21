@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 export const useSelection = (items = []) => {
   const [selected, setSelected] = useState([]);
+  const [deselected, setDeselected] = useState([]);
 
   useEffect(() => {
     setSelected([]);
@@ -13,6 +14,9 @@ export const useSelection = (items = []) => {
 
   const handleSelectOne = useCallback((item) => {
     setSelected((prevState) => [...prevState, item]);
+    setDeselected((prevState) => {
+      return prevState.filter((_item) => _item !== item);
+    });
   }, []);
 
   const handleDeselectAll = useCallback(() => {
@@ -23,6 +27,7 @@ export const useSelection = (items = []) => {
     setSelected((prevState) => {
       return prevState.filter((_item) => _item !== item);
     });
+    setDeselected(prevState => [...prevState, item]);
   }, []);
 
   return {
@@ -30,6 +35,7 @@ export const useSelection = (items = []) => {
     handleDeselectOne,
     handleSelectAll,
     handleSelectOne,
-    selected
+    selected,
+    deselected
   };
 };

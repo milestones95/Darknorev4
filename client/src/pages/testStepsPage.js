@@ -37,7 +37,7 @@ const Page = () => {
   };
 
 
-  const { testCreationData, updateScenarios, emptyData } = useContext(TestCreationData);
+  const { testCreationData, addTestCases, emptyData } = useContext(TestCreationData);
   console.log(testCreationData)
 
   function handleAddNewTestStep(index) {
@@ -87,7 +87,7 @@ function handleCompletingTestSteps() {
       }
     }
   }
-    updateScenarios(scenarios);
+    addTestCases(scenarios);
     emptyData()
     router.push({
       pathname: '/',

@@ -6,10 +6,13 @@ import * as Yup from 'yup';
 import { Box, Button, Link, Stack, TextField, Typography } from '@mui/material';
 import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
-
+import { useEffect, useState } from 'react';
+import CircularProgress from '@mui/material/CircularProgress';
 const Page = () => {
   const router = useRouter();
   const auth = useAuth();
+  const [emailSent, setEmailSent] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -33,17 +36,27 @@ const Page = () => {
         .required('Password is required')
     }),
     onSubmit: async (values, helpers) => {
+      setIsLoading(true)
       try {
-        await auth.signUp(values.email, values.name, values.password);
-        router.push('/');
+        const registered_user = await auth.signUp(values.email, values.name, values.password);
+        console.log("🚀 ~ file: register.js:38 ~ onSubmit: ~ registered_user:", registered_user)
+        // router.push("/auth/login")
+        setEmailSent(true)
+        
       } catch (err) {
         helpers.setStatus({ success: false });
         helpers.setErrors({ submit: err.message });
         helpers.setSubmitting(false);
+        setEmailSent(false);
+        setIsLoading(false)
       }
     }
   });
-
+  useEffect(() => {
+    if (auth.isAuthenticated) {
+      router.push('/')
+    }
+  }, []);
   return (
     <>
       <Head>
@@ -59,7 +72,7 @@ const Page = () => {
           justifyContent: 'center'
         }}
       >
-        <Box
+        {emailSent === false ?<Box
           sx={{
             maxWidth: 550,
             px: 3,
@@ -144,12 +157,22 @@ const Page = () => {
                 sx={{ mt: 3 }}
                 type="submit"
                 variant="contained"
+                disabled = {isLoading}
               >
-                Continue
+                {isLoading? <CircularProgress color="primary"/>: "Continue"}
               </Button>
             </form>
           </div>
+        </Box>:
+        <Box>
+          <Typography sx = {{color: "gray", fontWeight: "bold", textAlign: "center"}}>
+          Congratulations.🎉 
+        </Typography>
+        <Typography sx = {{color: "gray", fontWeight: "bold"}}>
+          We Have Sent An Email To You. Please Verify And ComeBack.✈️ 
+        </Typography>
         </Box>
+        }
       </Box>
     </>
   );

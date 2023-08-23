@@ -148,10 +148,8 @@ const Page = () => {
           });
           setSnackBar({ message: "SuccessFully Saved User Story!", severity: "success"});
           userStoryId = response.data.id;
-          if (response.data) {
-            dataContext.setTestSteps({});
-            dataContext.setUserStoryDetails({});
-          }
+          console.log("🚀 ~ file: testScenarioPage.js:151 ~ handleSaveTests ~ userStoryId:", userStoryId)
+          
         } catch (error) {
           setShouldShowLoader(false);
           console.log("Error while create new user story: " + error);
@@ -185,7 +183,7 @@ const Page = () => {
         });
         scenario_type_id = response.data[0].id;
       }
-
+      console.log("🚀 ~ file: testScenarioPage.js:191 ~ promises ~ userStoryId:", userStoryId)
       return {
         test_case: selection,
         test_category_id: scenario_type_id,
@@ -194,6 +192,7 @@ const Page = () => {
     });
 
     const selectedItems = await Promise.all(promises);
+    console.log("🚀 ~ file: testScenarioPage.js:195 ~ handleSaveTests ~ selectedItems:", selectedItems)
     if (!existingTestCases.length > 0 && selectedItems.length === 0) {
       setShowAlert(true);
       setShouldShowLoader(false);
@@ -228,6 +227,9 @@ const Page = () => {
             pathname: "/viewTests",
             query: queryParams
           });
+          dataContext.setTestSteps({});
+          dataContext.setUserStoryDetails({});
+
         } else {
           setShouldShowLoader(false);
           console.log("API request failed");

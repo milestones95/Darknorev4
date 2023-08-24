@@ -58,8 +58,24 @@ const generateMoreTestCases = async (req, res) => {
           role: "assistant",
           content: `
                 {
-                  "Test_Case_Scenarios": 
-                  ${existing_test_cases}
+                  "Test_Case_Scenarios": [
+                    {
+                      "scenario_type": "Happy Path",
+                      "test_case": "If a user fast forwards through a tv show and pauses, Netflix will save the index where the user paused successfully"
+                    },
+                    {
+                      "scenario_type": "Non-Happy Path",
+                      "test_case": "If a user is playing a show at regular speed and pauses the show, Netflix will save the index where the user paused successfully"
+                    },
+                    {
+                      "scenario_type": "Non-Happy Path",
+                      "test_case": "If a user exits Netflix without clicking the pause button, Netflix will save the index and video frame where the user last watched successfully."
+                    },
+                    {
+                      "scenario_type": "Non-Happy Path",
+                      "test_case": "If a user rewinds through a tv show and pauses, Netflix will save the index where the user paused successfully."
+                    }
+                  ]
                 }`
         },
         {

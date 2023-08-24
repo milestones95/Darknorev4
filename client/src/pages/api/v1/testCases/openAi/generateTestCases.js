@@ -23,6 +23,7 @@ const generateTestCases = async (req, res) => {
     Acceptance criteria:
     ${acceptance_criteria}
     `;
+
     const completion = await openai.createChatCompletion({
       model: "gpt-3.5-turbo",
       messages: [
@@ -53,8 +54,20 @@ const generateTestCases = async (req, res) => {
                 {
                     "Test_Case_Scenarios": [
                       {
-                        "scenario_type": "",
-                        "test_case": ""
+                        "scenario_type": "Happy Path",
+                        "test_case": "If a user fast forwards through a tv show and pauses, Netflix will save the index where the user paused successfully"
+                      },
+                      {
+                        "scenario_type": "Non-Happy Path",
+                        "test_case": "If a user is playing a show at regular speed and pauses the show, Netflix will save the index where the user paused successfully"
+                      },
+                      {
+                        "scenario_type": "Non-Happy Path",
+                        "test_case": "If a user exits Netflix without clicking the pause button, Netflix will save the index and video frame where the user last watched successfully."
+                      },
+                      {
+                        "scenario_type": "Non-Happy Path",
+                        "test_case": "If a user rewinds through a tv show and pauses, Netflix will save the index where the user paused successfully."
                       }
                     ]
                  }`
@@ -66,7 +79,6 @@ const generateTestCases = async (req, res) => {
       ],
       temperature: 0.2
     });
-    // console.log("completion", completion.data.choices[0].message)
     res.json({result: completion.data.choices[0].message});
   } catch (err) {
     console.log("Error while generating test cases:", JSON.stringify(err));

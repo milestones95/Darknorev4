@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useState, useContext } from 'react';
 import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -18,8 +18,10 @@ import {
 } from '@mui/material';
 import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
+import {TestCreationData} from "src/contexts/test-creation-context";
 
 const Page = () => {
+  const {addUserId} = useContext(TestCreationData);
   const router = useRouter();
   const auth = useAuth();
   const [method, setMethod] = useState('email');
@@ -42,7 +44,8 @@ const Page = () => {
     }),
     onSubmit: async (values, helpers) => {
       try {
-        await auth.signIn(values.email, values.password);
+        const response = await auth.signIn(values.email, values.password);
+        console.log("🚀 ~ file: login.js:48 ~ onSubmit: ~ response:", response)
         router.push('/');
       } catch (err) {
         helpers.setStatus({ success: false });
@@ -98,6 +101,21 @@ const Page = () => {
             >
               <Typography variant="h4">
                 Login
+              </Typography>
+              <Typography
+                color="text.secondary"
+                variant="body2"
+              >
+                Don&apos;t have an account?
+                &nbsp;
+                <Link
+                  component={NextLink}
+                  href="/auth/register"
+                  underline="hover"
+                  variant="subtitle2"
+                >
+                  Register
+                </Link>
               </Typography>
             </Stack>
             {method === 'email' && (

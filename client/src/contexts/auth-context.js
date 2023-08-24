@@ -1,37 +1,41 @@
 import { createContext, useContext, useEffect, useReducer, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { supabase } from "../pages/api/SupabaseClient";
-
+import { useRouter } from 'next/navigation';
 const HANDLERS = {
   INITIALIZE: 'INITIALIZE',
   SIGN_IN: 'SIGN_IN',
-  SIGN_OUT: 'SIGN_OUT'
+  SIGN_OUT: 'SIGN_OUT',
+  SIMILAR_TEST_CASES_TO_CREATE: 'SIMILAR_TEST_CASES_TO_CREATE'
 };
 
 const initialState = {
   isAuthenticated: false,
   isLoading: true,
-  user: null
+  user: null,
+  similarTestCases: []
 };
 
 const handlers = {
   [HANDLERS.INITIALIZE]: (state, action) => {
-    const user = action.payload;
+    let obj = {};
+    if (action && action.payload) {
+      const {user, similarTestCases} = action.payload;
+      obj = {
+        isAuthenticated: true,
+        isLoading: false,
+        user,
+        similarTestCases
+      }
+    } else {
+      obj = {
+        isLoading: false
+      }
+    }
 
     return {
       ...state,
-      ...(
-        // if payload (user) is provided, then is authenticated
-        user
-          ? ({
-            isAuthenticated: true,
-            isLoading: false,
-            user
-          })
-          : ({
-            isLoading: false
-          })
-      )
+      ...obj,
     };
   },
   [HANDLERS.SIGN_IN]: (state, action) => {
@@ -49,6 +53,15 @@ const handlers = {
       isAuthenticated: false,
       user: null
     };
+  },
+  [HANDLERS.SIMILAR_TEST_CASES_TO_CREATE]: (state, action) => {
+    const similarTestCases = action.payload;
+
+    return {
+      ...state,
+      isAuthenticated: true,
+      similarTestCases
+    };
   }
 };
 
@@ -64,50 +77,42 @@ export const AuthProvider = (props) => {
   const { children } = props;
   const [state, dispatch] = useReducer(reducer, initialState);
   const initialized = useRef(false);
-
+  const router = useRouter();
   const initialize = async () => {
     // Prevent from calling twice in development mode with React.StrictMode enabled
+
+    console.log("auth-context initialize function called !")
+    
     if (initialized.current) {
       return;
     }
-
     initialized.current = true;
 
     let isAuthenticated = false;
-
+    
+    let user_data = null;
     try {
-      isAuthenticated = window.sessionStorage.getItem('authenticated') === 'true';
+      const { data: supabase_session, error } = await supabase.auth.getSession();
+      isAuthenticated = !!supabase_session.session;
+      user_data = supabase_session.session;
     } catch (err) {
       console.error(err);
     }
 
     if (isAuthenticated) {
-      let user_data = null;
-      let refresh_token = window.sessionStorage.getItem('user_refresh_token');
-      if(refresh_token){
-        const { data, error } = await supabase.auth.refreshSession({ refresh_token })
-        user_data = data;
-        if(user_data.session){
-          window.sessionStorage.setItem('user_refresh_token', user_data.session.refresh_token);
-        }
-      }
-      // const { session, user } = data;
-      // const user = {
-      //   id: '5e86809283e28b96d2d38537',
-      //   avatar: '/assets/avatars/avatar-anika-visser.png',
-      //   name: 'Anika Visser',
-      //   email: 'anika.visser@devias.io'
-      // };
       const user = {
         id: user_data?.user?.id || '',
         avatar: '/assets/avatars/avatar-anika-visser.png',
-        name: user_data?.user?.email || '',
+        name: user_data?.user?.user_metadata?.name || '',
         email: user_data?.user?.email || ''
       };
-
+      const similarTestCases = [];
+      const payload = {
+        user, similarTestCases
+      }
       dispatch({
         type: HANDLERS.INITIALIZE,
-        payload: user
+        payload
       });
     } else {
       dispatch({
@@ -120,7 +125,6 @@ export const AuthProvider = (props) => {
     () => {
       initialize();
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
@@ -137,7 +141,6 @@ export const AuthProvider = (props) => {
       name: 'Anika Visser',
       email: 'anika.visser@devias.io'
     };
-
     dispatch({
       type: HANDLERS.SIGN_IN,
       payload: user
@@ -147,7 +150,7 @@ export const AuthProvider = (props) => {
   const signIn = async (email, password) => {
     const {data,error} = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      throw new Error('Please check your email and password');
+      throw new Error(error.message);
     }
 
     try {
@@ -157,16 +160,10 @@ export const AuthProvider = (props) => {
       console.error(err);
     }
 
-    // const user = {
-    //   id: '5e86809283e28b96d2d38537',
-    //   avatar: '/assets/avatars/avatar-anika-visser.png',
-    //   name: 'Anika Visser',
-    //   email: 'anika.visser@devias.io'
-    // };
     const user = {
       id: data.user.id || '5e86809283e28b96d2d38537',
       avatar: '/assets/avatars/avatar-anika-visser.png',
-      name: data.user.email || 'Anika Visser',
+      name: data.user.user_metadata.name || 'Anika Visser',
       email: data.user.email || 'anika.visser@devias.io'
     };
 
@@ -174,15 +171,45 @@ export const AuthProvider = (props) => {
       type: HANDLERS.SIGN_IN,
       payload: user
     });
+    return data;
   };
 
   const signUp = async (email, name, password) => {
-    throw new Error('Sign up is not implemented');
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name
+        }
+      }
+    })
+    if (data) {
+      return data;
+    }
+    
+    if (error) {
+      throw new Error("Something Wen wrong while creating user!")
+    }
   };
 
-  const signOut = () => {
+  const signOut = async () => {
+    window.sessionStorage.setItem('authenticated', 'false');
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      return "error";
+    }
     dispatch({
       type: HANDLERS.SIGN_OUT
+    });
+    return "success";
+  };
+
+  const setSimilarTestCases = async (testCases) => {
+
+    dispatch({
+      type: HANDLERS.SIMILAR_TEST_CASES_TO_CREATE,
+      payload: testCases
     });
   };
 
@@ -193,7 +220,8 @@ export const AuthProvider = (props) => {
         skip,
         signIn,
         signUp,
-        signOut
+        signOut,
+        setSimilarTestCases
       }}
     >
       {children}

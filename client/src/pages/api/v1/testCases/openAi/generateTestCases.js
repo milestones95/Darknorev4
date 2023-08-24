@@ -15,11 +15,13 @@ const generateTestCases = async (req, res) => {
     }
     console.log("formated steps", formatted_steps);
     const requestBody = `
+    Can you please create test cases for the userstory, test steps, and acceptance criteria below? Also, Please be very detailed with each test case scenario and include numbers, timeframe, exact user actions, etc.
+
     User Story: ${user_story_details}
 
     Test Steps:
     ${formatted_steps}
-    
+
     Acceptance criteria:
     ${acceptance_criteria}
     `;
@@ -30,13 +32,16 @@ const generateTestCases = async (req, res) => {
         {
           role: "system",
           content:
-            "You are an assistant that is a quality assurance tester. Your task is to create test case scenarios for based on a product’s user story and the acceptance criteria. The test case scenarios should include happy paths and nonhappy paths, and even edge cases. Declare each test case should be prepended by its scenario type separated by a colon. "
+          "You are an assistant that is a quality assurance tester. Your task is to create test case scenarios for based on a product’s user story and the acceptance criteria. The test case scenarios should include happy paths and nonhappy paths, and even edge cases. Please be very detailed with each test case scenario and include numbers, timeframe, exact user actions, etc. Declare each test case should be prepended by its scenario type separated by a colon."
         },
         {
           role: "user",
-          content: `User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
+          content: `
+          Can you please create test cases for the userstory, test steps, and acceptance criteria below? Also, Please be very detailed with each test case scenario and include numbers, timeframe, exact user actions, etc.
 
-                Test Steps:
+          User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
+
+          Test Steps:
                 - A user logs into Netflix
                 - Look through several potenital shows
                 - Click into the show that interests me

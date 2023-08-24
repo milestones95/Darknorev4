@@ -19,11 +19,13 @@ const generateMoreTestCases = async (req, res) => {
       formatted_steps += "- " + test_steps[i] + "\n";
     }
     const requestBody = `
+    Can you please create test cases for the userstory, test steps, and acceptance criteria below? Also, Please be very detailed with each test case scenario and include numbers, timeframe, exact user actions, etc.
+
     User Story: ${user_story_details}
 
     Test Steps:
     ${formatted_steps}
-    
+
     Acceptance criteria:
     ${acceptance_criteria}
     `;
@@ -40,7 +42,11 @@ const generateMoreTestCases = async (req, res) => {
         },
         {
           role: "user",
-          content: `User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
+          content: `
+                Can you please create test cases for the userstory, test steps, and acceptance criteria below? Also, Please be very detailed with each test case scenario and include numbers, timeframe, exact user actions, etc.
+
+
+                User Story: As a Netflix user, I can pause my show and can return to where I left off on the show when I turn on netflix again.
 
                 Test Steps:
                 - A user logs into Netflix

@@ -21,7 +21,7 @@ export const items = [
     )
   },
   {
-    title: 'CreateTests',
+    title: 'Upload Apk',
     path: '/createTests',
     icon: (
       <SvgIcon fontSize="small">

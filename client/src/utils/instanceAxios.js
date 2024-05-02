@@ -1,4 +1,4 @@
-export const baseUrl = 'https://18.185.177.253'
+export const baseUrl = 'http://18.185.177.253'
 
 
 //For local use the below url

@@ -4,7 +4,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Import the cors middleware
-supabase = require("./SupabaseServer.js").default
+supabase = require("./SupabaseServer.js")
 
 
 

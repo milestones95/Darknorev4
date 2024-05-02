@@ -3,7 +3,10 @@ const {
   getTestAutomated,
   getTestScenarios,
   createTestScenarios,
-  saveTestScenarios
+  saveTestScenarios,
+  getUserTestResults,
+  updateCompanyName,
+  getCurrentUser
 } = require("../controllers/testController");
 
 //router object
@@ -21,5 +24,12 @@ router.post("/createTestScenarios", createTestScenarios);
 
 //POST || Save Test Scenarios
 router.post("/saveTestScenarios", saveTestScenarios);
+
+router.post("/updateCompanyName", updateCompanyName);
+
+// GET || Get Test Scenarios of the user
+router.get("/getUserTestResults", getUserTestResults);
+
+router.get("/getCurrentUser", getCurrentUser);
 
 module.exports = router;

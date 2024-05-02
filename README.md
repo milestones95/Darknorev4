@@ -1,4 +1,3 @@
-This project allows engineering teams to generate test plans including happy and non-happy path test scenarios.
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).

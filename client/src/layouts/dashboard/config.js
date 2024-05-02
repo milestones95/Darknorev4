@@ -21,8 +21,24 @@ export const items = [
     )
   },
   {
-    title: 'CreateTests',
+    title: 'Test Suite',
     path: '/createTests',
+    icon: (
+      <SvgIcon fontSize="small">
+        <AddCircleOutlineIcon />
+      </SvgIcon>
+    )
+  },{
+    title: 'Test Cases',
+    path: '/testCases',
+    icon: (
+      <SvgIcon fontSize="small">
+        <AddCircleOutlineIcon />
+      </SvgIcon>
+    )
+  },{
+    title: 'Reports',
+    path: '/testReports',
     icon: (
       <SvgIcon fontSize="small">
         <AddCircleOutlineIcon />

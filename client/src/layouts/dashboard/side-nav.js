@@ -122,12 +122,12 @@ export const SideNav = (props) => {
           sx: {
             backgroundColor: 'neutral.800',
             color: 'common.white',
-            width: 280
+            width: 0
           }
         }}
         variant="permanent"
       >
-        {content}
+        {/* {content} */}
       </Drawer>
     );
   }
@@ -141,7 +141,7 @@ export const SideNav = (props) => {
         sx: {
           backgroundColor: 'neutral.800',
           color: 'common.white',
-          width: 280
+          width: 0
         }
       }}
       sx={{ zIndex: (theme) => theme.zIndex.appBar + 100 }}

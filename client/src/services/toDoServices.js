@@ -29,3 +29,40 @@ export async function saveTestScenarios(selectedItems) {
   });
   return response;
 }
+
+export async function getCurrentTestResult(test_id) {
+  console.log("🚀 ~ test_id:", test_id)
+  const response = await fetch(`/api/v1/getCurrentTestResult/?test_id=${test_id}`);
+  return await response.json();
+}
+
+export async function updateCompanyName(selectedItems) {
+  const response = await fetch(`/api/v1/updateCompanyName`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(selectedItems)
+  });
+  return response;
+}
+
+export async function getCurrentUser(user_id) {
+  const response = await fetch(`/api/v1/getCurrentUser?user_id=${user_id}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    },
+  });
+  return response.json();
+}
+
+export async function getCurrentCompanyTestSuites(company) {
+  const response = await fetch(`/api/v1/getCurrentCompanyTestSuites?company=${company}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json"
+    },
+  });
+  return response.json();
+}

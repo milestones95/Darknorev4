@@ -10,6 +10,7 @@ import { getAllProjects } from 'src/services/project';
 import {getAllUserStoriesByProjectId} from 'src/services/userStory';
 import {useAuth} from 'src/hooks/use-auth';
 import SnackBar from 'src/components/snackBar';
+import Link from "next/link";
 
 const Page = () => {
   const auth = useAuth();
@@ -90,68 +91,11 @@ const Page = () => {
         }}
       >
         <Container maxWidth="xl">
-          <Stack spacing={3}>
-            <Stack
-              direction="row"
-              justifyContent="space-between"
-              spacing={4}
-            >
-              {showListOfProjects && <Stack spacing={1}>
-                <Typography variant="h5" style={{color: "#555"}}>
-                  Projects
-                </Typography>
-              </Stack>}
-              {showListOfUserStories && <Stack direction="row">
-                <Typography variant="h5" style={{color: "#555"}}>
-                  User Stories
-                </Typography>
-              </Stack>}
-              <div>
-                <Button
-                  startIcon={(
-                    <SvgIcon fontSize="small" style={{backgroundColor: "#6366F1", color: "#fff", borderRadius: "10px", fontWeight: "bold"}}>
-                      <PlusIcon />
-                    </SvgIcon>
-                  )}
-                  variant="contained"
-                  style={{ backgroundColor: "transparent", color: "#6366F1", boxShadow: "0px 0px 0px"}}
-                  onClick={() => {
-                    if (showListOfProjects) {
-                      setShowCreateProjectModal(true);                      
-                    }
-                  }}
-                  href={showListOfUserStories && '/createTests?projectId=' + getProjectId() + '&projectName=' + getProjectName()}
-                >
-                  {showListOfProjects ? "Create a new project" : "Create a new test"}
+              <Link href="/createTests">
+                <Button variant="text" color="info" fullWidth style={{borderRadius: "10px", fontSize: "16px"}}>
+                  View Dashboard
                 </Button>
-              </div>
-            </Stack>
-            {showListOfProjects &&
-              <ViewProjects
-                setShowListOfProjects={setShowListOfProjects}
-                setShowListOfUserStories={setShowListOfUserStories}
-                projects={projects}
-              ></ViewProjects>}
-            {showListOfUserStories &&
-              <ViewUserStories
-                userStories={userStories}
-              ></ViewUserStories>}
-              {isProjectsLoading &&
-              <Typography style={{ marginTop: 100 }} textAlign="center" variant='h6' color="gray">Please Wait... </Typography>
-              }
-              {showListOfProjects && projects.length == 0 && !isProjectsLoading &&
-              <Typography style={{ marginTop: 100 }} textAlign="center" variant='h6' color="gray">No Projects Yet! Please Create One. </Typography>
-              }
-            {showListOfUserStories && userStories.length == 0 && !isUserStoriesLoading &&
-              <Typography style={{ marginTop: 100 }} textAlign="center" variant='h6' color="gray">No UserStories Yet! Please Create One. </Typography>
-              }
-            {showCreateProjectModal && <CreateProject
-              showCreateProjectModal={showCreateProjectModal}
-              setShowCreateProjectModal={setShowCreateProjectModal}
-              setSnackBar = {setSnackBar}
-            >
-            </CreateProject>}
-          </Stack>
+              </Link>
         </Container>
       </Box>
     </>

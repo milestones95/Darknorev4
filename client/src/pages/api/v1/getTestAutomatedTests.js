@@ -1,4 +1,4 @@
-const supabase = require("../SupabaseClient.js").supabase
+const supabase = require("../SupabaseServer.js")
 
 // get Test automated
 const getTestAutomated = async (req, res) => {

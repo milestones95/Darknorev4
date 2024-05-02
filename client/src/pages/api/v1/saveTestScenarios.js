@@ -1,4 +1,4 @@
-const supabase = require("../SupabaseClient.js").supabase
+const supabase = require("../SupabaseServer.js")
 
 // Save Test Scenarios
 const saveTestScenarios = async (req, res) => {

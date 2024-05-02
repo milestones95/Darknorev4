@@ -76,9 +76,66 @@ const saveTestScenarios = async (req, res) => {
   });
 };
 
+const updateCompanyName = async (req, res) => {
+  console.log("body: " + JSON.stringify(req.body));
+  const {data, error} = await supabase.from("updateCompanyName").insert(req.body);
+
+  res.json({
+    result: "saved"
+  });
+};
+
+const getUserTestResults = async (req, res) => {
+  try {
+    const {id} = req.query;
+    const {data, error} = await supabase
+      .from("getUserTestResults")
+      .select()
+      .eq("user_id", id)
+      .single();
+
+    if (error) {
+      console.log("getUserTestResults, Error: ", JSON.stringify(error));
+      return res.json({err: error});
+    }
+    if (data) {
+      res.json({data});
+    }
+  } catch (err) {
+    console.log("Error while getting user result by id:", err);
+    res.json({err});
+  }
+};
+
+const getCurrentUser = async (req, res) => {
+  try {
+    const {user_id} = req.query;
+    const {data, error} = await supabase
+      .from("users")
+      .select("*")
+      .eq("user_id", user_id)
+      .single();
+
+    if (error) {
+      console.log("getCurrentUser Error: ", JSON.stringify(error));
+      return res.json({err: error});
+    }
+    if (data) {
+        console.log("getCurrentUser Data --> ", data);
+      res.json({data});
+    }
+  } catch (err) {
+    console.log("Error while getting user ", err);
+    res.json({err});
+  }
+};
+
 module.exports = {
   getTestAutomated,
   getTestScenarios,
   createTestScenarios,
-  saveTestScenarios
+  saveTestScenarios,
+  getUserTestResults,
+  updateCompanyName,
+  getCurrentUser
 };

@@ -13,6 +13,8 @@ import React, { createContext, useState } from 'react';
 import { TestCreationDataProvider } from 'src/contexts/test-creation-context';
 import { BrowserRouter as Router } from 'react-router-dom';
 import {DataProvider} from 'src/contexts/data-context';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const clientSideEmotionCache = createEmotionCache();
 
@@ -45,6 +47,7 @@ const App = (props) => {
           <AuthProvider>
             <ThemeProvider theme={theme}>
               <CssBaseline />
+              <ToastContainer />
               <AuthConsumer>
                 {
                   (auth) => auth.isLoading

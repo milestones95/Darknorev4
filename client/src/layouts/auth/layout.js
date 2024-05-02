@@ -59,7 +59,7 @@ export const Layout = (props) => {
           lg={6}
           sx={{
             alignItems: 'center',
-            background: 'radial-gradient(50% 50% at 50% 50%, #122647 0%, #090E23 100%)',
+            background: 'linear-gradient(to bottom right, purple, cyan)',
             color: 'white',
             display: 'flex',
             justifyContent: 'center',

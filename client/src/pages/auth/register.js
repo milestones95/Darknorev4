@@ -8,6 +8,7 @@ import { useAuth } from 'src/hooks/use-auth';
 import { Layout as AuthLayout } from 'src/layouts/auth/layout';
 import { useEffect, useState } from 'react';
 import CircularProgress from '@mui/material/CircularProgress';
+import updateCompanyName from '../api/v1/updateCompanyName';
 const Page = () => {
   const router = useRouter();
   const auth = useAuth();
@@ -17,6 +18,7 @@ const Page = () => {
     initialValues: {
       email: '',
       name: '',
+      companyName: '',
       password: '',
       submit: null
     },
@@ -30,6 +32,10 @@ const Page = () => {
         .string()
         .max(255)
         .required('Name is required'),
+      companyName: Yup
+        .string()
+        .max(255)
+        .required('Name is required'),
       password: Yup
         .string()
         .max(255)
@@ -40,6 +46,10 @@ const Page = () => {
       try {
         const registered_user = await auth.signUp(values.email, values.name, values.password);
         console.log("🚀 ~ file: register.js:38 ~ onSubmit: ~ registered_user:", registered_user)
+        if(registered_user?.user?.user_metadata){
+          const user_id = registered_user?.user?.user_metadata.sub ? registered_user?.user?.user_metadata.sub : registered_user?.user?.id;
+          updateCompanyName(user_id, values.companyName)
+        }
         // router.push("/auth/login")
         setEmailSent(true)
         
@@ -118,6 +128,16 @@ const Page = () => {
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   value={formik.values.name}
+                />
+                <TextField
+                  error={!!(formik.touched.companyName && formik.errors.companyName)}
+                  fullWidth
+                  helperText={formik.touched.companyName && formik.errors.companyName}
+                  label="CompanyName"
+                  name="companyName"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  value={formik.values.companyName}
                 />
                 <TextField
                   error={!!(formik.touched.email && formik.errors.email)}

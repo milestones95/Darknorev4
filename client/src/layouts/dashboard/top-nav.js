@@ -15,13 +15,13 @@ import {
   useMediaQuery,
   Breadcrumbs,
   Link,
-  Container
+  Container,
 } from '@mui/material';
 import { alpha } from '@mui/material/styles';
 import { usePopover } from 'src/hooks/use-popover';
 import { AccountPopover } from './account-popover';
 import React, { useState, useEffect } from 'react';
-import NewTestWizard  from '/src/sections/layouts/new-test-wizard';
+import NewTestWizard from '/src/sections/layouts/new-test-wizard';
 import Grid from '@mui/material/Grid';
 import LogoutIcon from '@mui/icons-material/Logout';
 import ArrowIcon from "@mui/icons-material/ArrowRightOutlined"
@@ -41,12 +41,12 @@ export const TopNav = (props) => {
   // Determine if the button should be displayed based on the current page
   const shouldShowTestWizard = () => {
     const allowedPages = [
-                          '/createTests',
-                          '/testScenarioPage',
-                          '/testStepsPage',
-                          '/viewTests',
-                          '/createProject'
-                        ]; // Add the paths of the pages where the button should appear
+      '/createTests',
+      '/testScenarioPage',
+      '/testStepsPage',
+      '/viewTests',
+      '/createProject'
+    ]; // Add the paths of the pages where the button should appear
 
     return allowedPages.some((path) => window.location.pathname.startsWith(path));
   };
@@ -75,7 +75,7 @@ export const TopNav = (props) => {
       )
     } else if (window.location.pathname === "/" && window.location.search.includes("projectName")) {
       return (
-        <Container style={{display: "flex", flexDirection: "row", padding: 0}}>
+        <Container style={{ display: "flex", flexDirection: "row", padding: 0 }}>
           <Link underline="hover" color="#06aed4" href="/" variant='h5'>
             Home
           </Link>
@@ -89,7 +89,7 @@ export const TopNav = (props) => {
       )
     } else if (window.location.pathname === "/createTests" && window.location.search.includes("userStoryId")) {
       return (
-        <Container style={{display: "flex", flexDirection: "row", padding: 0}}>
+        <Container style={{ display: "flex", flexDirection: "row", padding: 0 }}>
           <Link underline="hover" color="#06aed4" href="/" variant='h5'>
             Home
           </Link>
@@ -103,7 +103,7 @@ export const TopNav = (props) => {
       )
     } else if (window.location.pathname === "/viewTests" && window.location.search.includes("userStoryId")) {
       return (
-        <Container style={{display: "flex", flexDirection: "row", padding: 0}}>
+        <Container style={{ display: "flex", flexDirection: "row", padding: 0 }}>
           <Link underline="hover" color="#06aed4" href="/" variant='h5'>
             Home
           </Link>
@@ -115,13 +115,15 @@ export const TopNav = (props) => {
           </Link>
         </Container>
       )
-    } else if (window.location.pathname === "/createTests" && (window.location.search === "" || window.location.search.includes("projectId"))) {
-      return (
-        <Typography color="#555" variant='h5'>
-          Create User Story
-        </Typography>
-      )
-    } else if (window.location.pathname === "/testScenarioPage") {
+    }
+    // else if (window.location.pathname === "/createTests" && (window.location.search === "" || window.location.search.includes("projectId"))) {
+    //   return (
+    //     <Typography color="#555" variant='h5'>
+    //       Create User Story
+    //     </Typography>
+    //   )
+    // } 
+    else if (window.location.pathname === "/testScenarioPage") {
       return (
         <Typography color="#555" variant='h5'>
           Generate Scenarios
@@ -151,21 +153,23 @@ export const TopNav = (props) => {
     await auth.signOut();
     router.push('/auth/login')
   }
+
   return (
     <>
       <Box
         component="header"
         sx={{
           backdropFilter: 'blur(6px)',
-          backgroundColor: (theme) => alpha(theme.palette.background.default, 0.8),
+          backgroundColor: "neutral.800",
           position: 'sticky',
-          left: {
-            lg: `${SIDE_NAV_WIDTH}px`
-          },
+          // left: {
+          //   lg: `${SIDE_NAV_WIDTH}px`
+          // },
           top: 0,
-          width: {
-            lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`
-          },
+          // width: {
+          //   lg: `calc(100% - ${SIDE_NAV_WIDTH}px)`
+          // },
+          width: "100%",
           zIndex: (theme) => theme.zIndex.appBar,
         }}
       >
@@ -179,7 +183,14 @@ export const TopNav = (props) => {
             px: 2
           }}
         >
-          {showBreadCrumb && (
+          <Typography
+            color="white"
+            variant="subtitle1"
+            sx={{ display: 'flex' }}
+          >
+            Darknore
+          </Typography>
+          {/* {showBreadCrumb && (
             <Grid container alignItems = "center" padding = "8px 0">
               <Grid  md={showTestWizard ? 3 : 6}>
                 <Breadcrumbs
@@ -193,31 +204,36 @@ export const TopNav = (props) => {
                 <NewTestWizard />
               </Grid>}
             </Grid>
-          )}
+          )} */}
           <Stack
             alignItems="center"
             direction="row"
             spacing={2}
           >
+
           </Stack>
           <Stack
             alignItems="center"
             direction="row"
             spacing={2}
           >
-            <Tooltip title="Contacts">
+            {
+              auth?.user && <Typography color={"white"}>
+                Welcome, {auth?.user?.name}
+              </Typography>
+            }
+            {/* <Tooltip title="Contacts">
               <IconButton>
-
               </IconButton>
             </Tooltip>
             <Tooltip title="Notifications">
               <IconButton>
               </IconButton>
-            </Tooltip>
+            </Tooltip> */}
             <Tooltip title="LogOut">
-              <IconButton onClick={handleLogOut} sx={{gap: .5, "&:hover": { backgroundColor: "#FFEECC" }}}>
-              <LogoutIcon/>
-              <Typography variant = "button">LogOut</Typography>
+              <IconButton onClick={handleLogOut} sx={{ gap: .5, color: 'white', "&:hover": { backgroundColor: "#FFEECC" } }}>
+                <LogoutIcon />
+                <Typography variant="button">LogOut</Typography>
               </IconButton>
             </Tooltip>
 

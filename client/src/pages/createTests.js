@@ -47,8 +47,9 @@ const Page = () => {
       };
       const response = await axios.post(`${baseUrl}/`, requestBody);
 
-      setIsSubmitting(false); // Set submitting to false after successful submission
+      console.log("🚀 ~ response:", response)
       setTimeout(() => {
+        setIsSubmitting(false); // Set submitting to false after successful submission
         router.push(`/testCases/${randomTestId}`);
       }, 120000);
     } catch (error) {

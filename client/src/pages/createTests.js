@@ -45,7 +45,7 @@ const Page = () => {
         formData: stringified,
         company: currentUser?.company_name
       };
-      const response = await axios.post(baseUrl, requestBody);
+      const response = await axios.post(`${baseUrl}/`, requestBody);
       console.log(response.data);
 
       setIsSubmitting(false); // Set submitting to false after successful submission

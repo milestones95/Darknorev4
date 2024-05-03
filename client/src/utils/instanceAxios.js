@@ -1,4 +1,4 @@
-export const baseUrl = 'http://18.185.177.253'
+export const baseUrl = 'https://s9kqa94rl8.execute-api.eu-central-1.amazonaws.com/v1'
 
 
 //For local use the below url

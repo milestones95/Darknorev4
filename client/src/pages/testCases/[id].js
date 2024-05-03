@@ -282,7 +282,7 @@ const TestCasesPage = () => {
   const runTest = async (testName) => {
     try {
       setRunTestLoading(true);
-      const response = await axios.post(`${baseUrl}/run-test/`, { testName });
+      const response = await axios.post(`${baseUrl}/run-test`, { testName });
       const data = await response.data;
       console.log("Run Test Response --> ", data);
       if (data.status) {
@@ -299,7 +299,7 @@ const TestCasesPage = () => {
     try {
       console.log("Test Suite Name --> ", testSuiteFileName);
       setRunAllTestLoading(true);
-      const response = await axios.post(`${baseUrl}/run-all-test/`, {
+      const response = await axios.post(`${baseUrl}/run-all-test`, {
         testSuiteName: testSuiteFileName,
       });
       const data = await response.data;

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { getCurrentUser } from "src/services/toDoServices";
 import { useRouter } from 'next/router';
 import { baseUrl } from "src/utils/instanceAxios";
+import axios from "axios";
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -38,13 +39,14 @@ const Page = () => {
 
     try {
       const randomTestId = generateRandomId(); // Function to generate random ID
-      const backendUrl = `${baseUrl}/?test_suite_id=${randomTestId}&user_id=${userId}&formData=${stringified}&company=${currentUser?.company_name}`;
-      const response = await fetch(backendUrl);
-      if (!response.ok) {
-        throw new Error("Failed to call backend endpoint");
-      }
-      const responseData = await response.json();
-      console.log("Response from backend:", responseData);
+      const requestBody = {
+        test_suite_id: randomTestId,
+        user_id: userId,
+        formData: stringified,
+        company: currentUser?.company_name
+      };
+      const response = await axios.post(baseUrl, requestBody);
+      console.log(response.data);
 
       setIsSubmitting(false); // Set submitting to false after successful submission
       router.push(`/testCases/${randomTestId}`);

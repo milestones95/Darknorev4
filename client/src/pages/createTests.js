@@ -37,7 +37,6 @@ const Page = () => {
     e.preventDefault();
     setIsSubmitting(true);
 
-    try {
       const randomTestId = generateRandomId(); // Function to generate random ID
       const requestBody = {
         test_suite_id: randomTestId,
@@ -45,18 +44,11 @@ const Page = () => {
         formData: stringified,
         company: currentUser?.company_name
       };
-      const response = await axios.post(`${baseUrl}/`, requestBody);
-
-      console.log("🚀 ~ response:", response)
+      await axios.post(`${baseUrl}/`, requestBody);
       setTimeout(() => {
         setIsSubmitting(false); // Set submitting to false after successful submission
         router.push(`/testCases/${randomTestId}`);
       }, 120000);
-    } catch (error) {
-      console.error("Error submitting form:", error);
-      // Handle the error, such as displaying an error message to the user
-      setIsSubmitting(false); // Set submitting to false in case of error
-    }
   };
 
   const generateRandomId = () => {

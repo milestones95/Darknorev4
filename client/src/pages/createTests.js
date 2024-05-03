@@ -46,10 +46,11 @@ const Page = () => {
         company: currentUser?.company_name
       };
       const response = await axios.post(`${baseUrl}/`, requestBody);
-      console.log(response.data);
 
       setIsSubmitting(false); // Set submitting to false after successful submission
-      router.push(`/testCases/${randomTestId}`);
+      setTimeout(() => {
+        router.push(`/testCases/${randomTestId}`);
+      }, 120000);
     } catch (error) {
       console.error("Error submitting form:", error);
       // Handle the error, such as displaying an error message to the user

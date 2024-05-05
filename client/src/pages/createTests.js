@@ -44,11 +44,29 @@ const Page = () => {
         formData: stringified,
         company: currentUser?.company_name
       };
-      await axios.post(`${baseUrl}/`, requestBody);
-      setTimeout(() => {
-        setIsSubmitting(false); // Set submitting to false after successful submission
-        router.push(`/testCases/${randomTestId}`);
-      }, 120000);
+      axios.post(`${baseUrl}/`, requestBody)
+        .then(() => {
+          // If axios request succeeds, set a timeout to execute after 2 minutes
+          setTimeout(() => {
+            setIsSubmitting(false); // Set submitting to false after successful submission
+            router.push(`/testCases/${randomTestId}`);
+          }, 120000);
+
+          // Regardless of timeout, push to router
+          router.push(`/testCases/${randomTestId}`);
+        })
+        .catch((error) => {
+          // If axios request fails, log the error
+          console.error("Error occurred during axios request:", error);
+          // Still set a timeout to execute after 2 minutes
+          setTimeout(() => {
+            setIsSubmitting(false); // Set submitting to false after timeout
+            router.push(`/testCases/${randomTestId}`);
+          }, 120000);
+
+          // Regardless of timeout, push to router
+          router.push(`/testCases/${randomTestId}`);
+  });
   };
 
   const generateRandomId = () => {

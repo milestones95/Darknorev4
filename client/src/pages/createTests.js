@@ -123,7 +123,7 @@ const [notification, setNotification] = useState(null);
 console.log("🚀 ~ notification:", notification)
 
 useEffect(() => {
-    const ws = new WebSocket('ws://18.185.177.253:7000');
+    const ws = new WebSocket('wss://18.185.177.253:7000');
 
     ws.onopen = function () {
         console.log('Connected to WebSocket server');

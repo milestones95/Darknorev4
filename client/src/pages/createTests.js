@@ -8,6 +8,10 @@ import { getCurrentUser } from "src/services/toDoServices";
 import { useRouter } from 'next/router';
 import { baseUrl } from "src/utils/instanceAxios";
 import axios from "axios";
+import { SQS } from 'aws-sdk';
+// import io from 'socket.io-client';
+
+// const socket = io('http://localhost:1234'); 
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +23,8 @@ const Page = () => {
     appDescription: "",
   });
   const [currentUser, setCurrentUser] = useState(null);
+  const [testId, setTestId] = useState(null);
+  console.log("🚀 ~ testId:", testId)
   const router = useRouter();
   const auth = useAuth();
   const userId = auth?.user?.id;
@@ -32,41 +38,57 @@ const Page = () => {
   };
   console.log("formData", formData);
   const stringified = JSON.stringify(formData);
+  
+
+  const awsConfig = {
+    accessKeyId: 'AKIA5JESYAD34TSONFN7',
+    secretAccessKey: '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',
+    region: 'eu-central-1',
+  };
+  
+
+  const sqs = new SQS(awsConfig);
+
+// Function to send a message to SQS
+async function sendMessageToSQS(requestBody) {
+  const params = {
+    QueueUrl: 'https://sqs.eu-central-1.amazonaws.com/912988307703/darknore-createTests',
+    MessageBody: JSON.stringify(requestBody), // Serialize request body to JSON
+  };
+
+  try {
+    const data = await sqs.sendMessage(params).promise();
+    console.log('Message sent to SQS:', data.MessageId);
+    return true;
+  } catch (error) {
+    console.error('Error sending message to SQS:', error);
+    return false;
+  }
+}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
       const randomTestId = generateRandomId(); // Function to generate random ID
+      setTestId(randomTestId)
       const requestBody = {
         test_suite_id: randomTestId,
         user_id: userId,
-        formData: stringified,
+        formData: formData,
         company: currentUser?.company_name
       };
-      axios.post(`${baseUrl}/`, requestBody)
-        .then(() => {
-          // If axios request succeeds, set a timeout to execute after 2 minutes
-          setTimeout(() => {
-            setIsSubmitting(false); // Set submitting to false after successful submission
-            router.push(`/testCases/${randomTestId}`);
-          }, 120000);
-
-          // Regardless of timeout, push to router
-          router.push(`/testCases/${randomTestId}`);
+      sendMessageToSQS(requestBody)
+        .then(success => {
+          if (success) {
+            console.log('Message sent successfully');
+          } else {
+            console.log('Failed to send message');
+          }
         })
-        .catch((error) => {
-          // If axios request fails, log the error
-          console.error("Error occurred during axios request:", error);
-          // Still set a timeout to execute after 2 minutes
-          setTimeout(() => {
-            setIsSubmitting(false); // Set submitting to false after timeout
-            router.push(`/testCases/${randomTestId}`);
-          }, 120000);
-
-          // Regardless of timeout, push to router
-          router.push(`/testCases/${randomTestId}`);
-  });
+        .catch(error => {
+          console.error('Error:', error);
+        });
   };
 
   const generateRandomId = () => {
@@ -83,6 +105,46 @@ const Page = () => {
   useEffect(() => {
     fetchCurrentUser();
   }, []);
+
+//   useEffect(() => {
+//     // Listen for notifications from the server
+//     socket.on('notification', (data) => {
+//         console.log('Notification received:', data);
+//         // You can update state, show a notification, etc. based on the received data
+//     });
+
+//     return () => {
+//         // Clean up on unmount
+//         socket.disconnect();
+//     };
+// }, []);
+
+const [notification, setNotification] = useState(null);
+console.log("🚀 ~ notification:", notification)
+
+useEffect(() => {
+    const ws = new WebSocket('ws://18.185.177.253:7000');
+
+    ws.onopen = function () {
+        console.log('Connected to WebSocket server');
+    };
+
+    ws.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log("🚀 ~ data:", data)
+        console.log("🚀 ~ testId:", testId)
+        if (data.userId == userId){
+          console.log("inside IF");
+          setNotification(data.testId);
+          setIsSubmitting(false);
+          router.push(`/testCases/${data.testId}`);
+        }
+    };
+
+    return () => {
+        ws.close();
+    };
+}, []);
 
   return (
     <>

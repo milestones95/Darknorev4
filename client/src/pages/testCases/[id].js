@@ -162,7 +162,7 @@ const TestCasesPage = () => {
         .from("test_cases")
         .delete()
         .eq("test_suite_id", currentTestId);
-      router.push(`/testCases`);
+      router.push(`/testSuites`);
     } catch (error) {
       console.error("Error updating test case:", error);
     }

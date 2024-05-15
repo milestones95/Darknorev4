@@ -41,8 +41,8 @@ const Page = () => {
   
 
   const awsConfig = {
-    accessKeyId: 'AKIA5JESYAD34TSONFN7',
-    secretAccessKey: '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',
+    accessKeyId: process.env.NEXT_PUBLIC_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEXT_PUBLIC_SECRET_ACCESS_KEY,
     region: 'eu-central-1',
   };
   

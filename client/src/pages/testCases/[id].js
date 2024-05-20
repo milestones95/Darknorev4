@@ -38,6 +38,7 @@ const TestCasesPage = () => {
   const [filterStatus, setFilterStatus] = useState("");
   const [specs, setSpecs] = useState([]);
   const [openModal, setOpenModal] = useState(false); // State for modal
+  const [newTestModal, setNewTestModal] = useState(false);
   const [openJiraModal, setOpenJiraModal] = useState(false); // State for modal
   const [testSuiteName, setTestSuiteName] = useState("");
   const [runTestLoading, setRunTestLoading] = useState(false);
@@ -51,6 +52,7 @@ const TestCasesPage = () => {
     description: "",
     expectedValue: "",
   });
+  const [newTestPrompt, setNewTestPrompt] = useState(null);
   const [jiraFormData, setJiraFormData] = useState({
     projectDomain: "",
     projectKey: "",
@@ -79,6 +81,12 @@ const TestCasesPage = () => {
     setCurrentTestId(currentTestId);
   };
 
+  const handleNewTestCaseModal = (currentTestId, currentTestData) => {
+    setNewTestModal(!newTestModal);
+    setCurrentTestId(currentTestId);
+    setCurrentTestData(currentTestData);
+  };
+
   const handleJiraModal = (currentTestId, currentTestData) => {
     setOpenJiraModal(!openJiraModal);
     setCurrentTestId(currentTestId);
@@ -86,9 +94,29 @@ const TestCasesPage = () => {
   };
 
   const handleSaveAssertion = async () => {
+    try {
+      const requestBody = {
+        // Add additional data to the request body
+        assertion_value: formData.expectedValue,
+        user_id: userId,
+        test_id: currentTestId,
+        testData: currentTestData,
+      };
+      const response = await axios.post(`${baseUrl}/add-assertion`, requestBody);
+      if (response.status) {
+        setOpenModal(false);
+        toast.success("Assertion saved successfully");
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+      console.log("Error -> ", error);
+    }
+  };
+
+  const createNewTest = async () => {
     // Add your logic to save assertion here
-    console.log("Assertion saved!");
-    setOpenModal(false); // Close the modal after saving assertion
+    setNewTestModal(false); // Close the modal after saving assertion
     try {
       const { data, error } = await supabase
         .from("test_cases")
@@ -189,6 +217,12 @@ const TestCasesPage = () => {
     }));
   };
 
+  const handlePromptChange = (event) => {
+    const { name, value } = event.target;
+    console.log('prompt value: ', value)
+    setNewTestPrompt(value);
+  };
+
   const handleJiraChange = (event) => {
     const { name, value } = event.target;
     setJiraFormData((prevState) => ({
@@ -254,6 +288,28 @@ const TestCasesPage = () => {
     }
   };
 
+  const generateSimilarTestCase = async () => {
+    try {
+      setNewTestModal(false);
+      setRunTestLoading(true);
+      const requestBody = {
+        // Add additional data to the request body
+        test_suite_id: currentTestId,
+        testData: currentTestData,
+        prompt: newTestPrompt,
+        username: currentUser
+      };
+      const response = await axios.post(`${baseUrl}/create-test`, requestBody);
+      // if (response.status) {
+      //   setOpenJiraModal(false);
+      //   toast.success("JIRA ticket added successfully");
+      // }
+    } catch (error) {
+      toast.error(error.message);
+      console.log("Error -> ", error);
+    }
+  };
+
   const filteredTestCases = test_cases
     .filter((test) => {
       const resultObject = JSON.parse(test.test_case);
@@ -279,14 +335,19 @@ const TestCasesPage = () => {
       };
     });
 
-  const runTest = async (testName) => {
+  const runTest = async (test_id) => {
     try {
       setRunTestLoading(true);
-      const response = await axios.post(`${baseUrl}/run-test`, { testName });
-      const data = await response.data;
+      const requestBody = {
+        // Add additional data to the request body
+        user_id: userId,
+        test_id: test_id,
+      };
+      const response = await axios.post(`${baseUrl}/run-test`, requestBody);
+      const data = await response.message;
       console.log("Run Test Response --> ", data);
-      if (data.status) {
-        toast.success(data.msg);
+      if (response.status === 200) {
+        toast.success(data);
         setRunTestLoading(false);
       }
     } catch (error) {
@@ -461,12 +522,13 @@ const TestCasesPage = () => {
               <AccordionSummary style={{ justifyContent: "space-between" }}>
                 <ListItemText primary={testCase.name} secondary={`Status: ${testCase.status}`} />
                 {/* Button to open modal for adding assertions */}
-                <Button variant="outlined" color="primary" onClick={() => handleModal(testCase.id)}>
+                <Button variant="outlined" color="primary" size="small" onClick={() => handleModal(testCase.id)}>
                   Add Assertion
                 </Button>
                 <Button
                   variant="outlined"
                   color="secondary"
+                  size="small"
                   onClick={() => {
                     if (currentUser && currentUser.jira_data) {
                       createJiraTicketWithSavedData(testCase);
@@ -476,6 +538,17 @@ const TestCasesPage = () => {
                   }}
                 >
                   Create Jira Ticket
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  onClick={() => {
+
+                      handleNewTestCaseModal(testCase.id, testCase)
+                  }}
+                >
+                  Generate similar test
                 </Button>
               </AccordionSummary>
               <AccordionDetails>
@@ -493,7 +566,7 @@ const TestCasesPage = () => {
                   variant="contained"
                   color="primary"
                   style={{ position: "absolute", bottom: 10, right: 10 }}
-                  onClick={() => runTest(testCase.name)} // Assuming you have a function to run the test
+                  onClick={() => runTest(testCase.id)} // Assuming you have a function to run the test
                 >
                   {runTestLoading ? <CircularProgress color="warning" size={24} /> : "Run Test"}
                 </Button>
@@ -541,6 +614,42 @@ const TestCasesPage = () => {
                 style={{ marginTop: "10px" }}
               >
                 Save Assertion
+              </Button>
+            </Box>
+          </Modal>
+          <Modal open={newTestModal} onClose={handleNewTestCaseModal}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                border: "2px solid #000",
+                p: 4,
+              }}
+            >
+              <Typography variant="h6" component="h2" gutterBottom>
+                Create Similar test case
+              </Typography>
+              <FormGroup>
+                <TextField
+                  label="Prompt"
+                  fullWidth
+                  name="prompt"
+                  value={newTestPrompt}
+                  onChange={handlePromptChange}
+                />
+              </FormGroup>
+              {/* Button to save assertion */}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={generateSimilarTestCase}
+                style={{ marginTop: "10px" }}
+              >
+                Create new test
               </Button>
             </Box>
           </Modal>

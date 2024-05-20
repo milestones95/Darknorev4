@@ -14,7 +14,7 @@ const getCurrentUser = async (req, res) => {
       return res?.json({err: error});
     }
     if (data) {
-        console.log("getCurrentUser Data --> ", data);
+        // console.log("getCurrentUser Data --> ", data);
       res?.json({data});
     }
   } catch (err) {

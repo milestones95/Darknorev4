@@ -13,6 +13,35 @@ import { SQS } from 'aws-sdk';
 
 // const socket = io('http://localhost:1234'); 
 
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles({
+  sidebar: {
+    background: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  button: {
+    borderRadius: '10px',
+    fontSize: '16px',
+    backgroundColor: 'white',
+    color: 'black',
+    transition: 'background-color 0.3s, color 0.3s',
+    '&:hover': {
+      backgroundColor: '#6b18f4',
+      color: 'white',
+    },
+  },
+  activeButton: {
+    backgroundColor: 'darkcyan',
+    color: 'white',
+  },
+  listItem: {
+    marginTop: '10px',
+  },
+});
+
 const Page = () => {
   const [formData, setFormData] = useState({
     testSuiteName: "",
@@ -36,6 +65,14 @@ const Page = () => {
       [name]: value,
     }));
   };
+  const classes = useStyles();
+
+  const links = [
+    { href: '/createTests', label: 'Create Test' },
+    { href: '/testSuites', label: 'Test Suites' },
+    { href: '/testReports', label: 'Test Reports' },
+    { href: '/settings', label: 'Settings' },
+  ];
   console.log("formData", formData);
   const stringified = JSON.stringify(formData);
   
@@ -123,7 +160,12 @@ const [notification, setNotification] = useState(null);
 console.log("🚀 ~ notification:", notification)
 
 useEffect(() => {
-    const ws = new WebSocket('wss://18.185.177.253:7000');
+  console.log("🚀 ~ web effet:")
+    const ws = new WebSocket('wss://api.darknore.ai');
+    ws.addEventListener('open', () => {
+      console.log('Connected to WebSocket server11');
+      // setSocket(socket);
+    });
 
     ws.onopen = function () {
         console.log('Connected to WebSocket server');
@@ -153,65 +195,22 @@ useEffect(() => {
       </Head>
 
       <Grid container spacing={2} py={4} style={{ height: "100%" }}>
-        <Grid
-          item
-          xs={2}
-          style={{
-            background: "linear-gradient(to bottom right, purple, cyan)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+      <Grid item xs={2} className={classes.sidebar}>
           {/* Sidebar with multiple options */}
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/createTests">
-                <Button
-                  variant="text"
-                  color="primary"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Create Test
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testSuites">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Suites
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testReports">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Reports
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/settings">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Settings
-                </Button>
-              </Link>
-            </li>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {links.map((link) => (
+              <li key={link.href} className={classes.listItem}>
+                <Link href={link.href}>
+                  <Button
+                    variant="text"
+                    fullWidth
+                    className={`${classes.button} ${router.pathname === link.href ? classes.activeButton : ''}`}
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              </li>
+            ))}
           </ul>
           <div style={{ flex: 1 }}></div>
         </Grid>

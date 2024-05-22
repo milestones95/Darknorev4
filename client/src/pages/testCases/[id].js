@@ -28,6 +28,35 @@ import { toast } from "react-toastify";
 const supabase = require("../api/SupabaseServer");
 import { getCurrentUser } from "src/services/toDoServices";
 import { baseUrl } from "src/utils/instanceAxios";
+import CryptoJS from 'crypto-js';
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles({
+  sidebar: {
+    background: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  button: {
+    borderRadius: '10px',
+    fontSize: '16px',
+    backgroundColor: 'white',
+    color: 'black',
+    transition: 'background-color 0.3s, color 0.3s',
+    '&:hover': {
+      backgroundColor: '#6b18f4',
+      color: 'white',
+    },
+  },
+  activeButton: {
+    backgroundColor: 'darkcyan',
+    color: 'white',
+  },
+  listItem: {
+    marginTop: '10px',
+  },
+});
 
 // Dummy data for test cases
 
@@ -45,6 +74,8 @@ const TestCasesPage = () => {
   const [runAllTestLoading, setRunAllTestLoading] = useState(false);
   const [testSuiteFileName, setTestSuiteFileName] = useState(false);
   const [test_cases, setTestCases] = useState([]);
+  const [newTestModal, setNewTestModal] = useState(false);
+  const [newTestPrompt, setNewTestPrompt] = useState(null);
   const [currentTestId, setCurrentTestId] = useState([]);
   const [currentTestData, setCurrentTestData] = useState({});
   const [formData, setFormData] = useState({
@@ -58,7 +89,22 @@ const TestCasesPage = () => {
     username: "",
   });
 
+  const handleNewTestCaseModal = (currentTestId, currentTestData) => {
+    setNewTestModal(!newTestModal);
+    setCurrentTestId(currentTestId);
+    setCurrentTestData(currentTestData);
+  };
+
   const [loading, setLoading] = useState(true);
+  const encryptionKey = 'darknore';
+  const classes = useStyles();
+
+  const links = [
+    { href: '/createTests', label: 'Create Test' },
+    { href: '/testSuites', label: 'Test Suites' },
+    { href: '/testReports', label: 'Test Reports' },
+    { href: '/settings', label: 'Settings' },
+  ];
 
   const auth = useAuth();
   const userId = auth?.user?.id;
@@ -87,8 +133,28 @@ const TestCasesPage = () => {
 
   const handleSaveAssertion = async () => {
     // Add your logic to save assertion here
-    console.log("Assertion saved!");
-    setOpenModal(false); // Close the modal after saving assertion
+    try {
+      const requestBody = {
+        // Add additional data to the request body
+        assertion_value: formData.expectedValue,
+        user_id: userId,
+        test_id: currentTestId,
+        testData: currentTestData,
+      };
+      const response = await axios.post(`${baseUrl}/add-assertion`, requestBody);
+      if (response.status) {
+        setOpenModal(false);
+        toast.success("Assertion saved successfully");
+      }
+
+    } catch (error) {
+      toast.error(error.message);
+      console.log("Error -> ", error);
+    }
+  };
+
+  const createNewTest = async () => {
+    setNewTestModal(false);
     try {
       const { data, error } = await supabase
         .from("test_cases")
@@ -98,6 +164,12 @@ const TestCasesPage = () => {
     } catch (error) {
       console.error("Error updating test case:", error);
     }
+  };
+
+  const handlePromptChange = (event) => {
+    const { name, value } = event.target;
+    console.log('prompt value: ', value)
+    setNewTestPrompt(value);
   };
 
   useEffect(() => {
@@ -181,6 +253,31 @@ const TestCasesPage = () => {
     }
   };
 
+  const generateSimilarTestCase = async () => {
+    try {
+      setNewTestModal(false);
+      setRunTestLoading(true);
+      const requestBody = {
+        // Add additional data to the request body
+        test_suite_id: currentTestId,
+        testData: currentTestData,
+        prompt: newTestPrompt,
+        username: currentUser,
+        user_id : userId
+      };
+      const response = await axios.post(`${baseUrl}/create-test`, requestBody);
+      console.log("🚀 ~ response:", response)
+      if (response.status === 200) {
+        toast.success("Test Created Successfully!");
+      } else {
+        toast.error(`Error Creating Test.`);
+      }
+    } catch (error) {
+      toast.error(error.message);
+      console.log("Error -> ", error);
+    }
+  };
+
   const handleChange = (event) => {
     const { name, value } = event.target;
     setFormData((prevState) => ({
@@ -200,6 +297,7 @@ const TestCasesPage = () => {
   const createJiraTicket = async () => {
     try {
       setRunTestLoading(true);
+      const encryptedApiKey = CryptoJS.AES.encrypt(jiraFormData.apiKey, encryptionKey).toString();
       const jiraData = {
         projectDomain: jiraFormData.projectDomain,
         projectKey: jiraFormData.projectKey,
@@ -211,7 +309,7 @@ const TestCasesPage = () => {
         projectDomain: jiraFormData.projectDomain,
         projectKey: jiraFormData.projectKey,
         username: jiraFormData.username,
-        apiKey: jiraFormData.apiKey,
+        apiKey: encryptedApiKey,
         testData: currentTestData,
       };
       const response = await axios.post(`${baseUrl}/create-jira-ticket`, requestBody);
@@ -235,12 +333,13 @@ const TestCasesPage = () => {
   const createJiraTicketWithSavedData = async (testCase) => {
     try {
       setRunTestLoading(true);
+      const encryptedApiKey = CryptoJS.AES.encrypt(currentUser.jira_data.apiKey, encryptionKey).toString();
       const requestBody = {
         // Add additional data to the request body
         projectDomain: currentUser.jira_data.projectDomain,
         projectKey: currentUser.jira_data.projectKey,
         username: currentUser.jira_data.username,
-        apiKey: currentUser.jira_data.apiKey,
+        apiKey: encryptedApiKey,
         testData: testCase,
       };
       const response = await axios.post(`${baseUrl}/create-jira-ticket`, requestBody);
@@ -255,38 +354,49 @@ const TestCasesPage = () => {
   };
 
   const filteredTestCases = test_cases
-    .filter((test) => {
+  .filter((test) => {
+    try {
       const resultObject = JSON.parse(test.test_case);
       const result = resultObject.tests[0].results[0];
       const titleMatch = test.test_name.toLowerCase().includes(searchTerm.toLowerCase());
       const statusMatch = filterStatus === "" || result.status === filterStatus; // Assuming there's always one test and one result
       return titleMatch && statusMatch;
-    })
-    .map((test) => {
-      const resultObject = JSON.parse(test.test_case); // Assuming there's always one test and one result\
-      const result = resultObject.tests[0].results[0];
-      // const startTime = new Date(result.startTime).toLocaleString(); // Convert startTime to a formatted string
-      const specID = `${test.test_suite_id}-${resultObject.id}`;
-      return {
-        id: test.id,
-        name: test.test_name,
-        status: result.status,
-        startTime: result.startTime,
-        details: `Timeout: ${resultObject.tests[0].timeout} ms`,
-        videoUrl: `https://bcghywrjwhnnkzdozmvt.supabase.co/storage/v1/object/public/test-suite-video-bucket/${encodeURIComponent(
-          specID
-        )}.webm`,
-      };
-    });
+    } catch (e) {
+      console.error(`Error parsing test case for test id ${test.id}:`, e);
+      return false;
+    }
+  })
+  .map((test) => {
+    const resultObject = JSON.parse(test.test_case); // Assuming there's always one test and one result
+    const result = resultObject.tests[0].results[0];
+    // const startTime = new Date(result.startTime).toLocaleString(); // Convert startTime to a formatted string
+    const specID = `${test.test_suite_id}-${resultObject.id}`;
+    return {
+      id: test.id,
+      name: test.test_name,
+      status: result.status,
+      startTime: result.startTime,
+      details: `Timeout: ${resultObject.tests[0].timeout} ms`,
+      videoUrl: `https://bcghywrjwhnnkzdozmvt.supabase.co/storage/v1/object/public/test-suite-video-bucket/${encodeURIComponent(
+        specID
+      )}.webm`,
+    };
+  });
 
-  const runTest = async (testName) => {
+
+  const runTest = async (test_id) => {
     try {
       setRunTestLoading(true);
-      const response = await axios.post(`${baseUrl}/run-test`, { testName });
-      const data = await response.data;
+      const requestBody = {
+        // Add additional data to the request body
+        user_id: userId,
+        test_id: test_id,
+      };
+      const response = await axios.post(`${baseUrl}/run-test`, requestBody);
+      const data = await response.message;
       console.log("Run Test Response --> ", data);
-      if (data.status) {
-        toast.success(data.msg);
+      if (response.status === 200) {
+        toast.success(data);
         setRunTestLoading(false);
       }
     } catch (error) {
@@ -321,65 +431,22 @@ const TestCasesPage = () => {
       </Head>
 
       <Grid container spacing={2} py={4} style={{ height: "100%" }}>
-        <Grid
-          item
-          xs={2}
-          style={{
-            background: "linear-gradient(to bottom right, purple, cyan)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+      <Grid item xs={2} className={classes.sidebar}>
           {/* Sidebar with multiple options */}
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/createTests">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Create Test
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testSuites">
-                <Button
-                  variant="text"
-                  color="primary"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Cases
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testReports">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Reports
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/settings">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Settings
-                </Button>
-              </Link>
-            </li>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {links.map((link) => (
+              <li key={link.href} className={classes.listItem}>
+                <Link href={link.href}>
+                  <Button
+                    variant="text"
+                    fullWidth
+                    className={`${classes.button} ${router.pathname === link.href ? classes.activeButton : ''}`}
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              </li>
+            ))}
           </ul>
           <div style={{ flex: 1 }}></div>
         </Grid>
@@ -461,12 +528,13 @@ const TestCasesPage = () => {
               <AccordionSummary style={{ justifyContent: "space-between" }}>
                 <ListItemText primary={testCase.name} secondary={`Status: ${testCase.status}`} />
                 {/* Button to open modal for adding assertions */}
-                <Button variant="outlined" color="primary" onClick={() => handleModal(testCase.id)}>
+                <Button variant="outlined" color="primary" size="small" onClick={() => handleModal(testCase.id)}>
                   Add Assertion
                 </Button>
                 <Button
                   variant="outlined"
                   color="secondary"
+                  size="small"
                   onClick={() => {
                     if (currentUser && currentUser.jira_data) {
                       createJiraTicketWithSavedData(testCase);
@@ -476,6 +544,17 @@ const TestCasesPage = () => {
                   }}
                 >
                   Create Jira Ticket
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  size="small"
+                  onClick={() => {
+
+                      handleNewTestCaseModal(testCase.id, testCase)
+                  }}
+                >
+                  Generate similar test
                 </Button>
               </AccordionSummary>
               <AccordionDetails>
@@ -493,7 +572,7 @@ const TestCasesPage = () => {
                   variant="contained"
                   color="primary"
                   style={{ position: "absolute", bottom: 10, right: 10 }}
-                  onClick={() => runTest(testCase.name)} // Assuming you have a function to run the test
+                  onClick={() => runTest(testCase.id)} // Assuming you have a function to run the test
                 >
                   {runTestLoading ? <CircularProgress color="warning" size={24} /> : "Run Test"}
                 </Button>
@@ -541,6 +620,42 @@ const TestCasesPage = () => {
                 style={{ marginTop: "10px" }}
               >
                 Save Assertion
+              </Button>
+            </Box>
+          </Modal>
+          <Modal open={newTestModal} onClose={handleNewTestCaseModal}>
+            <Box
+              sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: 400,
+                bgcolor: "background.paper",
+                border: "2px solid #000",
+                p: 4,
+              }}
+            >
+              <Typography variant="h6" component="h2" gutterBottom>
+                Create Similar test case
+              </Typography>
+              <FormGroup>
+                <TextField
+                  label="Prompt"
+                  fullWidth
+                  name="prompt"
+                  value={newTestPrompt}
+                  onChange={handlePromptChange}
+                />
+              </FormGroup>
+              {/* Button to save assertion */}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={generateSimilarTestCase}
+                style={{ marginTop: "10px" }}
+              >
+                Create new test
               </Button>
             </Box>
           </Modal>

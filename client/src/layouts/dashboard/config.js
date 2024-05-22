@@ -28,7 +28,17 @@ export const items = [
         <AddCircleOutlineIcon />
       </SvgIcon>
     )
-  },{
+  }, 
+  {
+    title: 'Test Suite',
+    path: '/testSuites',
+    icon: (
+      <SvgIcon fontSize="small">
+        <AddCircleOutlineIcon />
+      </SvgIcon>
+    )
+  },
+  {
     title: 'Test Cases',
     path: '/testCases',
     icon: (

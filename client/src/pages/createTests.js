@@ -9,6 +9,7 @@ import { useRouter } from 'next/router';
 import { baseUrl } from "src/utils/instanceAxios";
 import axios from "axios";
 import { SQS } from 'aws-sdk';
+import { supabase } from "./api/SupabaseClient";
 // import io from 'socket.io-client';
 
 // const socket = io('http://localhost:1234'); 
@@ -103,6 +104,32 @@ async function sendMessageToSQS(requestBody) {
   }
 }
 
+async function listenForProcessCompletion(uniqueId, setIsSubmitting) {
+  
+const subscription = supabase.channel('custom-insert-channel')
+.on(
+  'postgres_changes',
+  { event: 'INSERT', schema: 'public', table: 'test-suite-result' },
+  (payload) => {
+    if (payload.new.id === uniqueId) {
+      // Notify the frontend
+      setIsSubmitting(false); // Set submitting to false
+      router.push(`/testCases/${uniqueId}`);
+    }
+    console.log('Change received!', payload)
+  }
+)
+.subscribe()
+
+
+
+  return subscription;
+}
+
+function cleanupSubscription(subscription) {
+  subscription.unsubscribe();
+}
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -115,18 +142,43 @@ async function sendMessageToSQS(requestBody) {
         formData: formData,
         company: currentUser?.company_name
       };
-      sendMessageToSQS(requestBody)
-        .then(success => {
-          if (success) {
-            console.log('Message sent successfully');
-          } else {
-            console.log('Failed to send message');
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-  };
+      try {
+        const success = await sendMessageToSQS(requestBody);
+        if (success) {
+          console.log('Message sent successfully');
+          // Set up real-time listener for process completion
+          const subscription = await listenForProcessCompletion(randomTestId, setIsSubmitting);
+  
+          // Cleanup subscription when component unmounts or process completes
+          return () => {
+            cleanupSubscription(subscription);
+          };
+        } else {
+          console.log('Failed to send message');
+          setIsSubmitting(false);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setIsSubmitting(false);
+      }
+    };
+  
+    // Cleanup subscription on component unmount
+    useEffect(() => {
+      let subscription;
+  
+      if (testId) {
+        (async () => {
+          subscription = await listenForProcessCompletion(testId, setIsSubmitting);
+        })();
+      }
+  
+      return () => {
+        if (subscription) {
+          cleanupSubscription(subscription);
+        }
+      };
+    }, [testId]);
 
   const generateRandomId = () => {
     // Generate a random number or string as per your requirement
@@ -159,34 +211,34 @@ async function sendMessageToSQS(requestBody) {
 const [notification, setNotification] = useState(null);
 console.log("🚀 ~ notification:", notification)
 
-useEffect(() => {
-  console.log("🚀 ~ web effet:")
-    const ws = new WebSocket('wss://api.darknore.ai');
-    ws.addEventListener('open', () => {
-      console.log('Connected to WebSocket server11');
-      // setSocket(socket);
-    });
+// useEffect(() => {
+//   console.log("🚀 ~ web effet:")
+//     const ws = new WebSocket('ws://api.darknore.ai');
+//     ws.addEventListener('open', () => {
+//       console.log('Connected to WebSocket server11');
+//       // setSocket(socket);
+//     });
 
-    ws.onopen = function () {
-        console.log('Connected to WebSocket server');
-    };
+//     ws.onopen = function () {
+//         console.log('Connected to WebSocket server');
+//     };
 
-    ws.onmessage = function (event) {
-        const data = JSON.parse(event.data);
-        console.log("🚀 ~ data:", data)
-        console.log("🚀 ~ testId:", testId)
-        if (data.userId == userId){
-          console.log("inside IF");
-          setNotification(data.testId);
-          setIsSubmitting(false);
-          router.push(`/testCases/${data.testId}`);
-        }
-    };
+//     ws.onmessage = function (event) {
+//         const data = JSON.parse(event.data);
+//         console.log("🚀 ~ data:", data)
+//         console.log("🚀 ~ testId:", testId)
+//         if (data.userId == userId){
+//           console.log("inside IF");
+//           setNotification(data.testId);
+//           setIsSubmitting(false);
+//           router.push(`/testCases/${data.testId}`);
+//         }
+//     };
 
-    return () => {
-        ws.close();
-    };
-}, []);
+//     return () => {
+//         ws.close();
+//     };
+// }, []);
 
   return (
     <>

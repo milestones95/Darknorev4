@@ -8,6 +8,40 @@ import { getCurrentUser } from "src/services/toDoServices";
 import { useRouter } from 'next/router';
 import { baseUrl } from "src/utils/instanceAxios";
 import axios from "axios";
+import { SQS } from 'aws-sdk';
+import { supabase } from "./api/SupabaseClient";
+// import io from 'socket.io-client';
+
+// const socket = io('http://localhost:1234'); 
+
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles({
+  sidebar: {
+    background: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  button: {
+    borderRadius: '10px',
+    fontSize: '16px',
+    backgroundColor: 'white',
+    color: 'black',
+    transition: 'background-color 0.3s, color 0.3s',
+    '&:hover': {
+      backgroundColor: '#6b18f4',
+      color: 'white',
+    },
+  },
+  activeButton: {
+    backgroundColor: 'darkcyan',
+    color: 'white',
+  },
+  listItem: {
+    marginTop: '10px',
+  },
+});
 
 const Page = () => {
   const [formData, setFormData] = useState({
@@ -19,6 +53,8 @@ const Page = () => {
     appDescription: "",
   });
   const [currentUser, setCurrentUser] = useState(null);
+  const [testId, setTestId] = useState(null);
+  console.log("🚀 ~ testId:", testId)
   const router = useRouter();
   const auth = useAuth();
   const userId = auth?.user?.id;
@@ -30,44 +66,119 @@ const Page = () => {
       [name]: value,
     }));
   };
+  const classes = useStyles();
+
+  const links = [
+    { href: '/createTests', label: 'Create Test' },
+    { href: '/testSuites', label: 'Test Suites' },
+    { href: '/testReports', label: 'Test Reports' },
+    { href: '/settings', label: 'Settings' },
+  ];
   console.log("formData", formData);
   const stringified = JSON.stringify(formData);
+  
+
+  const awsConfig = {
+    accessKeyId: process.env.NEXT_PUBLIC_ACCESS_KEY_ID,
+    secretAccessKey: process.env.NEXT_PUBLIC_SECRET_ACCESS_KEY,
+    region: 'eu-central-1',
+  };
+  
+
+  const sqs = new SQS(awsConfig);
+
+// Function to send a message to SQS
+async function sendMessageToSQS(requestBody) {
+  const params = {
+    QueueUrl: 'https://sqs.eu-central-1.amazonaws.com/912988307703/darknore-createTests',
+    MessageBody: JSON.stringify(requestBody), // Serialize request body to JSON
+  };
+
+  try {
+    const data = await sqs.sendMessage(params).promise();
+    console.log('Message sent to SQS:', data.MessageId);
+    return true;
+  } catch (error) {
+    console.error('Error sending message to SQS:', error);
+    return false;
+  }
+}
+
+async function listenForProcessCompletion(uniqueId, setIsSubmitting) {
+  
+const subscription = supabase.channel('custom-insert-channel')
+.on(
+  'postgres_changes',
+  { event: 'INSERT', schema: 'public', table: 'test-suite-result' },
+  (payload) => {
+    if (payload.new.id === uniqueId) {
+      // Notify the frontend
+      setIsSubmitting(false); // Set submitting to false
+      router.push(`/testCases/${uniqueId}`);
+    }
+    console.log('Change received!', payload)
+  }
+)
+.subscribe()
+
+
+
+  return subscription;
+}
+
+function cleanupSubscription(subscription) {
+  subscription.unsubscribe();
+}
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
 
       const randomTestId = generateRandomId(); // Function to generate random ID
+      setTestId(randomTestId)
       const requestBody = {
         test_suite_id: randomTestId,
         user_id: userId,
-        formData: stringified,
+        formData: formData,
         company: currentUser?.company_name
       };
-      axios.post(`${baseUrl}/`, requestBody)
-        .then(() => {
-          // If axios request succeeds, set a timeout to execute after 2 minutes
-          setTimeout(() => {
-            setIsSubmitting(false); // Set submitting to false after successful submission
-            router.push(`/testCases/${randomTestId}`);
-          }, 120000);
-
-          // Regardless of timeout, push to router
-          router.push(`/testCases/${randomTestId}`);
-        })
-        .catch((error) => {
-          // If axios request fails, log the error
-          console.error("Error occurred during axios request:", error);
-          // Still set a timeout to execute after 2 minutes
-          setTimeout(() => {
-            setIsSubmitting(false); // Set submitting to false after timeout
-            router.push(`/testCases/${randomTestId}`);
-          }, 120000);
-
-          // Regardless of timeout, push to router
-          router.push(`/testCases/${randomTestId}`);
-  });
-  };
+      try {
+        const success = await sendMessageToSQS(requestBody);
+        if (success) {
+          console.log('Message sent successfully');
+          // Set up real-time listener for process completion
+          const subscription = await listenForProcessCompletion(randomTestId, setIsSubmitting);
+  
+          // Cleanup subscription when component unmounts or process completes
+          return () => {
+            cleanupSubscription(subscription);
+          };
+        } else {
+          console.log('Failed to send message');
+          setIsSubmitting(false);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setIsSubmitting(false);
+      }
+    };
+  
+    // Cleanup subscription on component unmount
+    useEffect(() => {
+      let subscription;
+  
+      if (testId) {
+        (async () => {
+          subscription = await listenForProcessCompletion(testId, setIsSubmitting);
+        })();
+      }
+  
+      return () => {
+        if (subscription) {
+          cleanupSubscription(subscription);
+        }
+      };
+    }, [testId]);
 
   const generateRandomId = () => {
     // Generate a random number or string as per your requirement
@@ -84,6 +195,51 @@ const Page = () => {
     fetchCurrentUser();
   }, []);
 
+//   useEffect(() => {
+//     // Listen for notifications from the server
+//     socket.on('notification', (data) => {
+//         console.log('Notification received:', data);
+//         // You can update state, show a notification, etc. based on the received data
+//     });
+
+//     return () => {
+//         // Clean up on unmount
+//         socket.disconnect();
+//     };
+// }, []);
+
+const [notification, setNotification] = useState(null);
+console.log("🚀 ~ notification:", notification)
+
+// useEffect(() => {
+//   console.log("🚀 ~ web effet:")
+//     const ws = new WebSocket('ws://api.darknore.ai');
+//     ws.addEventListener('open', () => {
+//       console.log('Connected to WebSocket server11');
+//       // setSocket(socket);
+//     });
+
+//     ws.onopen = function () {
+//         console.log('Connected to WebSocket server');
+//     };
+
+//     ws.onmessage = function (event) {
+//         const data = JSON.parse(event.data);
+//         console.log("🚀 ~ data:", data)
+//         console.log("🚀 ~ testId:", testId)
+//         if (data.userId == userId){
+//           console.log("inside IF");
+//           setNotification(data.testId);
+//           setIsSubmitting(false);
+//           router.push(`/testCases/${data.testId}`);
+//         }
+//     };
+
+//     return () => {
+//         ws.close();
+//     };
+// }, []);
+
   return (
     <>
       <Head>
@@ -91,65 +247,22 @@ const Page = () => {
       </Head>
 
       <Grid container spacing={2} py={4} style={{ height: "100%" }}>
-        <Grid
-          item
-          xs={2}
-          style={{
-            background: "linear-gradient(to bottom right, purple, cyan)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+      <Grid item xs={2} className={classes.sidebar}>
           {/* Sidebar with multiple options */}
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/createTests">
-                <Button
-                  variant="text"
-                  color="primary"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Create Test
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testSuites">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Suites
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testReports">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Reports
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/settings">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Settings
-                </Button>
-              </Link>
-            </li>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {links.map((link) => (
+              <li key={link.href} className={classes.listItem}>
+                <Link href={link.href}>
+                  <Button
+                    variant="text"
+                    fullWidth
+                    className={`${classes.button} ${router.pathname === link.href ? classes.activeButton : ''}`}
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              </li>
+            ))}
           </ul>
           <div style={{ flex: 1 }}></div>
         </Grid>

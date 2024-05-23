@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import { Grid, Typography, Container, Button, Box } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
+import { useRouter } from 'next/router';
 import TestChart from "src/sections/ApkUploadPage/TestChart"; // Update the path
 import Link from "next/link";
 import {
@@ -10,10 +11,46 @@ import {
   getUserTestResults,
 } from "src/services/toDoServices";
 import { useAuth } from "src/hooks/use-auth";
+import { makeStyles } from '@mui/styles';
 
+const useStyles = makeStyles({
+  sidebar: {
+    background: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  button: {
+    borderRadius: '10px',
+    fontSize: '16px',
+    backgroundColor: 'white',
+    color: 'black',
+    transition: 'background-color 0.3s, color 0.3s',
+    '&:hover': {
+      backgroundColor: '#6b18f4',
+      color: 'white',
+    },
+  },
+  activeButton: {
+    backgroundColor: 'darkcyan',
+    color: 'white',
+  },
+  listItem: {
+    marginTop: '10px',
+  },
+});
 const TestResultsPage = () => {
   const [testSuites, setTestSuites] = useState([]);
   const auth = useAuth();
+  const classes = useStyles();
+  const router = useRouter();
+
+  const links = [
+    { href: '/createTests', label: 'Create Test' },
+    { href: '/testSuites', label: 'Test Suites' },
+    { href: '/testReports', label: 'Test Reports' },
+    { href: '/settings', label: 'Settings' },
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,65 +73,22 @@ const TestResultsPage = () => {
       </Head>
 
       <Grid container spacing={2} py={4} style={{ height: "100%" }}>
-        <Grid
-          item
-          xs={2}
-          style={{
-            background: "linear-gradient(to bottom right, purple, cyan)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+      <Grid item xs={2} className={classes.sidebar}>
           {/* Sidebar with multiple options */}
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/createTests">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Create Test
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testSuites">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Suites
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testReports">
-                <Button
-                  variant="text"
-                  color="primary"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Reports
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/settings">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Settings
-                </Button>
-              </Link>
-            </li>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {links.map((link) => (
+              <li key={link.href} className={classes.listItem}>
+                <Link href={link.href}>
+                  <Button
+                    variant="text"
+                    fullWidth
+                    className={`${classes.button} ${router.pathname === link.href ? classes.activeButton : ''}`}
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              </li>
+            ))}
           </ul>
           <div style={{ flex: 1 }}></div>
         </Grid>
@@ -106,6 +100,10 @@ const TestResultsPage = () => {
           </Box>
           <Grid container spacing={5} style={{ height: "100%", width: "100%" }} width={"100%"}>
             {testSuites.map((testSuite) => {
+              const dateString = testSuite.created_at;
+              const date = new Date(dateString);
+              
+              const formattedDate = date.toISOString().replace(/T/, ' ').replace(/\..+/, '');
               return (
                 <Grid item key={testSuite?.id} xs={12} md={4}>
                   <Box
@@ -126,7 +124,7 @@ const TestResultsPage = () => {
                       Browser: {testSuite.browser}
                     </Typography>
                     <Typography variant="body2" mb={2}>
-                      Company: {testSuite.company}
+                      CreatedAt: {formattedDate}
                     </Typography>
                     <Button size="small" variant="contained" fullWidth color="primary">
                       <Link

@@ -7,12 +7,48 @@ import Link from "next/link";
 import { getCurrentTestResult } from "src/services/toDoServices";
 import { useAuth } from "src/hooks/use-auth";
 import { useRouter } from "next/router";
+import { makeStyles } from '@mui/styles';
+
+const useStyles = makeStyles({
+  sidebar: {
+    background: 'white',
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100%',
+  },
+  button: {
+    borderRadius: '10px',
+    fontSize: '16px',
+    backgroundColor: 'white',
+    color: 'black',
+    transition: 'background-color 0.3s, color 0.3s',
+    '&:hover': {
+      backgroundColor: '#6b18f4',
+      color: 'white',
+    },
+  },
+  activeButton: {
+    backgroundColor: 'darkcyan',
+    color: 'white',
+  },
+  listItem: {
+    marginTop: '10px',
+  },
+});
 
 const TestResultsPage = () => {
   const router = useRouter();
   const { id } = router.query;
   const [specs, setSpecs] = useState([]);
   const [testSuiteName, setTestSuiteName] = useState("");
+  const classes = useStyles();
+
+  const links = [
+    { href: '/createTests', label: 'Create Test' },
+    { href: '/testSuites', label: 'Test Suites' },
+    { href: '/testReports', label: 'Test Reports' },
+    { href: '/settings', label: 'Settings' },
+  ];
 
   const auth = useAuth();
   console.log("🚀 ~ specs:", specs);
@@ -71,65 +107,22 @@ const TestResultsPage = () => {
       </Head>
 
       <Grid container spacing={2} py={4} style={{ height: "100%" }}>
-        <Grid
-          item
-          xs={2}
-          style={{
-            background: "linear-gradient(to bottom right, purple, cyan)",
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
+      <Grid item xs={2} className={classes.sidebar}>
           {/* Sidebar with multiple options */}
-          <ul style={{ listStyleType: "none", padding: 0 }}>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/createTests">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Create Test
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testSuites">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Suites
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/testReports">
-                <Button
-                  variant="text"
-                  color="primary"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Test Reports
-                </Button>
-              </Link>
-            </li>
-            <li style={{ marginTop: "10px" }}>
-              <Link href="/settings">
-                <Button
-                  variant="text"
-                  color="info"
-                  fullWidth
-                  style={{ borderRadius: "10px", fontSize: "16px" }}
-                >
-                  Settings
-                </Button>
-              </Link>
-            </li>
+          <ul style={{ listStyleType: 'none', padding: 0 }}>
+            {links.map((link) => (
+              <li key={link.href} className={classes.listItem}>
+                <Link href={link.href}>
+                  <Button
+                    variant="text"
+                    fullWidth
+                    className={`${classes.button} ${router.pathname === link.href ? classes.activeButton : ''}`}
+                  >
+                    {link.label}
+                  </Button>
+                </Link>
+              </li>
+            ))}
           </ul>
           <div style={{ flex: 1 }}></div>
         </Grid>

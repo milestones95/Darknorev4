@@ -191,7 +191,7 @@ const TestCasesPage = () => {
       const { id } = router.query;
       setCurrentTestId(id);
       try {
-        let { data, error } = await supabase.from("test_cases").select("*").eq('test_suite_id', id);
+        let { data, error } = await supabase.from("test_case").select("*").eq('test_suite_id', id);
         setTestCases(data); // Assuming test_cases is an array
       } catch (error) {
         console.error("Error fetching test cases:", error);
@@ -231,7 +231,7 @@ const TestCasesPage = () => {
         .eq("id", currentTestId);
 
       const { data1, error1 } = await supabase
-        .from("test_cases")
+        .from("test_case")
         .delete()
         .eq("test_suite_id", currentTestId);
       router.push(`/testSuites`);
@@ -354,32 +354,20 @@ const TestCasesPage = () => {
   };
 
   const filteredTestCases = test_cases
-  .filter((test) => {
-    try {
-      const resultObject = JSON.parse(test.test_case);
-      const result = resultObject.tests[0].results[0];
-      const titleMatch = test.test_name.toLowerCase().includes(searchTerm.toLowerCase());
-      const statusMatch = filterStatus === "" || result.status === filterStatus; // Assuming there's always one test and one result
-      return titleMatch && statusMatch;
-    } catch (e) {
-      console.error(`Error parsing test case for test id ${test.id}:`, e);
-      return false;
-    }
-  })
   .map((test) => {
-    const resultObject = JSON.parse(test.test_case); // Assuming there's always one test and one result
-    const result = resultObject.tests[0].results[0];
+    // const resultObject = JSON.parse(test.test_case); // Assuming there's always one test and one result
+    // const result = resultObject.tests[0].results[0];
     // const startTime = new Date(result.startTime).toLocaleString(); // Convert startTime to a formatted string
-    const specID = `${test.test_suite_id}-${resultObject.id}`;
+    // const specID = `${test.test_suite_id}-${resultObject.id}`;
     return {
       id: test.id,
       name: test.test_name,
-      status: result.status,
-      startTime: result.startTime,
-      details: `Timeout: ${resultObject.tests[0].timeout} ms`,
-      videoUrl: `https://bcghywrjwhnnkzdozmvt.supabase.co/storage/v1/object/public/test-suite-video-bucket/${encodeURIComponent(
-        specID
-      )}.webm`,
+      status: 'pending',
+      startTime: test.createdAt,
+      // details: `Timeout: ${resultObject.tests[0].timeout} ms`,
+      // videoUrl: `https://bcghywrjwhnnkzdozmvt.supabase.co/storage/v1/object/public/test-suite-video-bucket/${encodeURIComponent(
+      //   specID
+      // )}.webm`,
     };
   });
 

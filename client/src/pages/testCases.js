@@ -180,8 +180,7 @@ const TestCasesPage = () => {
       name: spec.title,
       status: result.status,
       startTime: startTime,
-      details: `Timeout: ${spec.tests[0].timeout} ms`,
-      videoUrl: `https://bcghywrjwhnnkzdozmvt.supabase.co/storage/v1/object/public/test-suite-video-bucket/${encodeURIComponent(spec.id)}.webm`
+      details: `Timeout: ${spec.tests[0].timeout} ms`
     };
   });;
 

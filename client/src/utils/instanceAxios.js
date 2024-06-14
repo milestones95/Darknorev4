@@ -2,5 +2,5 @@
 
 
 //For local use the below url
-// export const baseUrl = 'http://localhost:1234'
-export const baseUrl = 'https://api.darknore.ai'
+export const baseUrl = 'http://localhost:1234'
+// export const baseUrl = 'https://api.darknore.ai'

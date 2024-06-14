@@ -142,26 +142,31 @@ function cleanupSubscription(subscription) {
         formData: formData,
         company: currentUser?.company_name
       };
-      try {
-        const success = await sendMessageToSQS(requestBody);
-        if (success) {
-          console.log('Message sent successfully');
-          // Set up real-time listener for process completion
-          const subscription = await listenForProcessCompletion(randomTestId, setIsSubmitting);
-  
-          // Cleanup subscription when component unmounts or process completes
-          return () => {
-            cleanupSubscription(subscription);
-          };
-        } else {
-          console.log('Failed to send message');
-          setIsSubmitting(false);
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        setIsSubmitting(false);
-      }
-    };
+
+      axios.post(`${baseUrl}/create-test-suite`, requestBody)
+        .then(() => {
+          // If axios request succeeds, set a timeout to execute after 2 minutes
+          setTimeout(() => {
+            setIsSubmitting(false); // Set submitting to false after successful submission
+            // router.push(`/testCases/${randomTestId}`);
+          }, 120000);
+
+          // Regardless of timeout, push to router
+          // router.push(`/testCases/${randomTestId}`);
+        })
+        .catch((error) => {
+          // If axios request fails, log the error
+          console.error("Error occurred during axios request:", error);
+          // Still set a timeout to execute after 2 minutes
+          // setTimeout(() => {
+          //   setIsSubmitting(false); // Set submitting to false after timeout
+          //   router.push(`/testCases/${randomTestId}`);
+          // }, 120000);
+
+          // Regardless of timeout, push to router
+          // router.push(`/testCases/${randomTestId}`);
+        });
+  };
   
     // Cleanup subscription on component unmount
     useEffect(() => {

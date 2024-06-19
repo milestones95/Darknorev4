@@ -234,7 +234,7 @@ const TestCasesPage = () => {
         .from("test_case")
         .delete()
         .eq("test_suite_id", currentTestId);
-      router.push(`/testSuites`);
+      router.push(`/testSuitess`);
     } catch (error) {
       console.error("Error updating test case:", error);
     }
@@ -504,17 +504,18 @@ const TestCasesPage = () => {
                 marginBottom: "10px",
                 paddingLeft: "20px",
                 borderLeft: `10px solid ${
-                  testCase.status === "passed"
-                    ? "green"
-                    : testCase.status === "failed"
-                    ? "red"
-                    : "orange"
+                  // testCase.status === "passed"
+                  //   ? "green"
+                  //   : testCase.status === "failed"
+                  //   ? "red"
+                  //   : "orange"
                 }`,
                 position: "relative", // Add this to make position relative for absolute positioning
               }}
             >
               <AccordionSummary style={{ justifyContent: "space-between" }}>
-                <ListItemText primary={testCase.name} secondary={`Status: ${testCase.status}`} />
+                <ListItemText primary={testCase.name} />
+                {/* <ListItemText primary={testCase.name} secondary={`Status: ${testCase.status}`} /> */}
                 {/* Button to open modal for adding assertions */}
                 <Button variant="outlined" color="primary" size="small" onClick={() => handleModal(testCase.id)}>
                   Add Assertion

@@ -4,7 +4,7 @@ const getCurrentCompanyTestSuites = async (req, res) => {
     try {
         const { company } = req.query;
         const { data, error } = await supabase
-            .from("test-suite-result")
+            .from("test_suite")
             .select("*")
             .eq("company", company);
 

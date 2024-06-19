@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
 import Head from "next/head";
 import { Grid, TextField, Button, MenuItem, CircularProgress, Typography } from "@mui/material";
 import { Layout as DashboardLayout } from "src/layouts/dashboard/layout";
@@ -54,7 +55,6 @@ const Page = () => {
   });
   const [currentUser, setCurrentUser] = useState(null);
   const [testId, setTestId] = useState(null);
-  console.log("🚀 ~ testId:", testId)
   const router = useRouter();
   const auth = useAuth();
   const userId = auth?.user?.id;
@@ -74,7 +74,6 @@ const Page = () => {
     { href: '/testReports', label: 'Test Reports' },
     { href: '/settings', label: 'Settings' },
   ];
-  console.log("formData", formData);
   const stringified = JSON.stringify(formData);
   
 
@@ -144,28 +143,19 @@ function cleanupSubscription(subscription) {
       };
 
       axios.post(`${baseUrl}/create-test-suite`, requestBody)
-        .then(() => {
-          // If axios request succeeds, set a timeout to execute after 2 minutes
-          setTimeout(() => {
-            setIsSubmitting(false); // Set submitting to false after successful submission
-            // router.push(`/testCases/${randomTestId}`);
-          }, 120000);
-
-          // Regardless of timeout, push to router
-          // router.push(`/testCases/${randomTestId}`);
-        })
-        .catch((error) => {
-          // If axios request fails, log the error
-          console.error("Error occurred during axios request:", error);
-          // Still set a timeout to execute after 2 minutes
-          // setTimeout(() => {
-          //   setIsSubmitting(false); // Set submitting to false after timeout
-          //   router.push(`/testCases/${randomTestId}`);
-          // }, 120000);
-
-          // Regardless of timeout, push to router
-          // router.push(`/testCases/${randomTestId}`);
-        });
+      .then((response) => {
+        console.log('response received')
+        const testData = response.data.data; // Access the data array from response
+        setIsSubmitting(false); // Set submitting to false after successful submission
+    
+        // Navigate to page 2 with the testData
+        const navigate = useNavigate();
+        navigate(`/testCases`, { state: { testData } });
+      })
+      .catch((error) => {
+        console.error("Error occurred during axios request:", error);
+        setIsSubmitting(false); // Set submitting to false after error
+      });
   };
   
     // Cleanup subscription on component unmount
@@ -214,7 +204,6 @@ function cleanupSubscription(subscription) {
 // }, []);
 
 const [notification, setNotification] = useState(null);
-console.log("🚀 ~ notification:", notification)
 
 // useEffect(() => {
 //   console.log("🚀 ~ web effet:")
